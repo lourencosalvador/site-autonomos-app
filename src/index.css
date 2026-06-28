@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-dark: #03475E;
+  --brand-cyan: #02E6FF;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: #ffffff;
+  color: #0A1F2A;
+  overflow-x: hidden;
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-delay-1 { transition-delay: 0.08s; }
+.reveal-delay-2 { transition-delay: 0.16s; }
+.reveal-delay-3 { transition-delay: 0.24s; }
+.reveal-delay-4 { transition-delay: 0.32s; }
+.reveal-delay-5 { transition-delay: 0.4s; }
+
+/* Gradient text */
+.text-gradient-cyan {
+  background: linear-gradient(100deg, #02E6FF 0%, #5BF0FF 50%, #02E6FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Glassmorphism */
+.glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+.glass-light {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #03475E, #062B3A);
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover { background: #02E6FF; }
+
+/* Hide scrollbar for carousels */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Button ripple base */
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.ripple {
+  position: absolute;
+  border-radius: 9999px;
+  transform: scale(0);
+  animation: rippleAnim 0.6s linear;
+  background: rgba(255, 255, 255, 0.45);
+  pointer-events: none;
+}
+@keyframes rippleAnim {
+  to { transform: scale(2.6); opacity: 0; }
+}
+
+/* Marquee gradient mask edges */
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+/* Focus ring */
+:focus-visible {
+  outline: 2px solid #02E6FF;
+  outline-offset: 2px;
+}
+
+/* Selection */
+::selection {
+  background: rgba(2, 230, 255, 0.25);
+  color: #03475E;
+}
+
+/* Grid pattern background */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(2, 230, 255, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(2, 230, 255, 0.06) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.bg-grid-dark {
+  background-image:
+    linear-gradient(rgba(2, 230, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(2, 230, 255, 0.08) 1px, transparent 1px);
+  background-size: 56px 56px;
+}
+
+/* Radial glow */
+.radial-glow {
+  background: radial-gradient(60% 60% at 50% 0%, rgba(2, 230, 255, 0.18) 0%, transparent 70%);
+}
