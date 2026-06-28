@@ -33,10 +33,8 @@ export function Navbar() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 lg:px-5 lg:pt-4">
       <nav
-        className={`mx-auto flex max-w-6xl items-center justify-between rounded-full px-3 py-2.5 transition-all duration-300 lg:px-4 ${
-          scrolled
-            ? 'glass-light shadow-card'
-            : 'border border-transparent bg-white/40 backdrop-blur-sm'
+        className={`mx-auto flex max-w-6xl items-center justify-between rounded-full border bg-white px-3 py-2.5 transition-all duration-300 lg:px-4 ${
+          scrolled ? 'border-cloud-200 shadow-card' : 'border-cloud-200/70 shadow-soft'
         }`}
       >
         <Logo />
