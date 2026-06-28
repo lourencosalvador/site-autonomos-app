@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin, Facebook, Instagram, Linkedin } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Instagram } from 'lucide-react';
 import { Logo } from './Logo';
 import { useNavigate } from '../router';
 
@@ -42,13 +42,14 @@ export function Footer() {
             </p>
             <div className="mt-5 flex gap-3">
               {[
-                { Icon: Facebook, label: 'Facebook' },
-                { Icon: Instagram, label: 'Instagram' },
-                { Icon: Linkedin, label: 'LinkedIn' },
-              ].map(({ Icon, label }) => (
+                { Icon: Facebook, label: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61591419627709' },
+                { Icon: Instagram, label: 'Instagram', href: 'https://www.instagram.com/autonomos.ao/' },
+              ].map(({ Icon, label, href }) => (
                 <a
                   key={label}
-                  href="#"
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   aria-label={label}
                   className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 text-white/80 transition-all duration-300 hover:border-brand-cyan hover:text-brand-cyan hover:-translate-y-0.5"
                 >
