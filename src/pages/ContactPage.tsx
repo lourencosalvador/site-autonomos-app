@@ -1,5 +1,6 @@
 import { Mail, Phone, MapPin, Clock, MessageSquare } from 'lucide-react';
 import { SectionHeading } from '../components/SectionHeading';
+import { PageHero } from '../components/PageHero';
 
 const CHANNELS = [
   { icon: Mail, label: 'Email', value: 'geral@autonomous.ao', href: 'mailto:geral@autonomous.ao' },
@@ -11,23 +12,14 @@ const CHANNELS = [
 export function ContactPage() {
   return (
     <>
-      <section className="relative overflow-hidden bg-brand-dark pt-32 pb-20 lg:pt-40 lg:pb-24">
-        <div className="absolute inset-0 bg-grid-dark opacity-40" />
-        <div className="absolute -right-20 top-10 h-80 w-80 rounded-full bg-brand-cyan/15 blur-3xl" />
-        <div className="relative mx-auto max-w-3xl px-5 text-center lg:px-8">
-          <span className="reveal inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-brand-cyan">
-            <MessageSquare size={14} /> Fale connosco
-          </span>
-          <h1 className="reveal reveal-delay-1 mt-5 font-display text-4xl font-extrabold leading-tight text-white sm:text-5xl">
-            Estamos aqui para <span className="text-gradient-cyan">ajudar.</span>
-          </h1>
-          <p className="reveal reveal-delay-2 mt-5 text-lg text-white/70">
-            Tem dúvidas ou precisa de suporte? A nossa equipa responde rapidamente.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        icon={MessageSquare}
+        eyebrow="Fale connosco"
+        title={<>Estamos aqui para <span className="text-gradient-cyan">ajudar.</span></>}
+        subtitle="Tem dúvidas ou precisa de suporte? A nossa equipa responde rapidamente."
+      />
 
-      <section className="bg-white py-24">
+      <section className="bg-cloud-50 py-24">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="grid gap-10 lg:grid-cols-2">
             {/* Channels */}
@@ -37,13 +29,13 @@ export function ContactPage() {
                 {CHANNELS.map((c, i) => {
                   const Icon = c.icon;
                   const inner = (
-                    <div className={`reveal reveal-delay-${i + 1} flex items-start gap-4 rounded-2xl border border-brand-dark/10 bg-white p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-brand-cyan/40`}>
-                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-cyan/15 text-brand-cyan2">
+                    <div className={`reveal reveal-delay-${i + 1} flex items-start gap-4 rounded-2xl border border-cloud-200 bg-white p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-brand-cyan/40 hover:shadow-cardHover`}>
+                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-cyan/12 text-brand-dark">
                         <Icon size={20} />
                       </div>
                       <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-ink-700/55">{c.label}</p>
-                        <p className="mt-0.5 font-semibold text-brand-dark">{c.value}</p>
+                        <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">{c.label}</p>
+                        <p className="mt-0.5 font-semibold text-ink-900">{c.value}</p>
                       </div>
                     </div>
                   );
@@ -55,7 +47,7 @@ export function ContactPage() {
                 })}
               </div>
 
-              <div className="mt-8 rounded-3xl border border-brand-dark/10 bg-gradient-to-br from-brand-dark to-brand-dark2 p-7 text-white">
+              <div className="reveal mt-8 rounded-3xl bg-gradient-to-br from-brand-dark to-brand-dark2 p-7 text-white shadow-card">
                 <h3 className="font-display text-lg font-bold">Suporte ao cliente</h3>
                 <p className="mt-2 text-sm text-white/70">
                   Para questões sobre pedidos, profissionais ou parcerias, envie-nos um email ou ligue. Respondemos em poucas horas.
@@ -64,7 +56,7 @@ export function ContactPage() {
             </div>
 
             {/* Map / illustration */}
-            <div className="reveal reveal-delay-2 relative overflow-hidden rounded-3xl border border-brand-dark/10 shadow-card">
+            <div className="reveal-right relative overflow-hidden rounded-3xl border border-cloud-200 shadow-card">
               <div className="relative h-full min-h-[420px] bg-brand-dark">
                 <div className="absolute inset-0 bg-grid-dark opacity-40" />
                 <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-cyan/20 blur-3xl" />

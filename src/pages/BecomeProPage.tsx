@@ -1,6 +1,7 @@
 import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { ArrowRight, TrendingUp, Wallet, Clock, Eye, Upload, FileText, Image as ImageIcon } from 'lucide-react';
 import { Button } from '../components/Button';
+import { PageHero } from '../components/PageHero';
 import { Field, TextInput, TextArea, Select } from '../components/Field';
 import { SuccessScreen } from '../components/SuccessScreen';
 import { CITIES } from '../data';
@@ -210,35 +211,26 @@ function FileUpload({
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <>
-      <section className="relative overflow-hidden bg-brand-dark pt-32 pb-16 lg:pt-40 lg:pb-20">
-        <div className="absolute inset-0 bg-grid-dark opacity-40" />
-        <div className="absolute -left-20 top-10 h-80 w-80 rounded-full bg-brand-cyan/15 blur-3xl" />
-        <div className="relative mx-auto max-w-3xl px-5 text-center lg:px-8">
-          <span className="reveal inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-brand-cyan">
-            <TrendingUp size={14} /> Junte-se à rede
-          </span>
-          <h1 className="reveal reveal-delay-1 mt-5 font-display text-4xl font-extrabold leading-tight text-white sm:text-5xl">
-            Faça parte da maior rede de <span className="text-gradient-cyan">profissionais de Angola.</span>
-          </h1>
-          <p className="reveal reveal-delay-2 mt-5 text-lg text-white/70">
-            Receba novos clientes, aumente a sua renda e trabalhe com flexibilidade.
-          </p>
-        </div>
-      </section>
+      <PageHero
+        icon={TrendingUp}
+        eyebrow="Junte-se à rede"
+        title={<>Faça parte da maior rede de <span className="text-gradient-cyan">profissionais de Angola.</span></>}
+        subtitle="Receba novos clientes, aumente a sua renda e trabalhe com flexibilidade."
+      />
 
       {/* Benefits */}
-      <section className="bg-brand-dark3 py-16">
+      <section className="bg-cloud-50 py-16">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {BENEFITS.map((b, i) => {
               const Icon = b.icon;
               return (
-                <div key={b.title} className={`reveal reveal-delay-${i + 1} rounded-3xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur`}>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-cyan/15 text-brand-cyan">
+                <div key={b.title} className={`reveal reveal-delay-${i + 1} group rounded-3xl border border-cloud-200 bg-white p-6 shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-cyan/40 hover:shadow-cardHover`}>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-cyan/12 text-brand-dark transition-all duration-300 group-hover:bg-brand-cyan group-hover:shadow-glow">
                     <Icon size={22} />
                   </div>
-                  <h3 className="mt-4 font-display text-base font-bold text-white">{b.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-white/65">{b.desc}</p>
+                  <h3 className="mt-4 font-display text-base font-bold text-ink-900">{b.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink-500">{b.desc}</p>
                 </div>
               );
             })}
@@ -246,7 +238,7 @@ function Shell({ children }: { children: React.ReactNode }) {
         </div>
       </section>
 
-      <section className="bg-gradient-to-b from-brand-dark3 to-white py-16">
+      <section className="bg-white py-16">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">{children}</div>
       </section>
     </>

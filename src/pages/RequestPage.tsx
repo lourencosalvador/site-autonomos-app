@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import { ArrowRight, Clock, ShieldCheck, Zap, Calendar } from 'lucide-react';
 import { Button } from '../components/Button';
+import { PageHero } from '../components/PageHero';
 import { Field, TextInput, TextArea, Select } from '../components/Field';
 import { SuccessScreen } from '../components/SuccessScreen';
 import { CITIES, SERVICES } from '../data';
@@ -149,31 +150,32 @@ export function RequestPage() {
 }
 
 function PageShell({ children }: { children: React.ReactNode }) {
+  const pills = [
+    { icon: Clock, label: 'Resposta em minutos' },
+    { icon: ShieldCheck, label: 'Profissionais verificados' },
+    { icon: Calendar, label: 'Escolha a data' },
+  ];
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-brand-dark pt-32 pb-16 lg:pt-40 lg:pb-20">
-        <div className="absolute inset-0 bg-grid-dark opacity-40" />
-        <div className="absolute -right-20 top-10 h-80 w-80 rounded-full bg-brand-cyan/15 blur-3xl" />
-        <div className="relative mx-auto max-w-3xl px-5 text-center lg:px-8">
-          <span className="reveal inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-brand-cyan">
-            <Zap size={14} /> Pedido rápido
-          </span>
-          <h1 className="reveal reveal-delay-1 mt-5 font-display text-4xl font-extrabold leading-tight text-white sm:text-5xl">
-            Solicite um serviço em <span className="text-gradient-cyan">poucos minutos.</span>
-          </h1>
-          <p className="reveal reveal-delay-2 mt-5 text-lg text-white/70">
-            Preencha o formulário e a nossa equipa encontra o profissional certo para si. Sem complicações.
-          </p>
-          <div className="reveal reveal-delay-3 mt-7 flex flex-wrap items-center justify-center gap-5 text-sm text-white/65">
-            <span className="flex items-center gap-2"><Clock size={16} className="text-brand-cyan" /> Resposta em minutos</span>
-            <span className="flex items-center gap-2"><ShieldCheck size={16} className="text-brand-cyan" /> Profissionais verificados</span>
-            <span className="flex items-center gap-2"><Calendar size={16} className="text-brand-cyan" /> Escolha a data</span>
-          </div>
+      <PageHero
+        icon={Zap}
+        eyebrow="Pedido rápido"
+        title={<>Solicite um serviço em <span className="text-gradient-cyan">poucos minutos.</span></>}
+        subtitle="Preencha o formulário e a nossa equipa encontra o profissional certo para si. Sem complicações."
+      >
+        <div className="flex flex-wrap items-center justify-center gap-3">
+          {pills.map((p) => {
+            const Icon = p.icon;
+            return (
+              <span key={p.label} className="inline-flex items-center gap-2 rounded-full border border-ink-900/10 bg-white px-4 py-2 text-sm font-medium text-ink-700 shadow-soft">
+                <Icon size={16} className="text-brand-cyan" /> {p.label}
+              </span>
+            );
+          })}
         </div>
-      </section>
+      </PageHero>
 
-      <section className="relative bg-gradient-to-b from-brand-dark to-white py-16">
+      <section className="relative bg-cloud-50 py-16">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">{children}</div>
       </section>
     </>

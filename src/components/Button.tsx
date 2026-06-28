@@ -2,13 +2,13 @@ import { type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { useRipple } from '../hooks/useRipple';
 import { useNavigate } from '../router';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'outline-light';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'outline-light' | 'dark' | 'outline-dark';
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   to?: string;
   children: ReactNode;
-  size?: 'md' | 'lg';
+  size?: 'md' | 'lg' | 'xl';
 }
 
 const variants: Record<Variant, string> = {
@@ -20,11 +20,16 @@ const variants: Record<Variant, string> = {
     'bg-white/10 text-white hover:bg-white/20 backdrop-blur border border-white/20',
   'outline-light':
     'bg-transparent text-white border border-white/30 hover:bg-white/10 backdrop-blur',
+  dark:
+    'bg-ink-900 text-white hover:bg-ink-800 shadow-pill hover:-translate-y-0.5',
+  'outline-dark':
+    'bg-white/70 text-ink-900 border border-ink-900/12 hover:bg-white hover:border-ink-900/25 backdrop-blur shadow-soft',
 };
 
 const sizes = {
   md: 'px-5 py-2.5 text-sm',
   lg: 'px-7 py-3.5 text-base',
+  xl: 'px-8 py-4 text-base',
 };
 
 export function Button({ variant = 'primary', to, children, size = 'lg', className = '', onClick, ...rest }: Props) {
