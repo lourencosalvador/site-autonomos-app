@@ -117,7 +117,7 @@ export const SERVICES: Service[] = [
     title: 'Montagem de Móveis',
     description: 'Montagem e desmontagem de móveis com rapidez.',
     price: '10.000 Kz',
-    image: 'https://images.unsplash.com/photo-1555041469-a586c36ea9bc?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=80',
     category: 'Montagem',
   },
   {
@@ -125,7 +125,7 @@ export const SERVICES: Service[] = [
     title: 'Segurança Eletrônica',
     description: 'Câmaras, alarmes e sistemas de vigilância.',
     price: '35.000 Kz',
-    image: 'https://images.unsplash.com/photo-1557597774-9d2719490866?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.unsplash.com/photo-1558009403-6752d84d270a?auto=format&fit=crop&w=900&q=80',
     category: 'Segurança',
   },
 ];

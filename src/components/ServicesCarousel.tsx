@@ -1,6 +1,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
-import { SERVICES, type Service } from '../data';
+import { type Service } from '../data';
+import { useValidServices } from '../hooks/useValidServices';
 import { useNavigate } from '../router';
 
 const CARD_W = 320; // px, base width incl. gap
@@ -8,11 +9,11 @@ const CARD_W = 320; // px, base width incl. gap
 export function ServicesCarousel() {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
+  const validServices = useValidServices();
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
 
-  // Duplicate the list for an infinite-loop feel
-  const items = [...SERVICES, ...SERVICES];
+  const items = [...validServices, ...validServices];
 
   const updateArrows = useCallback(() => {
     const el = trackRef.current;
@@ -31,7 +32,7 @@ export function ServicesCarousel() {
       el.removeEventListener('scroll', updateArrows);
       window.removeEventListener('resize', updateArrows);
     };
-  }, [updateArrows]);
+  }, [updateArrows, validServices.length]);
 
   const scrollBy = (dir: 1 | -1) => {
     const el = trackRef.current;
@@ -79,6 +80,9 @@ export function ServicesCarousel() {
 }
 
 function ServiceCard({ service, onClick }: { service: Service; onClick: () => void }) {
+  const [hidden, setHidden] = useState(false);
+  if (hidden) return null;
+
   return (
     <article
       className="group relative w-[280px] shrink-0 snap-start overflow-hidden rounded-3xl bg-white shadow-card transition-all duration-300 hover:-translate-y-1.5 hover:shadow-cardDark sm:w-[300px]"
@@ -88,6 +92,7 @@ function ServiceCard({ service, onClick }: { service: Service; onClick: () => vo
           src={service.image}
           alt={service.title}
           loading="lazy"
+          onError={() => setHidden(true)}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 via-brand-dark/10 to-transparent" />

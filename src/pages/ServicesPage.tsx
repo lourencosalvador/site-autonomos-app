@@ -1,17 +1,28 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Search, Star, ArrowRight, SlidersHorizontal } from 'lucide-react';
 import { Button } from '../components/Button';
 import { PageHero } from '../components/PageHero';
-import { SERVICES, CATEGORIES } from '../data';
+import { CATEGORIES } from '../data';
+import { useValidServices } from '../hooks/useValidServices';
 import { useNavigate } from '../router';
 
 export function ServicesPage() {
   const navigate = useNavigate();
+  const validServices = useValidServices();
   const [query, setQuery] = useState('');
   const [cat, setCat] = useState('Todos');
 
+  const categories = useMemo(
+    () => CATEGORIES.filter((c) => c === 'Todos' || validServices.some((s) => s.category === c)),
+    [validServices],
+  );
+
+  useEffect(() => {
+    if (cat !== 'Todos' && !categories.includes(cat)) setCat('Todos');
+  }, [cat, categories]);
+
   const filtered = useMemo(() => {
-    return SERVICES.filter((s) => {
+    return validServices.filter((s) => {
       const matchCat = cat === 'Todos' || s.category === cat;
       const matchQuery =
         !query ||
@@ -19,7 +30,7 @@ export function ServicesPage() {
         s.description.toLowerCase().includes(query.toLowerCase());
       return matchCat && matchQuery;
     });
-  }, [query, cat]);
+  }, [query, cat, validServices]);
 
   return (
     <>
@@ -50,7 +61,7 @@ export function ServicesPage() {
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           {/* Category filters */}
           <div className="no-scrollbar -mx-5 mb-10 flex gap-2.5 overflow-x-auto px-5 lg:mx-0 lg:flex-wrap lg:px-0">
-            {CATEGORIES.map((c) => (
+            {categories.map((c) => (
               <button
                 key={c}
                 onClick={() => setCat(c)}
@@ -77,37 +88,7 @@ export function ServicesPage() {
           ) : (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {filtered.map((s, i) => (
-                <article
-                  key={s.id}
-                  className={`reveal reveal-delay-${(i % 3) + 1} group overflow-hidden rounded-3xl border border-cloud-200 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-cardHover`}
-                >
-                  <div className="relative h-48 overflow-hidden">
-                    <img src={s.image} alt={s.title} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/70 to-transparent" />
-                    <span className="absolute left-4 top-4 rounded-full bg-brand-cyan px-3 py-1 text-xs font-bold text-brand-dark shadow-glow">
-                      {s.category}
-                    </span>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="font-display text-lg font-bold text-ink-900">{s.title}</h3>
-                    <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-500">{s.description}</p>
-                    <div className="mt-4 flex items-center justify-between">
-                      <div>
-                        <p className="text-xs text-ink-400">A partir de</p>
-                        <p className="font-display text-base font-extrabold text-ink-900">{s.price}</p>
-                      </div>
-                      <div className="flex items-center gap-0.5 text-brand-cyan2">
-                        {Array.from({ length: 5 }).map((_, j) => <Star key={j} size={13} className="fill-current" />)}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => navigate('/solicitar-servico')}
-                      className="btn-ripple mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-ink-900 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-brand-cyan hover:text-brand-dark"
-                    >
-                      Solicitar <ArrowRight size={15} />
-                    </button>
-                  </div>
-                </article>
+                <ServiceCard key={s.id} service={s} index={i} onRequest={() => navigate('/solicitar-servico')} />
               ))}
             </div>
           )}
@@ -118,5 +99,57 @@ export function ServicesPage() {
         </div>
       </section>
     </>
+  );
+}
+
+function ServiceCard({
+  service,
+  index,
+  onRequest,
+}: {
+  service: { id: string; title: string; description: string; price: string; image: string; category: string };
+  index: number;
+  onRequest: () => void;
+}) {
+  const [hidden, setHidden] = useState(false);
+  if (hidden) return null;
+
+  return (
+    <article
+      className={`reveal reveal-delay-${(index % 3) + 1} group overflow-hidden rounded-3xl border border-cloud-200 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-cardHover`}
+    >
+      <div className="relative h-48 overflow-hidden">
+        <img
+          src={service.image}
+          alt={service.title}
+          loading="lazy"
+          onError={() => setHidden(true)}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/70 to-transparent" />
+        <span className="absolute left-4 top-4 rounded-full bg-brand-cyan px-3 py-1 text-xs font-bold text-brand-dark shadow-glow">
+          {service.category}
+        </span>
+      </div>
+      <div className="p-6">
+        <h3 className="font-display text-lg font-bold text-ink-900">{service.title}</h3>
+        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-500">{service.description}</p>
+        <div className="mt-4 flex items-center justify-between">
+          <div>
+            <p className="text-xs text-ink-400">A partir de</p>
+            <p className="font-display text-base font-extrabold text-ink-900">{service.price}</p>
+          </div>
+          <div className="flex items-center gap-0.5 text-brand-cyan2">
+            {Array.from({ length: 5 }).map((_, j) => <Star key={j} size={13} className="fill-current" />)}
+          </div>
+        </div>
+        <button
+          onClick={onRequest}
+          className="btn-ripple mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-ink-900 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-brand-cyan hover:text-brand-dark"
+        >
+          Solicitar <ArrowRight size={15} />
+        </button>
+      </div>
+    </article>
   );
 }
