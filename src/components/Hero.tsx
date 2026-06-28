@@ -48,28 +48,28 @@ function StoreButton({
 type Avatar = { src: string; pos: string; size: string; anim: string; ring: string };
 const AVATARS: Avatar[] = [
   {
-    src: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=160',
+    src: 'https://images.pexels.com/photos/33569519/pexels-photo-33569519.jpeg?auto=compress&cs=tinysrgb&w=160',
     pos: 'left-[4%] top-[34%]',
     size: 'h-16 w-16 lg:h-20 lg:w-20',
     anim: 'animate-floatY',
     ring: 'ring-brand-cyan/40',
   },
   {
-    src: 'https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?auto=compress&cs=tinysrgb&w=160',
+    src: 'https://images.pexels.com/photos/19379640/pexels-photo-19379640.jpeg?auto=compress&cs=tinysrgb&w=160',
     pos: 'right-[5%] top-[30%]',
     size: 'h-16 w-16 lg:h-20 lg:w-20',
     anim: 'animate-floatY2',
     ring: 'ring-lilac-300/60',
   },
   {
-    src: 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=160',
+    src: 'https://images.pexels.com/photos/37038761/pexels-photo-37038761.jpeg?auto=compress&cs=tinysrgb&w=160',
     pos: 'left-[10%] bottom-[14%]',
     size: 'h-14 w-14 lg:h-16 lg:w-16',
     anim: 'animate-floatY3',
     ring: 'ring-peach-200',
   },
   {
-    src: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=160',
+    src: 'https://images.pexels.com/photos/19039168/pexels-photo-19039168.jpeg?auto=compress&cs=tinysrgb&w=160',
     pos: 'right-[9%] bottom-[16%]',
     size: 'h-14 w-14 lg:h-16 lg:w-16',
     anim: 'animate-floatY',
