@@ -15,6 +15,50 @@ export function AboutPage() {
         subtitle="A AUTONOMOUS nasceu em Angola para resolver um problema simples: encontrar um profissional de confiança não deveria ser difícil."
       />
 
+      {/* Quem é a AUTONOMOUS */}
+      <section className="bg-white py-24">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="grid items-center gap-12 lg:grid-cols-2">
+            {/* Image */}
+            <div className="reveal-left relative">
+              <div className="absolute -inset-5 -z-10 rounded-[2.75rem] bg-gradient-to-tr from-brand-cyan/25 via-lilac-200/50 to-transparent blur-2xl" />
+              <div className="overflow-hidden rounded-[2rem] border border-cloud-200 bg-gradient-to-br from-cloud-100 to-white shadow-card">
+                <img
+                  src="/sobre.png"
+                  alt="Equipa de profissionais AUTONOMOUS"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+            </div>
+
+            {/* Text */}
+            <div className="reveal-right">
+              <span className="inline-flex items-center gap-2 rounded-full bg-brand-cyan/12 px-3.5 py-1.5 text-xs font-semibold uppercase tracking-wider text-brand-dark">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" /> Quem somos
+              </span>
+              <h2 className="mt-4 font-display text-3xl font-extrabold tracking-tight text-ink-900 sm:text-4xl">
+                Quem é a <span className="text-gradient-cyan">AUTONOMOUS</span>
+              </h2>
+              <p className="mt-5 text-base leading-relaxed text-ink-500">
+                A AUTONOMOUS é uma plataforma digital de intermediação de serviços que conecta
+                clientes a prestadores qualificados de forma rápida, organizada e confiável. O
+                objetivo central é reduzir a fricção na procura e contratação de serviços
+                essenciais do dia a dia, eliminando incertezas comuns como falta de confiança,
+                dificuldade de encontrar profissionais e ausência de padronização de preços e
+                qualidade.
+              </p>
+              <p className="mt-4 text-base leading-relaxed text-ink-500">
+                A plataforma surge da necessidade real de estruturar o mercado informal de
+                serviços, onde a maior parte das contratações acontece por indicação ou contacto
+                direto, sem garantia de verificação ou eficiência no processo. A AUTONOMOUS
+                introduz um sistema centralizado onde pedidos de serviço podem ser feitos de forma
+                simples, encaminhados para profissionais adequados e acompanhados até a conclusão.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Mission / Vision */}
       <section className="bg-cloud-50 py-24">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">

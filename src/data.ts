@@ -183,7 +183,7 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Carlos Mendes',
     role: 'Cliente',
-    city: 'Benguela',
+    city: 'Luanda',
     text: 'Achei a plataforma muito simples. Descrevi o serviço, recebi o contacto e ficou resolvido no mesmo dia.',
     avatar: 'https://images.pexels.com/photos/220457/pexels-photo-220457.jpeg?auto=compress&cs=tinysrgb&w=200',
     rating: 5,
@@ -199,7 +199,7 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Pedro Tavares',
     role: 'Cliente',
-    city: 'Lobito',
+    city: 'Luanda',
     text: 'O técnico de ar condicionado foi pontual e profissional. O preço foi exatamente o combinado, sem surpresas.',
     avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=200',
     rating: 5,
@@ -207,7 +207,7 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: 'Mara Lopes',
     role: 'Prestadora',
-    city: 'Huambo',
+    city: 'Luanda',
     text: 'Gosto de poder escolher quando aceitar serviços. Tenho flexibilidade e mais renda para a minha família.',
     avatar: 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=200',
     rating: 5,
