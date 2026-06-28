@@ -79,11 +79,11 @@ export function Footer() {
         </div>
 
         <div className="mt-12 grid gap-4 border-t border-white/10 pt-8 sm:grid-cols-3">
-          <a href="mailto:geral@autonomous.ao" className="flex items-center gap-3 text-sm text-white/75 hover:text-brand-cyan transition-colors">
-            <Mail size={18} className="text-brand-cyan" /> geral@autonomous.ao
+          <a href="mailto:autonomous.ao@gmail.com" className="flex items-center gap-3 text-sm text-white/75 hover:text-brand-cyan transition-colors">
+            <Mail size={18} className="text-brand-cyan" /> autonomous.ao@gmail.com
           </a>
-          <a href="tel:+244900000000" className="flex items-center gap-3 text-sm text-white/75 hover:text-brand-cyan transition-colors">
-            <Phone size={18} className="text-brand-cyan" /> +244 900 000 000
+          <a href="tel:+244976477097" className="flex items-center gap-3 text-sm text-white/75 hover:text-brand-cyan transition-colors">
+            <Phone size={18} className="text-brand-cyan" /> +244 976 477 097
           </a>
           <div className="flex items-center gap-3 text-sm text-white/75">
             <MapPin size={18} className="text-brand-cyan" /> Luanda, Angola

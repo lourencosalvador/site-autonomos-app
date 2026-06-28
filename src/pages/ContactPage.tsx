@@ -3,10 +3,10 @@ import { SectionHeading } from '../components/SectionHeading';
 import { PageHero } from '../components/PageHero';
 
 const CHANNELS = [
-  { icon: Mail, label: 'Email', value: 'geral@autonomous.ao', href: 'mailto:geral@autonomous.ao' },
-  { icon: Phone, label: 'Telefone', value: '+244 900 000 000', href: 'tel:+244900000000' },
+  { icon: Mail, label: 'Email', value: 'autonomous.ao@gmail.com', href: 'mailto:autonomous.ao@gmail.com' },
+  { icon: Phone, label: 'Telefone', value: '+244 976 477 097', href: 'tel:+244976477097' },
   { icon: MapPin, label: 'Endereço', value: 'Luanda, Angola', href: null },
-  { icon: Clock, label: 'Atendimento', value: 'Seg–Sáb · 8h às 19h', href: null },
+  { icon: Clock, label: 'Atendimento', value: 'Seg–Dom · 24 horas', href: null },
 ];
 
 export function ContactPage() {
