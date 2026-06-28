@@ -2,6 +2,16 @@ import { useState, useEffect, useCallback } from 'react';
 import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
 import { TESTIMONIALS } from '../data';
 
+/** Initials from a full name, e.g. "Ana Domingos" -> "AD". */
+function initials(name: string) {
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((w) => w[0]?.toUpperCase() ?? '')
+    .join('');
+}
+
 export function TestimonialsSlider() {
   const [index, setIndex] = useState(0);
   const count = TESTIMONIALS.length;
@@ -35,7 +45,9 @@ export function TestimonialsSlider() {
                   “{t.text}”
                 </blockquote>
                 <figcaption className="mt-6 flex items-center gap-4">
-                  <img src={t.avatar} alt={t.name} loading="lazy" className="h-12 w-12 rounded-full object-cover ring-2 ring-brand-cyan/40" />
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-cyan to-brand-dark font-display text-sm font-bold text-white ring-2 ring-brand-cyan/40">
+                    {initials(t.name)}
+                  </div>
                   <div>
                     <p className="font-semibold text-brand-dark">{t.name}</p>
                     <p className="text-sm text-ink-700/70">{t.role} · {t.city}</p>

@@ -6,7 +6,7 @@ const CHANNELS = [
   { icon: Mail, label: 'Email', value: 'autonomous.ao@gmail.com', href: 'mailto:autonomous.ao@gmail.com' },
   { icon: Phone, label: 'Telefone', value: '+244 976 477 097', href: 'tel:+244976477097' },
   { icon: MapPin, label: 'Endereço', value: 'Luanda, Angola', href: null },
-  { icon: Clock, label: 'Atendimento', value: 'Seg–Dom · 24 horas', href: null },
+  { icon: Clock, label: 'Atendimento', value: 'Seg–Dom · 08h às 18h', href: null },
 ];
 
 export function ContactPage() {
