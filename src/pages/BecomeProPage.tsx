@@ -7,7 +7,7 @@ import { Card } from '../components/ui/Card';
 import { Field, TextInput, TextArea, Select } from '../components/Field';
 import { SuccessScreen } from '../components/SuccessScreen';
 import { CITIES } from '../data';
-import { supabase } from '../lib/supabase';
+import { submitProviderApplication } from '../lib/providerApplication';
 
 const AREAS = [
   'Eletricidade', 'Pintura', 'Jardinagem', 'Marcenaria', 'Carpintaria',
@@ -38,6 +38,7 @@ export function BecomeProPage() {
   const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const set = (k: keyof Form, v: string | boolean | File | null) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -69,18 +70,24 @@ export function BecomeProPage() {
     ev.preventDefault();
     if (!validate()) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
-      const { error } = await supabase.from('professional_applications').insert({
-        nome: form.name, telefone: form.phone, email: form.email || null,
-        cidade: form.city, area: form.area, especialidade: form.specialty,
-        anos_experiencia: form.experience, descricao: form.description,
-        termos_aceites: form.terms,
+      await submitProviderApplication({
+        name: form.name,
+        phone: form.phone,
+        email: form.email || undefined,
+        city: form.city,
+        workArea: form.area,
+        specialty: form.specialty,
+        experienceYears: Number(form.experience),
+        description: form.description,
+        photo: form.photo as File,
+        idDocument: form.id as File,
       });
-      if (error) throw error;
       setDone(true);
     } catch (err) {
       console.error('submit error', err);
-      setDone(true);
+      setSubmitError('Não foi possível enviar a candidatura. Verifique a ligação e tente novamente.');
     } finally {
       setSubmitting(false);
     }
@@ -162,6 +169,12 @@ export function BecomeProPage() {
               </label>
             </div>
           </div>
+
+          {submitError && (
+            <p className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+              {submitError}
+            </p>
+          )}
 
           <div className="mt-7">
             <Button type="submit" size="lg" disabled={submitting} className="w-full">
