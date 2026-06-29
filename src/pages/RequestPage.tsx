@@ -15,7 +15,7 @@ type Form = {
 };
 
 const EMPTY: Form = {
-  nome: '', telefone: '', email: '', cidade: '', endereco: '',
+  nome: '', telefone: '+244 ', email: '', cidade: '', endereco: '',
   categoria: '', descricao: '', urgencia: '', data: '',
 };
 
@@ -33,7 +33,7 @@ export function RequestPage() {
   const validate = () => {
     const e: Partial<Record<keyof Form, string>> = {};
     if (!form.nome.trim()) e.nome = 'Indique o seu nome';
-    if (!form.telefone.trim()) e.telefone = 'Indique o seu telefone';
+    if (form.telefone.replace(/\D/g, '').length < 6) e.telefone = 'Indique o seu telefone';
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Email inválido';
     if (!form.cidade) e.cidade = 'Selecione a cidade';
     if (!form.categoria) e.categoria = 'Selecione a categoria';
@@ -96,7 +96,7 @@ export function RequestPage() {
                 <TextInput id="nome" value={form.nome} hasError={!!errors.nome} onChange={(e) => set('nome', e.target.value)} placeholder="O seu nome" />
               </Field>
               <Field label="Telefone" name="telefone" required error={errors.telefone}>
-                <TextInput id="telefone" type="tel" value={form.telefone} hasError={!!errors.telefone} onChange={(e) => set('telefone', e.target.value)} placeholder="+244 ..." />
+                <TextInput id="telefone" type="tel" value={form.telefone} hasError={!!errors.telefone} onChange={(e) => set('telefone', e.target.value)} placeholder="+244 923 456 789" />
               </Field>
               <Field label="Email" name="email" error={errors.email}>
                 <TextInput id="email" type="email" value={form.email} hasError={!!errors.email} onChange={(e) => set('email', e.target.value)} placeholder="opcional" />

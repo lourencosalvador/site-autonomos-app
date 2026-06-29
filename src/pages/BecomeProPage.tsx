@@ -27,7 +27,7 @@ type Form = {
 };
 
 const EMPTY: Form = {
-  nome: '', telefone: '', email: '', cidade: '', area: '', especialidade: '',
+  nome: '', telefone: '+244 ', email: '', cidade: '', area: '', especialidade: '',
   experiencia: '', descricao: '', foto: null, bi: null, termos: false,
 };
 
@@ -50,7 +50,7 @@ export function BecomeProPage() {
   const validate = () => {
     const e: Partial<Record<keyof Form, string>> = {};
     if (!form.nome.trim()) e.nome = 'Indique o seu nome';
-    if (!form.telefone.trim()) e.telefone = 'Indique o seu telefone';
+    if (form.telefone.replace(/\D/g, '').length < 6) e.telefone = 'Indique o seu telefone';
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Email inválido';
     if (!form.cidade) e.cidade = 'Selecione a cidade';
     if (!form.area) e.area = 'Selecione a área';
@@ -121,7 +121,7 @@ export function BecomeProPage() {
                 <TextInput id="nome" value={form.nome} hasError={!!errors.nome} onChange={(e) => set('nome', e.target.value)} placeholder="Nome completo" />
               </Field>
               <Field label="Telefone" name="telefone" required error={errors.telefone}>
-                <TextInput id="telefone" type="tel" value={form.telefone} hasError={!!errors.telefone} onChange={(e) => set('telefone', e.target.value)} placeholder="+244 ..." />
+                <TextInput id="telefone" type="tel" value={form.telefone} hasError={!!errors.telefone} onChange={(e) => set('telefone', e.target.value)} placeholder="+244 923 456 789" />
               </Field>
               <Field label="Email" name="email" error={errors.email}>
                 <TextInput id="email" type="email" value={form.email} hasError={!!errors.email} onChange={(e) => set('email', e.target.value)} placeholder="opcional" />
