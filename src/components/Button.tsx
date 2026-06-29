@@ -1,48 +1,51 @@
 import { type ButtonHTMLAttributes, type ReactNode } from 'react';
+import { useRipple } from '../hooks/useRipple';
 import { useNavigate } from '../router';
 
-type Variant = 'primary' | 'secondary' | 'ghost' | 'accent' | 'inverted';
-type Size = 'sm' | 'md' | 'lg';
+type Variant = 'primary' | 'secondary' | 'ghost' | 'outline-light' | 'dark' | 'outline-dark';
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
-  size?: Size;
   to?: string;
   children: ReactNode;
+  size?: 'md' | 'lg' | 'xl';
 }
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-zinc-900 text-white hover:bg-zinc-800',
-  secondary: 'bg-white text-zinc-900 border border-zinc-200 hover:bg-zinc-50',
-  ghost: 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900',
-  accent: 'bg-accent-700 text-white hover:bg-accent-800',
-  inverted: 'bg-white text-zinc-900 hover:bg-zinc-100',
+  primary:
+    'bg-brand-cyan text-brand-dark hover:bg-brand-cyan2 shadow-glow hover:shadow-[0_0_0_1px_rgba(2,230,255,0.4),0_12px_44px_-8px_rgba(2,230,255,0.5)]',
+  secondary:
+    'bg-brand-dark text-white hover:bg-brand-dark2 shadow-card',
+  ghost:
+    'bg-white/10 text-white hover:bg-white/20 backdrop-blur border border-white/20',
+  'outline-light':
+    'bg-transparent text-white border border-white/30 hover:bg-white/10 backdrop-blur',
+  dark:
+    'bg-ink-900 text-white hover:bg-ink-800 shadow-pill hover:-translate-y-0.5',
+  'outline-dark':
+    'bg-white/70 text-ink-900 border border-ink-900/12 hover:bg-white hover:border-ink-900/25 backdrop-blur shadow-soft',
 };
 
-const sizes: Record<Size, string> = {
-  sm: 'h-9 gap-1.5 px-3.5 text-sm',
-  md: 'h-10 gap-2 px-4 text-sm',
-  lg: 'h-11 gap-2 px-5 text-[15px]',
+const sizes = {
+  md: 'px-5 py-2.5 text-sm',
+  lg: 'px-7 py-3.5 text-base',
+  xl: 'px-8 py-4 text-base',
 };
 
-export function Button({
-  variant = 'primary',
-  size = 'md',
-  to,
-  children,
-  className = '',
-  onClick,
-  ...rest
-}: Props) {
+export function Button({ variant = 'primary', to, children, size = 'lg', className = '', onClick, ...rest }: Props) {
+  const ripple = useRipple();
   const navigate = useNavigate();
+
   return (
     <button
       {...rest}
+      ref={ripple.ref as never}
       onClick={(e) => {
+        ripple.onClick(e);
         onClick?.(e);
         if (to) navigate(to);
       }}
-      className={`inline-flex items-center justify-center whitespace-nowrap rounded-lg font-medium transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-700 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`btn-ripple inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-300 active:scale-[0.97] ${variants[variant]} ${sizes[size]} ${className}`}
     >
       {children}
     </button>

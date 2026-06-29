@@ -2,35 +2,33 @@ import { useState, type FormEvent, type ChangeEvent } from 'react';
 import { ArrowRight, TrendingUp, Wallet, Clock, Eye, Upload, FileText, Image as ImageIcon } from 'lucide-react';
 import { Button } from '../components/Button';
 import { PageHero } from '../components/PageHero';
-import { Container } from '../components/ui/Container';
-import { Card } from '../components/ui/Card';
 import { Field, TextInput, TextArea, Select } from '../components/Field';
 import { SuccessScreen } from '../components/SuccessScreen';
 import { CITIES } from '../data';
 import { submitProviderApplication } from '../lib/providerApplication';
 
 const AREAS = [
-  'Eletricidade', 'Pintura', 'Jardinagem', 'Marcenaria', 'Carpintaria',
-  'Serralharia', 'Construção Civil', 'Limpeza', 'Informática',
-  'Montagem de Móveis', 'Segurança Eletrónica',
+  'Canalização', 'Eletricidade', 'Ar Condicionado', 'Refrigeração', 'Pintura',
+  'Jardinagem', 'Marcenaria', 'Carpintaria', 'Serralharia', 'Construção Civil',
+  'Limpeza', 'Vidraçaria', 'Informática', 'Montagem de Móveis', 'Segurança Eletrônica',
 ];
 
 const BENEFITS = [
   { icon: TrendingUp, title: 'Receba novos clientes', desc: 'Aumente a sua carteira sem precisar de procurar.' },
-  { icon: Wallet, title: 'Aumente a sua renda', desc: 'Defina a sua disponibilidade e cresça os seus ganhos.' },
-  { icon: Clock, title: 'Trabalhe quando quiser', desc: 'Flexibilidade total. Aceite só o que lhe convém.' },
+  { icon: Wallet, title: 'Aumente sua renda', desc: 'Defina a sua disponibilidade e cresça os seus ganhos.' },
+  { icon: Clock, title: 'Trabalhe quando quiser', desc: 'Flexibilidade total. Aceita só o que lhe convém.' },
   { icon: Eye, title: 'Ganhe visibilidade', desc: 'Faça parte da maior rede de profissionais de Angola.' },
 ];
 
 type Form = {
-  name: string; phone: string; email: string; city: string;
-  area: string; specialty: string; experience: string; description: string;
-  photo: File | null; id: File | null; terms: boolean;
+  nome: string; telefone: string; email: string; cidade: string;
+  area: string; especialidade: string; experiencia: string; descricao: string;
+  foto: File | null; bi: File | null; termos: boolean;
 };
 
 const EMPTY: Form = {
-  name: '', phone: '', email: '', city: '', area: '', specialty: '',
-  experience: '', description: '', photo: null, id: null, terms: false,
+  nome: '', telefone: '', email: '', cidade: '', area: '', especialidade: '',
+  experiencia: '', descricao: '', foto: null, bi: null, termos: false,
 };
 
 export function BecomeProPage() {
@@ -45,23 +43,23 @@ export function BecomeProPage() {
     setErrors((e) => ({ ...e, [k]: undefined }));
   };
 
-  const onFile = (k: 'photo' | 'id') => (e: ChangeEvent<HTMLInputElement>) => {
+  const onFile = (k: 'foto' | 'bi') => (e: ChangeEvent<HTMLInputElement>) => {
     set(k, e.target.files?.[0] ?? null);
   };
 
   const validate = () => {
     const e: Partial<Record<keyof Form, string>> = {};
-    if (!form.name.trim()) e.name = 'Indique o seu nome';
-    if (!form.phone.trim()) e.phone = 'Indique o seu telefone';
+    if (!form.nome.trim()) e.nome = 'Indique o seu nome';
+    if (!form.telefone.trim()) e.telefone = 'Indique o seu telefone';
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Email inválido';
-    if (!form.city) e.city = 'Selecione a cidade';
+    if (!form.cidade) e.cidade = 'Selecione a cidade';
     if (!form.area) e.area = 'Selecione a área';
-    if (!form.specialty.trim()) e.specialty = 'Indique a especialidade';
-    if (!form.experience.trim()) e.experience = 'Indique os anos de experiência';
-    if (!form.description.trim()) e.description = 'Adicione uma descrição';
-    if (!form.photo) e.photo = 'Carregue a sua fotografia';
-    if (!form.id) e.id = 'Carregue o seu BI';
-    if (!form.terms) e.terms = 'Tem de aceitar os termos';
+    if (!form.especialidade.trim()) e.especialidade = 'Indique a especialidade';
+    if (!form.experiencia.trim()) e.experiencia = 'Indique os anos de experiência';
+    if (!form.descricao.trim()) e.descricao = 'Adicione uma descrição';
+    if (!form.foto) e.foto = 'Carregue a sua fotografia';
+    if (!form.bi) e.bi = 'Carregue o seu BI';
+    if (!form.termos) e.termos = 'Tem de aceitar os termos';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -73,16 +71,16 @@ export function BecomeProPage() {
     setSubmitError(null);
     try {
       await submitProviderApplication({
-        name: form.name,
-        phone: form.phone,
+        name: form.nome,
+        phone: form.telefone,
         email: form.email || undefined,
-        city: form.city,
+        city: form.cidade,
         workArea: form.area,
-        specialty: form.specialty,
-        experienceYears: Number(form.experience),
-        description: form.description,
-        photo: form.photo as File,
-        idDocument: form.id as File,
+        specialty: form.especialidade,
+        experienceYears: Number(form.experiencia),
+        description: form.descricao,
+        photo: form.foto as File,
+        idDocument: form.bi as File,
       });
       setDone(true);
     } catch (err) {
@@ -110,79 +108,83 @@ export function BecomeProPage() {
 
   return (
     <Shell>
-      <Card className="mx-auto max-w-3xl overflow-hidden">
-        <div className="border-b border-zinc-200 bg-zinc-50 p-7">
-          <h2 className="font-display text-xl font-semibold text-zinc-900">Registo de profissional</h2>
-          <p className="mt-1.5 text-sm text-zinc-600">Preencha os dados abaixo. A aprovação é rápida e gratuita.</p>
-        </div>
+      <div className="mx-auto max-w-3xl">
+        <div className="overflow-hidden rounded-3xl border border-brand-dark/10 bg-white shadow-card">
+          <div className="border-b border-brand-dark/10 bg-gradient-to-br from-brand-dark to-brand-dark2 p-7 text-white">
+            <h2 className="font-display text-2xl font-extrabold">Registo de profissional</h2>
+            <p className="mt-2 text-sm text-white/70">Preencha os dados abaixo. A aprovação é rápida e gratuita.</p>
+          </div>
 
-        <form onSubmit={onSubmit} className="p-7">
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field label="Nome" name="name" required error={errors.name}>
-              <TextInput id="name" value={form.name} hasError={!!errors.name} onChange={(e) => set('name', e.target.value)} placeholder="Nome completo" />
-            </Field>
-            <Field label="Telefone" name="phone" required error={errors.phone}>
-              <TextInput id="phone" type="tel" value={form.phone} hasError={!!errors.phone} onChange={(e) => set('phone', e.target.value)} placeholder="+244 ..." />
-            </Field>
-            <Field label="Email" name="email" error={errors.email}>
-              <TextInput id="email" type="email" value={form.email} hasError={!!errors.email} onChange={(e) => set('email', e.target.value)} placeholder="Opcional" />
-            </Field>
-            <Field label="Cidade" name="city" required error={errors.city}>
-              <Select id="city" value={form.city} hasError={!!errors.city} onChange={(e) => set('city', e.target.value)}>
-                <option value="">Selecione...</option>
-                {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-              </Select>
-            </Field>
-            <Field label="Área de atuação" name="area" required error={errors.area}>
-              <Select id="area" value={form.area} hasError={!!errors.area} onChange={(e) => set('area', e.target.value)}>
-                <option value="">Selecione...</option>
-                {AREAS.map((a) => <option key={a} value={a}>{a}</option>)}
-              </Select>
-            </Field>
-            <Field label="Especialidade" name="specialty" required error={errors.specialty}>
-              <TextInput id="specialty" value={form.specialty} hasError={!!errors.specialty} onChange={(e) => set('specialty', e.target.value)} placeholder="Ex: Reparação de caldeiras" />
-            </Field>
-            <Field label="Anos de experiência" name="experience" required error={errors.experience}>
-              <TextInput id="experience" type="number" min="0" value={form.experience} hasError={!!errors.experience} onChange={(e) => set('experience', e.target.value)} placeholder="Ex: 5" />
-            </Field>
-            <div className="sm:col-span-2">
-              <Field label="Descrição" name="description" required error={errors.description}>
-                <TextArea id="description" value={form.description} hasError={!!errors.description} onChange={(e) => set('description', e.target.value)} placeholder="Fale sobre si, os seus serviços e diferenciais." />
+          <form onSubmit={onSubmit} className="p-7">
+            <div className="grid gap-5 sm:grid-cols-2">
+              <Field label="Nome" name="nome" required error={errors.nome}>
+                <TextInput id="nome" value={form.nome} hasError={!!errors.nome} onChange={(e) => set('nome', e.target.value)} placeholder="Nome completo" />
               </Field>
+              <Field label="Telefone" name="telefone" required error={errors.telefone}>
+                <TextInput id="telefone" type="tel" value={form.telefone} hasError={!!errors.telefone} onChange={(e) => set('telefone', e.target.value)} placeholder="+244 ..." />
+              </Field>
+              <Field label="Email" name="email" error={errors.email}>
+                <TextInput id="email" type="email" value={form.email} hasError={!!errors.email} onChange={(e) => set('email', e.target.value)} placeholder="opcional" />
+              </Field>
+              <Field label="Cidade" name="cidade" required error={errors.cidade}>
+                <Select id="cidade" value={form.cidade} hasError={!!errors.cidade} onChange={(e) => set('cidade', e.target.value)}>
+                  <option value="">Selecione...</option>
+                  {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                </Select>
+              </Field>
+              <Field label="Área de atuação" name="area" required error={errors.area}>
+                <Select id="area" value={form.area} hasError={!!errors.area} onChange={(e) => set('area', e.target.value)}>
+                  <option value="">Selecione...</option>
+                  {AREAS.map((a) => <option key={a} value={a}>{a}</option>)}
+                </Select>
+              </Field>
+              <Field label="Especialidade" name="especialidade" required error={errors.especialidade}>
+                <TextInput id="especialidade" value={form.especialidade} hasError={!!errors.especialidade} onChange={(e) => set('especialidade', e.target.value)} placeholder="Ex: Reparação de caldeiras" />
+              </Field>
+              <Field label="Anos de experiência" name="experiencia" required error={errors.experiencia}>
+                <TextInput id="experiencia" type="number" min="0" value={form.experiencia} hasError={!!errors.experiencia} onChange={(e) => set('experiencia', e.target.value)} placeholder="Ex: 5" />
+              </Field>
+              <div className="sm:col-span-2">
+                <Field label="Descrição" name="descricao" required error={errors.descricao}>
+                  <TextArea id="descricao" value={form.descricao} hasError={!!errors.descricao} onChange={(e) => set('descricao', e.target.value)} placeholder="Fale sobre si, os seus serviços e diferenciais." />
+                </Field>
+              </div>
+
+              {/* Uploads */}
+              <FileUpload label="Fotografia" name="foto" icon={ImageIcon} file={form.foto} error={errors.foto} onChange={onFile('foto')} />
+              <FileUpload label="Bilhete de Identidade (BI)" name="bi" icon={FileText} file={form.bi} error={errors.bi} onChange={onFile('bi')} />
+
+              {/* Terms */}
+              <div className="sm:col-span-2">
+                <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-brand-dark/10 bg-brand-dark/[0.02] p-4">
+                  <input
+                    type="checkbox"
+                    checked={form.termos}
+                    onChange={(e) => set('termos', e.target.checked)}
+                    className="mt-0.5 h-5 w-5 shrink-0 rounded border-brand-dark/30 text-brand-cyan focus:ring-brand-cyan/50"
+                  />
+                  <span className="text-sm text-ink-700/80">
+                    Aceito os <a href="#" className="font-semibold text-brand-cyan2 underline">termos e condições</a> e a <a href="#" className="font-semibold text-brand-cyan2 underline">política de privacidade</a> da AUTONOMOUS.
+                    {errors.termos && <span className="mt-1 block text-xs font-medium text-red-500">{errors.termos}</span>}
+                  </span>
+                </label>
+              </div>
             </div>
 
-            <FileUpload label="Fotografia" name="photo" icon={ImageIcon} file={form.photo} error={errors.photo} onChange={onFile('photo')} />
-            <FileUpload label="Bilhete de Identidade (BI)" name="id" icon={FileText} file={form.id} error={errors.id} onChange={onFile('id')} />
+            {submitError && (
+              <p className="mt-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
+                {submitError}
+              </p>
+            )}
 
-            <div className="sm:col-span-2">
-              <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-                <input
-                  type="checkbox"
-                  checked={form.terms}
-                  onChange={(e) => set('terms', e.target.checked)}
-                  className="mt-0.5 h-4 w-4 shrink-0 rounded border-zinc-300 text-accent-700 focus:ring-accent-700/30"
-                />
-                <span className="text-sm text-zinc-600">
-                  Aceito os <a href="#" className="font-medium text-accent-700 underline">termos e condições</a> e a <a href="#" className="font-medium text-accent-700 underline">política de privacidade</a> da AUTONOMOUS.
-                  {errors.terms && <span className="mt-1 block text-xs font-medium text-red-500">{errors.terms}</span>}
-                </span>
-              </label>
+            <div className="mt-7">
+              <Button type="submit" size="lg" disabled={submitting} className="w-full">
+                {submitting ? 'A enviar...' : <>Quero fazer parte da AUTONOMOUS <ArrowRight size={18} /></>}
+              </Button>
             </div>
-          </div>
-
-          {submitError && (
-            <p className="mt-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">
-              {submitError}
-            </p>
-          )}
-
-          <div className="mt-7">
-            <Button type="submit" size="lg" disabled={submitting} className="w-full">
-              {submitting ? 'A enviar...' : <>Quero fazer parte da AUTONOMOUS <ArrowRight size={18} /></>}
-            </Button>
-          </div>
-        </form>
-      </Card>
+          </form>
+        </div>
+      </div>
     </Shell>
   );
 }
@@ -195,21 +197,23 @@ function FileUpload({
 }) {
   return (
     <div className="sm:col-span-2">
-      <span className="text-sm font-medium text-zinc-800">{label} <span className="text-accent-700">*</span></span>
+      <span className="text-sm font-semibold text-brand-dark">{label} <span className="text-brand-cyan2">*</span></span>
       <label
         htmlFor={name}
-        className={`mt-1.5 flex cursor-pointer items-center gap-4 rounded-lg border border-dashed p-4 transition-colors hover:border-zinc-400 ${
-          error ? 'border-red-300' : 'border-zinc-300'
+        className={`mt-1.5 flex cursor-pointer items-center gap-4 rounded-xl border-2 border-dashed p-5 transition-all duration-200 hover:border-brand-cyan hover:bg-brand-cyan/[0.03] ${
+          error ? 'border-red-300' : 'border-brand-dark/20'
         }`}
       >
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-accent-700">
-          <Icon size={20} />
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-cyan/10 text-brand-cyan2">
+          <Icon size={22} />
         </div>
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-zinc-900">{file ? file.name : 'Clique para carregar'}</p>
-          <p className="text-xs text-zinc-500">{file ? `${(file.size / 1024).toFixed(0)} KB` : 'PNG, JPG ou PDF · máx 5MB'}</p>
+          <p className="text-sm font-medium text-brand-dark">
+            {file ? file.name : 'Clique para carregar'}
+          </p>
+          <p className="text-xs text-ink-700/55">{file ? `${(file.size / 1024).toFixed(0)} KB` : 'PNG, JPG ou PDF · máx 5MB'}</p>
         </div>
-        <Upload size={18} className="text-zinc-400" />
+        <Upload size={18} className="text-ink-700/40" />
       </label>
       <input id={name} type="file" accept="image/*,application/pdf" className="sr-only" onChange={onChange} />
       {error && <p className="mt-1 text-xs font-medium text-red-500">{error}</p>}
@@ -221,32 +225,34 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <>
       <PageHero
+        icon={TrendingUp}
         eyebrow="Junte-se à rede"
-        title="Faça crescer o seu negócio com a AUTONOMOUS"
-        description="Receba novos clientes, aumente a sua renda e trabalhe com total flexibilidade."
+        title={<>Faça parte da maior rede de <span className="text-gradient-cyan">profissionais de Angola.</span></>}
+        subtitle="Receba novos clientes, aumente a sua renda e trabalhe com flexibilidade."
       />
 
-      <section className="border-b border-zinc-200 py-16">
-        <Container>
-          <div className="grid gap-px overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-200 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Benefits */}
+      <section className="bg-cloud-50 py-16">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {BENEFITS.map((b, i) => {
               const Icon = b.icon;
               return (
-                <div key={b.title} className={`reveal reveal-delay-${i + 1} bg-white p-6`}>
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-accent-700">
-                    <Icon size={18} strokeWidth={1.75} />
+                <div key={b.title} className={`reveal reveal-delay-${i + 1} group rounded-3xl border border-cloud-200 bg-white p-6 shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-cyan/40 hover:shadow-cardHover`}>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-cyan/12 text-brand-dark transition-all duration-300 group-hover:bg-brand-cyan group-hover:shadow-glow">
+                    <Icon size={22} />
                   </div>
-                  <h3 className="mt-4 text-sm font-semibold text-zinc-900">{b.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-zinc-600">{b.desc}</p>
+                  <h3 className="mt-4 font-display text-base font-bold text-ink-900">{b.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-ink-500">{b.desc}</p>
                 </div>
               );
             })}
           </div>
-        </Container>
+        </div>
       </section>
 
-      <section className="bg-zinc-50 py-16 lg:py-20">
-        <Container>{children}</Container>
+      <section className="bg-white py-16">
+        <div className="mx-auto max-w-7xl px-5 lg:px-8">{children}</div>
       </section>
     </>
   );

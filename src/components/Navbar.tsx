@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { Logo } from './Logo';
 import { Button } from './Button';
-import { Container } from './ui/Container';
 import { useRoute, useNavigate, type Route } from '../router';
 
 const LINKS: { label: string; route: Route['name']; path: string }[] = [
+  { label: 'Início', route: 'home', path: '/' },
   { label: 'Serviços', route: 'services', path: '/services' },
-  { label: 'Para Profissionais', route: 'become-pro', path: '/become-pro' },
-  { label: 'Sobre', route: 'about', path: '/about' },
-  { label: 'Contato', route: 'contact', path: '/contact' },
+  { label: 'Ser Profissional', route: 'become-pro', path: '/ser-profissional' },
+  { label: 'Sobre', route: 'about', path: '/sobre' },
+  { label: 'Contato', route: 'contact', path: '/contato' },
 ];
 
 export function Navbar() {
@@ -19,7 +19,7 @@ export function Navbar() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    const onScroll = () => setScrolled(window.scrollY > 16);
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
@@ -31,72 +31,78 @@ export function Navbar() {
   }, [open]);
 
   return (
-    <header
-      className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ${
-        scrolled ? 'border-b border-zinc-200 bg-white/80 backdrop-blur-md' : 'border-b border-transparent'
-      }`}
-    >
-      <Container>
-        <nav className="flex h-16 items-center justify-between">
-          <Logo />
-
-          <div className="hidden items-center gap-1 md:flex">
-            {LINKS.map((l) => {
-              const active = route.name === l.route;
-              return (
-                <button
-                  key={l.path}
-                  onClick={() => navigate(l.path)}
-                  className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                    active ? 'text-zinc-900' : 'text-zinc-500 hover:text-zinc-900'
-                  }`}
-                >
-                  {l.label}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="hidden items-center gap-2 md:flex">
-            <Button variant="primary" size="sm" to="/request">Solicitar Serviço</Button>
-          </div>
-
-          <button
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg text-zinc-900 md:hidden"
-            onClick={() => setOpen((v) => !v)}
-            aria-label={open ? 'Fechar menu' : 'Abrir menu'}
-          >
-            {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
-        </nav>
-      </Container>
-
-      {/* Mobile menu */}
-      <div
-        className={`overflow-hidden border-b border-zinc-200 bg-white transition-[max-height] duration-300 md:hidden ${
-          open ? 'max-h-[28rem]' : 'max-h-0 border-transparent'
+    <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 lg:px-5 lg:pt-4">
+      <nav
+        className={`mx-auto flex max-w-6xl items-center justify-between rounded-full border bg-white px-3 py-2.5 transition-all duration-300 lg:px-4 ${
+          scrolled ? 'border-cloud-200 shadow-card' : 'border-cloud-200/70 shadow-soft'
         }`}
       >
-        <Container className="py-4">
-          <div className="flex flex-col">
+        <Logo />
+
+        {/* Center pill nav */}
+        <div className="hidden items-center gap-0.5 rounded-full bg-cloud-100/80 p-1 lg:flex">
+          {LINKS.map((l) => {
+            const active = route.name === l.route;
+            return (
+              <button
+                key={l.path}
+                onClick={() => navigate(l.path)}
+                className={`relative rounded-full px-4 py-1.5 text-sm font-semibold transition-all duration-200 ${
+                  active
+                    ? 'bg-ink-900 text-white shadow-soft'
+                    : 'text-ink-500 hover:text-ink-900'
+                }`}
+              >
+                {l.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="hidden items-center gap-2 lg:flex">
+          <Button to="/solicitar-servico" variant="dark" size="md">
+            Solicitar Serviço <ArrowRight size={16} />
+          </Button>
+        </div>
+
+        <button
+          className="inline-flex h-10 w-10 items-center justify-center rounded-xl text-ink-900 lg:hidden"
+          onClick={() => setOpen((v) => !v)}
+          aria-label={open ? 'Fechar menu' : 'Abrir menu'}
+        >
+          {open ? <X size={22} /> : <Menu size={22} />}
+        </button>
+      </nav>
+
+      {/* Mobile drawer */}
+      <div
+        className={`lg:hidden overflow-hidden transition-[max-height,opacity] duration-300 ${
+          open ? 'max-h-[80vh] opacity-100' : 'max-h-0 opacity-0'
+        }`}
+      >
+        <div className="mx-1 mt-2 rounded-3xl bg-white p-5 shadow-card border border-cloud-200">
+          <div className="flex flex-col gap-1">
             {LINKS.map((l) => (
               <button
                 key={l.path}
                 onClick={() => { navigate(l.path); setOpen(false); }}
-                className={`rounded-lg px-3 py-3 text-left text-[15px] font-medium transition-colors ${
-                  route.name === l.route ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-600 hover:bg-zinc-50'
+                className={`rounded-xl px-4 py-3 text-left text-base font-semibold transition-colors ${
+                  route.name === l.route ? 'bg-brand-cyan/12 text-brand-dark' : 'text-ink-700 hover:bg-cloud-100'
                 }`}
               >
                 {l.label}
               </button>
             ))}
           </div>
-          <div className="mt-3 flex flex-col gap-2 border-t border-zinc-100 pt-4">
-            <Button variant="primary" size="md" className="w-full" to="/request" onClick={() => setOpen(false)}>
+          <div className="mt-4 flex flex-col gap-3">
+            <Button to="/solicitar-servico" variant="dark" size="md" className="w-full" onClick={() => setOpen(false)}>
               Solicitar Serviço
             </Button>
+            <Button to="/ser-profissional" variant="outline-dark" size="md" className="w-full" onClick={() => setOpen(false)}>
+              Quero ser Prestador
+            </Button>
           </div>
-        </Container>
+        </div>
       </div>
     </header>
   );
