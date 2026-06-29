@@ -26,7 +26,7 @@ export function SuccessScreen({
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Button to={primaryTo} size="md">{primaryLabel}</Button>
         {secondaryLabel && secondaryTo && (
-          <Button to={secondaryTo} variant="outline-light" size="md" className="border-brand-dark/20 text-brand-dark hover:bg-brand-dark/5">
+          <Button to={secondaryTo} variant="outline-dark" size="md">
             {secondaryLabel}
           </Button>
         )}
