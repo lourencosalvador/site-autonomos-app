@@ -1,73 +1,66 @@
-import { Mail, Phone, MapPin, Facebook, Instagram } from 'lucide-react';
+import { Mail, Phone, MapPin, Facebook, Instagram, Linkedin } from 'lucide-react';
 import { Logo } from './Logo';
+import { Container } from './ui/Container';
 import { useNavigate } from '../router';
 
-const COLS = [
+const COLUMNS = [
+  {
+    title: 'Produto',
+    links: [
+      { label: 'Serviços', path: '/services' },
+      { label: 'Solicitar serviço', path: '/request' },
+      { label: 'Para Profissionais', path: '/become-pro' },
+    ],
+  },
   {
     title: 'Empresa',
     links: [
-      { label: 'Início', path: '/' },
-      { label: 'Sobre', path: '/sobre' },
-      { label: 'Contato', path: '/contato' },
+      { label: 'Sobre', path: '/about' },
+      { label: 'Contato', path: '/contact' },
     ],
   },
-  {
-    title: 'Serviços',
-    links: [
-      { label: 'Todos os serviços', path: '/services' },
-      { label: 'Solicitar serviço', path: '/solicitar-servico' },
-    ],
-  },
-  {
-    title: 'Profissionais',
-    links: [
-      { label: 'Ser profissional', path: '/ser-profissional' },
-    ],
-  },
+];
+
+const SOCIAL = [
+  { Icon: Facebook, label: 'Facebook' },
+  { Icon: Instagram, label: 'Instagram' },
+  { Icon: Linkedin, label: 'LinkedIn' },
 ];
 
 export function Footer() {
   const navigate = useNavigate();
   return (
-    <footer className="relative overflow-hidden bg-brand-dark3 text-white">
-      <div className="absolute inset-0 bg-grid-dark opacity-40" />
-      <div className="absolute -top-24 left-1/2 h-72 w-[120%] -translate-x-1/2 rounded-full bg-brand-cyan/10 blur-3xl" />
-
-      <div className="relative mx-auto max-w-7xl px-5 py-16 lg:px-8">
-        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+    <footer className="border-t border-zinc-200 bg-zinc-50">
+      <Container className="py-16">
+        <div className="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1.2fr]">
           <div>
-            <Logo light />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/65">
-              A maior rede de profissionais independentes de Angola. Simples, rápido e de confiança.
+            <Logo />
+            <p className="mt-4 max-w-xs text-sm leading-relaxed text-zinc-500">
+              A maior rede de profissionais independentes de Angola. De confiança, rápida e simples.
             </p>
-            <div className="mt-5 flex gap-3">
-              {[
-                { Icon: Facebook, label: 'Facebook', href: 'https://www.facebook.com/profile.php?id=61591419627709' },
-                { Icon: Instagram, label: 'Instagram', href: 'https://www.instagram.com/autonomos.ao/' },
-              ].map(({ Icon, label, href }) => (
+            <div className="mt-5 flex gap-2">
+              {SOCIAL.map(({ Icon, label }) => (
                 <a
                   key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="#"
                   aria-label={label}
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 text-white/80 transition-all duration-300 hover:border-brand-cyan hover:text-brand-cyan hover:-translate-y-0.5"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-200 bg-white text-zinc-500 transition-colors hover:border-zinc-300 hover:text-zinc-900"
                 >
-                  <Icon size={18} />
+                  <Icon size={17} />
                 </a>
               ))}
             </div>
           </div>
 
-          {COLS.map((col) => (
+          {COLUMNS.map((col) => (
             <div key={col.title}>
-              <h4 className="text-sm font-semibold uppercase tracking-wider text-brand-cyan">{col.title}</h4>
+              <h4 className="text-sm font-semibold text-zinc-900">{col.title}</h4>
               <ul className="mt-4 space-y-3">
                 {col.links.map((l) => (
                   <li key={l.label}>
                     <button
                       onClick={() => navigate(l.path)}
-                      className="text-sm text-white/70 transition-colors hover:text-white"
+                      className="text-sm text-zinc-500 transition-colors hover:text-zinc-900"
                     >
                       {l.label}
                     </button>
@@ -76,25 +69,32 @@ export function Footer() {
               </ul>
             </div>
           ))}
-        </div>
 
-        <div className="mt-12 grid gap-4 border-t border-white/10 pt-8 sm:grid-cols-3">
-          <a href="mailto:autonomous.ao@gmail.com" className="flex items-center gap-3 text-sm text-white/75 hover:text-brand-cyan transition-colors">
-            <Mail size={18} className="text-brand-cyan" /> autonomous.ao@gmail.com
-          </a>
-          <a href="tel:+244976477097" className="flex items-center gap-3 text-sm text-white/75 hover:text-brand-cyan transition-colors">
-            <Phone size={18} className="text-brand-cyan" /> +244 976 477 097
-          </a>
-          <div className="flex items-center gap-3 text-sm text-white/75">
-            <MapPin size={18} className="text-brand-cyan" /> Luanda, Angola
+          <div>
+            <h4 className="text-sm font-semibold text-zinc-900">Contactos</h4>
+            <ul className="mt-4 space-y-3 text-sm text-zinc-500">
+              <li>
+                <a href="mailto:autonomous.ao@gmail.com" className="flex items-center gap-2.5 transition-colors hover:text-zinc-900">
+                  <Mail size={16} className="text-zinc-400" /> autonomous.ao@gmail.com
+                </a>
+              </li>
+              <li>
+                <a href="tel:+244976477097" className="flex items-center gap-2.5 transition-colors hover:text-zinc-900">
+                  <Phone size={16} className="text-zinc-400" /> +244 976 477 097
+                </a>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <MapPin size={16} className="text-zinc-400" /> Luanda, Angola
+              </li>
+            </ul>
           </div>
         </div>
 
-        <div className="mt-8 flex flex-col items-center justify-between gap-3 border-t border-white/10 pt-6 text-xs text-white/50 sm:flex-row">
+        <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-zinc-200 pt-8 text-sm text-zinc-500 sm:flex-row">
           <p>© {new Date().getFullYear()} AUTONOMOUS. Todos os direitos reservados.</p>
           <p>Construído em Angola, para África.</p>
         </div>
-      </div>
+      </Container>
     </footer>
   );
 }

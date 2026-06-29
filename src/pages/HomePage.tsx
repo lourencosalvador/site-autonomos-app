@@ -1,211 +1,232 @@
-import { ArrowRight, Search, UserCheck, Wrench, ShieldCheck, Clock, Sparkles, Headset, Tag } from 'lucide-react';
+import {
+  ShieldCheck, Clock, Wallet, LayoutGrid, MessageSquare, Star,
+  ArrowRight, type LucideIcon,
+} from 'lucide-react';
 import { Hero } from '../components/Hero';
 import { Button } from '../components/Button';
+import { Container } from '../components/ui/Container';
+import { Card } from '../components/ui/Card';
 import { SectionHeading } from '../components/SectionHeading';
-import { ServicesCarousel } from '../components/ServicesCarousel';
-import { TestimonialsSlider } from '../components/TestimonialsSlider';
+import { Accordion } from '../components/ui/Accordion';
 import { Counter } from '../components/Counter';
-import { STATS, BENEFITS, CATEGORIES } from '../data';
+import {
+  FEATURES, CLIENT_STEPS, PRO_STEPS, STATS, TESTIMONIALS, FAQS,
+} from '../data';
 
-const BENEFIT_ICONS = [ShieldCheck, Clock, Sparkles, ShieldCheck, Tag, Headset];
+const FEATURE_ICONS: Record<string, LucideIcon> = {
+  ShieldCheck, Clock, Wallet, LayoutGrid, MessageSquare, Star,
+};
 
-const CUSTOMER_STEPS = [
-  { n: '1', title: 'Solicite', desc: 'Descreva o serviço que precisa em poucos minutos.', icon: Search },
-  { n: '2', title: 'Encontramos o profissional', desc: 'Ligamos o pedido a um profissional qualificado e verificado.', icon: UserCheck },
-  { n: '3', title: 'Serviço realizado', desc: 'O profissional resolve o seu problema. Avalie a experiência.', icon: Wrench },
-];
-
-const PRO_STEPS = [
-  { n: '1', title: 'Cadastre-se', desc: 'Crie a sua conta e partilhe a sua área de atuação.', icon: UserCheck },
-  { n: '2', title: 'Seja aprovado', desc: 'A nossa equipa valida o seu perfil e documentos.', icon: ShieldCheck },
-  { n: '3', title: 'Receba oportunidades', desc: 'Comece a receber pedidos de clientes perto de si.', icon: ArrowRight },
-];
+function initials(name: string) {
+  return name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
+}
 
 export function HomePage() {
-  const marquee = CATEGORIES.filter((c) => c !== 'Todos');
   return (
     <>
       <Hero />
-
-      {/* ===== MARQUEE TRUST STRIP ===== */}
-      <section className="relative border-y border-cloud-200 bg-white py-5">
-        <div className="marquee-mask overflow-hidden">
-          <div className="flex w-max animate-marquee items-center gap-10 pr-10">
-            {[...marquee, ...marquee].map((c, i) => (
-              <span key={i} className="flex items-center gap-10 whitespace-nowrap text-sm font-bold uppercase tracking-wider text-ink-400">
-                {c}
-                <span className="h-1.5 w-1.5 rounded-full bg-brand-cyan" />
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== STATS ===== */}
-      <section className="relative bg-cloud-50 py-20">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <SectionHeading
-            eyebrow="Confiança"
-            title={<>Uma rede que cresce <span className="text-gradient-cyan">todos os dias.</span></>}
-            subtitle="Uma comunidade de profissionais verificados e clientes satisfeitos em toda Angola."
-          />
-          <div className="mt-12 grid grid-cols-2 gap-5 lg:grid-cols-4">
-            {STATS.map((s, i) => (
-              <div
-                key={s.label}
-                className={`reveal-scale reveal-delay-${i + 1} group rounded-3xl border border-cloud-200 bg-white p-7 text-center shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-cyan/40 hover:shadow-cardHover`}
-              >
-                <p className="font-display text-4xl font-extrabold text-ink-900 lg:text-5xl">
-                  <Counter value={s.value} suffix={s.suffix} />
-                </p>
-                <p className="mt-2 text-sm font-medium text-ink-400">{s.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== HOW IT WORKS ===== */}
-      <section className="relative overflow-hidden bg-white py-24">
-        <div className="absolute right-0 top-1/4 h-80 w-80 rounded-full bg-lilac-200/40 blur-3xl" />
-        <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
-          <SectionHeading
-            eyebrow="Como funciona"
-            title="Dois caminhos. Uma plataforma."
-            subtitle="Escolha o seu lado e veja como é simples começar."
-          />
-          <div className="mt-14 grid gap-8 lg:grid-cols-2">
-            <FlowCard reveal="reveal-left" title="Para Clientes" accent steps={CUSTOMER_STEPS} cta={{ label: 'Solicitar Serviço', to: '/solicitar-servico' }} />
-            <FlowCard reveal="reveal-right" title="Para Profissionais" steps={PRO_STEPS} cta={{ label: 'Quero ser Prestador', to: '/ser-profissional' }} />
-          </div>
-        </div>
-      </section>
-
-      {/* ===== SERVICES CAROUSEL ===== */}
-      <section className="relative bg-cloud-50 py-24">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <SectionHeading
-            eyebrow="Serviços"
-            title="Tudo o que precisa, num só lugar."
-            subtitle="Mais de 15 categorias de serviços com profissionais prontos para ajudar."
-          />
-          <div className="reveal mt-12">
-            <ServicesCarousel />
-          </div>
-          <div className="mt-10 text-center">
-            <Button to="/services" variant="dark" size="lg">
-              Ver todos os serviços <ArrowRight size={18} />
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* ===== WHY CHOOSE ===== */}
-      <section className="relative overflow-hidden bg-white py-24">
-        <div className="absolute -left-20 top-1/3 h-80 w-80 rounded-full bg-brand-cyan/10 blur-3xl" />
-        <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
-          <SectionHeading
-            eyebrow="Porquê a AUTONOMOUS"
-            title="Feito para dar confiança."
-            subtitle="Cada detalhe pensado para que contratar um profissional seja simples e seguro."
-          />
-          <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {BENEFITS.map((b, i) => {
-              const Icon = BENEFIT_ICONS[i] ?? ShieldCheck;
-              return (
-                <div
-                  key={b.title}
-                  className={`reveal reveal-delay-${(i % 3) + 1} group rounded-3xl border border-cloud-200 bg-cloud-50 p-7 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-cyan/40 hover:bg-white hover:shadow-cardHover`}
-                >
-                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-cyan/12 text-brand-dark transition-all duration-300 group-hover:bg-brand-cyan group-hover:text-brand-dark group-hover:shadow-glow">
-                    <Icon size={22} />
-                  </div>
-                  <h3 className="mt-5 font-display text-lg font-bold text-ink-900">{b.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-ink-500">{b.desc}</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== TESTIMONIALS ===== */}
-      <section className="relative bg-cloud-50 py-24">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <SectionHeading
-            eyebrow="Testemunhos"
-            title="Quem usa, recomenda."
-            subtitle="Histórias reais de clientes e profissionais que fazem parte da rede AUTONOMOUS."
-          />
-          <div className="reveal mt-12">
-            <TestimonialsSlider />
-          </div>
-        </div>
-      </section>
-
-      {/* ===== FINAL CTA ===== */}
-      <section className="bg-white px-5 py-20 lg:px-8">
-        <div className="reveal-scale relative mx-auto max-w-6xl overflow-hidden rounded-[2.5rem] bg-brand-dark px-6 py-20 text-center shadow-cardDark">
-          <div className="absolute inset-0 bg-grid-dark opacity-30" />
-          <div className="absolute left-1/2 top-0 h-72 w-[80%] -translate-x-1/2 rounded-full bg-brand-cyan/20 blur-3xl" />
-          <div className="relative mx-auto max-w-2xl">
-            <h2 className="font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
-              Pronto para encontrar o <span className="text-gradient-cyan">profissional certo?</span>
-            </h2>
-            <p className="mt-5 text-lg text-white/70">Comece agora. Leva menos de dois minutos.</p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-              <Button to="/solicitar-servico" size="lg">Solicitar Serviço <ArrowRight size={18} /></Button>
-              <Button to="/ser-profissional" variant="outline-light" size="lg">Ser um Prestador</Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <LogoMarquee />
+      <Features />
+      <HowItWorks />
+      <Stats />
+      <Testimonials />
+      <Faq />
+      <CtaSection />
     </>
   );
 }
 
-function FlowCard({
-  title,
-  steps,
-  cta,
-  accent = false,
-  reveal = 'reveal',
-}: {
-  title: string;
-  steps: { n: string; title: string; desc: string; icon: typeof Search }[];
-  cta: { label: string; to: string };
-  accent?: boolean;
-  reveal?: string;
-}) {
+/* ------------------------------------------------------------------ */
+function LogoMarquee() {
+  const items = ['Eletricidade', 'Pintura', 'Limpeza', 'Carpintaria', 'Informática', 'Segurança', 'Jardinagem', 'Construção Civil'];
   return (
-    <div className={`${reveal} rounded-3xl border p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-cardHover ${
-      accent ? 'border-brand-cyan/30 bg-gradient-to-br from-brand-cyan/[0.08] to-white' : 'border-cloud-200 bg-white shadow-soft'
-    }`}>
-      <h3 className="font-display text-xl font-bold text-ink-900">{title}</h3>
-      <div className="mt-6 space-y-5">
-        {steps.map((s) => {
-          const Icon = s.icon;
-          return (
-            <div key={s.n} className="flex gap-4">
-              <div className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand-dark text-brand-cyan">
-                <Icon size={20} />
-                <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-brand-cyan text-[10px] font-bold text-brand-dark">
-                  {s.n}
-                </span>
+    <section className="border-y border-zinc-200 py-8">
+      <Container>
+        <p className="text-center text-xs font-medium uppercase tracking-widest text-zinc-400">
+          Todos os serviços essenciais, uma só rede de confiança
+        </p>
+        <div className="marquee-mask mt-6 overflow-hidden">
+          <div className="flex w-max animate-marquee items-center gap-12">
+            {[...items, ...items].map((label, i) => (
+              <span key={i} className="whitespace-nowrap text-sm font-medium text-zinc-400">{label}</span>
+            ))}
+          </div>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+function Features() {
+  return (
+    <section className="py-24 lg:py-28">
+      <Container>
+        <SectionHeading
+          eyebrow="Porquê a AUTONOMOUS"
+          title="Tudo o que precisa para contratar com confiança"
+          description="Um marketplace de confiança, feito para tirar a fricção, a incerteza e a adivinhação de encontrar profissionais qualificados."
+        />
+        <div className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-200 sm:grid-cols-2 lg:grid-cols-3">
+          {FEATURES.map((f, i) => {
+            const Icon = FEATURE_ICONS[f.icon] ?? ShieldCheck;
+            return (
+              <div key={f.title} className={`reveal reveal-delay-${(i % 3) + 1} bg-white p-8`}>
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 text-accent-700">
+                  <Icon size={20} strokeWidth={1.75} />
+                </div>
+                <h3 className="mt-5 text-base font-semibold text-zinc-900">{f.title}</h3>
+                <p className="mt-2 text-[15px] leading-relaxed text-zinc-600">{f.desc}</p>
               </div>
-              <div>
-                <p className="font-semibold text-ink-900">{s.title}</p>
-                <p className="mt-0.5 text-sm text-ink-500">{s.desc}</p>
-              </div>
+            );
+          })}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+function StepList({ steps, label }: { steps: { title: string; desc: string }[]; label: string }) {
+  return (
+    <div>
+      <p className="text-sm font-semibold text-accent-700">{label}</p>
+      <ol className="mt-6 space-y-8">
+        {steps.map((s, i) => (
+          <li key={s.title} className="flex gap-4">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-zinc-200 text-sm font-semibold text-zinc-900">
+              {i + 1}
+            </span>
+            <div className="pt-0.5">
+              <h4 className="font-semibold text-zinc-900">{s.title}</h4>
+              <p className="mt-1 text-[15px] leading-relaxed text-zinc-600">{s.desc}</p>
             </div>
-          );
-        })}
-      </div>
-      <div className="mt-7">
-        <Button to={cta.to} size="md" variant={accent ? 'primary' : 'dark'}>
-          {cta.label} <ArrowRight size={16} />
-        </Button>
-      </div>
+          </li>
+        ))}
+      </ol>
     </div>
+  );
+}
+
+function HowItWorks() {
+  return (
+    <section className="border-y border-zinc-200 bg-zinc-50 py-24 lg:py-28">
+      <Container>
+        <SectionHeading
+          eyebrow="Como funciona"
+          title="Dois lados. Um fluxo simples."
+          description="Quer precise de um serviço ou seja você a fazê-lo, começar leva apenas alguns minutos."
+        />
+        <div className="mt-16 grid gap-12 lg:grid-cols-2 lg:gap-16">
+          <Card className="reveal-left p-8 sm:p-10">
+            <StepList steps={CLIENT_STEPS} label="Para clientes" />
+            <Button to="/request" variant="primary" size="md" className="mt-8">
+              Solicitar Serviço <ArrowRight size={16} />
+            </Button>
+          </Card>
+          <Card className="reveal-right p-8 sm:p-10">
+            <StepList steps={PRO_STEPS} label="Para profissionais" />
+          </Card>
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+function Stats() {
+  return (
+    <section className="py-24 lg:py-28">
+      <Container>
+        <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-200 lg:grid-cols-4">
+          {STATS.map((s, i) => (
+            <div key={s.label} className={`reveal reveal-delay-${i + 1} bg-white p-8 text-center`}>
+              <p className="font-display text-4xl font-bold tracking-tight text-zinc-900 lg:text-5xl">
+                <Counter value={s.value} suffix={s.suffix} />
+              </p>
+              <p className="mt-2 text-sm text-zinc-500">{s.label}</p>
+            </div>
+          ))}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+function Testimonials() {
+  return (
+    <section className="border-y border-zinc-200 bg-zinc-50 py-24 lg:py-28">
+      <Container>
+        <SectionHeading
+          eyebrow="Testemunhos"
+          title="Adorado por clientes e profissionais"
+          description="Histórias reais de quem usa a AUTONOMOUS para resolver problemas em toda Angola."
+        />
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {TESTIMONIALS.map((t, i) => (
+            <Card key={t.name} className={`reveal reveal-delay-${(i % 3) + 1} flex flex-col p-6`}>
+              <div className="flex gap-0.5 text-amber-400">
+                {Array.from({ length: t.rating }).map((_, k) => <Star key={k} size={15} className="fill-current" />)}
+              </div>
+              <p className="mt-4 flex-1 text-[15px] leading-relaxed text-zinc-700">“{t.text}”</p>
+              <div className="mt-6 flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-900 text-xs font-semibold text-white">
+                  {initials(t.name)}
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-zinc-900">{t.name}</p>
+                  <p className="text-sm text-zinc-500">{t.role} · {t.city}</p>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+function Faq() {
+  return (
+    <section className="py-24 lg:py-28">
+      <Container className="max-w-3xl">
+        <SectionHeading
+          eyebrow="FAQ"
+          title="Perguntas frequentes"
+          description="Tudo o que precisa de saber sobre contratar e trabalhar através da AUTONOMOUS."
+        />
+        <div className="reveal mt-12">
+          <Accordion items={FAQS} />
+        </div>
+      </Container>
+    </section>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+function CtaSection() {
+  return (
+    <section className="py-24 lg:py-28">
+      <Container>
+        <div className="reveal-scale relative overflow-hidden rounded-3xl bg-zinc-950 px-6 py-20 text-center sm:px-12">
+          <div className="absolute inset-0 bg-dots opacity-[0.15] [mask-image:radial-gradient(70%_70%_at_50%_50%,#000,transparent)]" />
+          <div className="relative mx-auto max-w-2xl">
+            <h2 className="font-display text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Pronto para resolver o seu problema?
+            </h2>
+            <p className="mt-4 text-lg leading-relaxed text-zinc-400">
+              Junte-se a milhares de clientes e profissionais que já usam a AUTONOMOUS. Leva menos de dois minutos para começar.
+            </p>
+            <div className="mt-8 flex justify-center">
+              <Button to="/request" variant="inverted" size="lg" className="w-full sm:w-auto">
+                Solicitar Serviço
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Container>
+    </section>
   );
 }

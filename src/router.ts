@@ -17,12 +17,16 @@ function parseHash(): Route {
       return { name: 'home' };
     case '/services':
       return { name: 'services' };
+    case '/become-pro':
     case '/ser-profissional':
       return { name: 'become-pro' };
+    case '/request':
     case '/solicitar-servico':
       return { name: 'request' };
+    case '/about':
     case '/sobre':
       return { name: 'about' };
+    case '/contact':
     case '/contato':
       return { name: 'contact' };
     default:

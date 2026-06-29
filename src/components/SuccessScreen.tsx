@@ -1,4 +1,4 @@
-import { CheckCircle2 } from 'lucide-react';
+import { Check } from 'lucide-react';
 import { Button } from './Button';
 
 export function SuccessScreen({
@@ -17,18 +17,16 @@ export function SuccessScreen({
   secondaryTo?: string;
 }) {
   return (
-    <div className="mx-auto max-w-xl animate-scaleIn rounded-3xl border border-brand-cyan/20 bg-white p-10 text-center shadow-card">
-      <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-brand-cyan/15 animate-pulseGlow">
-        <CheckCircle2 className="h-11 w-11 text-brand-cyan2" />
+    <div className="mx-auto max-w-xl animate-scaleIn rounded-2xl border border-zinc-200 bg-white p-10 text-center">
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-accent-700 text-white">
+        <Check size={26} strokeWidth={2.5} />
       </div>
-      <h2 className="mt-6 font-display text-2xl font-extrabold text-brand-dark">{title}</h2>
-      <p className="mt-3 text-base leading-relaxed text-ink-700/75">{message}</p>
+      <h2 className="mt-6 font-display text-2xl font-bold tracking-tight text-zinc-900">{title}</h2>
+      <p className="mt-3 text-[15px] leading-relaxed text-zinc-600">{message}</p>
       <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
         <Button to={primaryTo} size="md">{primaryLabel}</Button>
         {secondaryLabel && secondaryTo && (
-          <Button to={secondaryTo} variant="outline-light" size="md" className="border-brand-dark/20 text-brand-dark hover:bg-brand-dark/5">
-            {secondaryLabel}
-          </Button>
+          <Button to={secondaryTo} variant="secondary" size="md">{secondaryLabel}</Button>
         )}
       </div>
     </div>

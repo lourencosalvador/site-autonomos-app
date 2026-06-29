@@ -9,43 +9,19 @@ export type Service = {
 
 export const SERVICES: Service[] = [
   {
-    id: 'canalizacao',
-    title: 'Canalização',
-    description: 'Reparação de fugas, desentupimentos e instalação de sistemas de água.',
-    price: '15.000 Kz',
-    image: 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39?auto=format&fit=crop&w=900&q=80',
-    category: 'Canalização',
-  },
-  {
     id: 'eletricidade',
     title: 'Eletricidade',
     description: 'Instalações elétricas, reparação de curtos-circuitos e manutenção.',
     price: '12.000 Kz',
-    image: 'https://images.unsplash.com/photo-1621905251918-48416bd8575a?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/8961066/pexels-photo-8961066.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Eletricidade',
-  },
-  {
-    id: 'ar-condicionado',
-    title: 'Ar Condicionado',
-    description: 'Instalação, manutenção e reparação de sistemas de ar condicionado.',
-    price: '20.000 Kz',
-    image: 'https://images.unsplash.com/photo-1631545910529-8c67f1b7b646?auto=format&fit=crop&w=900&q=80',
-    category: 'Ar Condicionado',
-  },
-  {
-    id: 'refrigeracao',
-    title: 'Refrigeração',
-    description: 'Manutenção de frigoríficos e sistemas de refrigeração comercial.',
-    price: '18.000 Kz',
-    image: 'https://images.unsplash.com/photo-1571175443880-49adfbe35289?auto=format&fit=crop&w=900&q=80',
-    category: 'Refrigeração',
   },
   {
     id: 'pintura',
     title: 'Pintura',
     description: 'Pintura interior e exterior com acabamento profissional.',
     price: '25.000 Kz',
-    image: 'https://images.unsplash.com/photo-1562259949-e8e7689d7822?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/1669754/pexels-photo-1669754.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Pintura',
   },
   {
@@ -53,7 +29,7 @@ export const SERVICES: Service[] = [
     title: 'Jardinagem',
     description: 'Manutenção de jardins, relva e paisagismo.',
     price: '15.000 Kz',
-    image: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/1453499/pexels-photo-1453499.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Jardinagem',
   },
   {
@@ -61,7 +37,7 @@ export const SERVICES: Service[] = [
     title: 'Marcenaria',
     description: 'Móveis sob medida e reparação de estruturas em madeira.',
     price: '18.000 Kz',
-    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/3637786/pexels-photo-3637786.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Marcenaria',
   },
   {
@@ -69,7 +45,7 @@ export const SERVICES: Service[] = [
     title: 'Carpintaria',
     description: 'Construção e montagem de estruturas em madeira.',
     price: '18.000 Kz',
-    image: 'https://images.unsplash.com/photo-1504148459948-0986732cc9f0?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Carpintaria',
   },
   {
@@ -77,7 +53,7 @@ export const SERVICES: Service[] = [
     title: 'Serralharia',
     description: 'Trabalho em metal, portões e estruturas metálicas.',
     price: '20.000 Kz',
-    image: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d92d?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/2381463/pexels-photo-2381463.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Serralharia',
   },
   {
@@ -85,31 +61,23 @@ export const SERVICES: Service[] = [
     title: 'Construção Civil',
     description: 'Obras, reboco, assentamento e pequenas reparações estruturais.',
     price: '30.000 Kz',
-    image: 'https://images.unsplash.com/photo-1504307651254-35680fa356bf?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/1216544/pexels-photo-1216544.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Construção Civil',
   },
   {
-    id: 'limpeza-residencial',
-    title: 'Limpeza Residencial',
+    id: 'limpeza',
+    title: 'Limpeza',
     description: 'Limpeza profunda de casas, apartamentos e escritórios.',
     price: '12.000 Kz',
-    image: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/4239031/pexels-photo-4239031.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Limpeza',
-  },
-  {
-    id: 'vidracaria',
-    title: 'Vidraçaria',
-    description: 'Instalação e substituição de vidros e janelas.',
-    price: '20.000 Kz',
-    image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=900&q=80',
-    category: 'Vidraçaria',
   },
   {
     id: 'informatica',
     title: 'Informática',
     description: 'Manutenção de computadores, redes e suporte técnico.',
     price: '15.000 Kz',
-    image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/4348404/pexels-photo-4348404.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Informática',
   },
   {
@@ -117,38 +85,20 @@ export const SERVICES: Service[] = [
     title: 'Montagem de Móveis',
     description: 'Montagem e desmontagem de móveis com rapidez.',
     price: '10.000 Kz',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=900&q=80',
-    category: 'Montagem',
+    image: 'https://images.pexels.com/photos/4246119/pexels-photo-4246119.jpeg?auto=compress&cs=tinysrgb&w=900',
+    category: 'Montagem de Móveis',
   },
   {
     id: 'seguranca-eletronica',
-    title: 'Segurança Eletrônica',
+    title: 'Segurança Eletrónica',
     description: 'Câmaras, alarmes e sistemas de vigilância.',
     price: '35.000 Kz',
-    image: 'https://images.unsplash.com/photo-1558009403-6752d84d270a?auto=format&fit=crop&w=900&q=80',
-    category: 'Segurança',
+    image: 'https://images.pexels.com/photos/430208/pexels-photo-430208.jpeg?auto=compress&cs=tinysrgb&w=900',
+    category: 'Segurança Eletrónica',
   },
 ];
 
-export const CATEGORIES = [
-  'Todos',
-  'Canalização',
-  'Eletricidade',
-  'Ar Condicionado',
-  'Refrigeração',
-  'Pintura',
-  'Jardinagem',
-  'Marcenaria',
-  'Carpintaria',
-  'Serralharia',
-  'Construção Civil',
-  'Limpeza',
-  'Vidraçaria',
-  'Informática',
-  'Montagem',
-  'Segurança',
-];
-
+// Cidades de Angola — nomes próprios.
 export const CITIES = [
   'Luanda',
   'Benguela',
@@ -167,7 +117,6 @@ export type Testimonial = {
   role: string;
   city: string;
   text: string;
-  avatar: string;
   rating: number;
 };
 
@@ -177,23 +126,20 @@ export const TESTIMONIALS: Testimonial[] = [
     role: 'Cliente',
     city: 'Luanda',
     text: 'Pedi um canalizador e em menos de duas horas já estava em casa a resolver o problema. Profissional e educado.',
-    avatar: 'https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg?auto=compress&cs=tinysrgb&w=200',
     rating: 5,
   },
   {
     name: 'Carlos Mendes',
     role: 'Cliente',
     city: 'Luanda',
-    text: 'Achei a plataforma muito simples. Descrevi o serviço, recebi o contacto e ficou resolvido no mesmo dia.',
-    avatar: 'https://images.pexels.com/photos/220457/pexels-photo-220457.jpeg?auto=compress&cs=tinysrgb&w=200',
+    text: 'A plataforma é muito simples. Descrevi o serviço, recebi o contacto e ficou resolvido no mesmo dia.',
     rating: 5,
   },
   {
     name: 'Joana Silva',
     role: 'Prestadora',
     city: 'Luanda',
-    text: 'Desde que entrei na AUTONOMOUS, recebo novos pedidos todas as semanas. Mudou a forma como trabalho.',
-    avatar: 'https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=200',
+    text: 'Desde que entrei na AUTONOMOUS, recebo novos pedidos todas as semanas. Mudou a forma como encontro trabalho.',
     rating: 5,
   },
   {
@@ -201,7 +147,6 @@ export const TESTIMONIALS: Testimonial[] = [
     role: 'Cliente',
     city: 'Luanda',
     text: 'O técnico de ar condicionado foi pontual e profissional. O preço foi exatamente o combinado, sem surpresas.',
-    avatar: 'https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&w=200',
     rating: 5,
   },
   {
@@ -209,23 +154,74 @@ export const TESTIMONIALS: Testimonial[] = [
     role: 'Prestadora',
     city: 'Luanda',
     text: 'Gosto de poder escolher quando aceitar serviços. Tenho flexibilidade e mais renda para a minha família.',
-    avatar: 'https://images.pexels.com/photos/733872/pexels-photo-733872.jpeg?auto=compress&cs=tinysrgb&w=200',
+    rating: 5,
+  },
+  {
+    name: 'Nuno Cardoso',
+    role: 'Cliente',
+    city: 'Luanda',
+    text: 'Finalmente uma forma de confiança para contratar profissionais qualificados. Preços transparentes e profissionais verificados.',
     rating: 5,
   },
 ];
 
 export const STATS = [
-  { value: 100, suffix: '+', label: 'Profissionais' },
-  { value: 500, suffix: '+', label: 'Clientes' },
-  { value: 800, suffix: '+', label: 'Serviços realizados' },
-  { value: 98, suffix: '%', label: 'Clientes satisfeitos' },
+  { value: 100, suffix: '+', label: 'Profissionais verificados' },
+  { value: 500, suffix: '+', label: 'Clientes satisfeitos' },
+  { value: 800, suffix: '+', label: 'Serviços concluídos' },
+  { value: 98, suffix: '%', label: 'Satisfação dos clientes' },
 ];
 
-export const BENEFITS = [
-  { title: 'Profissionais Verificados', desc: 'Cada profissional passa por um processo de validação antes de entrar na rede.' },
-  { title: 'Resposta Rápida', desc: 'Receba o contacto de um profissional qualificado em poucos minutos.' },
-  { title: 'Diversas Especialidades', desc: 'Mais de 15 categorias de serviços disponíveis num só lugar.' },
-  { title: 'Atendimento Seguro', desc: 'Acompanhamento em todo o processo, do pedido à conclusão do serviço.' },
-  { title: 'Preços Transparentes', desc: 'Saiba o valor estimado antes de avançar. Sem surpresas.' },
-  { title: 'Suporte ao Cliente', desc: 'Uma equipa pronta para ajudar sempre que precisar.' },
+export type Feature = { icon: string; title: string; desc: string };
+
+export const FEATURES: Feature[] = [
+  { icon: 'ShieldCheck', title: 'Profissionais verificados', desc: 'Cada profissional é validado e avaliado antes de entrar na rede.' },
+  { icon: 'Clock', title: 'Resposta rápida', desc: 'Encontre um profissional qualificado em minutos, não em dias.' },
+  { icon: 'Wallet', title: 'Preços transparentes', desc: 'Veja uma estimativa antes de avançar. Sem custos escondidos.' },
+  { icon: 'LayoutGrid', title: 'Todos os serviços', desc: 'Várias categorias, da pintura à segurança eletrónica, num só lugar.' },
+  { icon: 'MessageSquare', title: 'Comunicação direta', desc: 'Combine os detalhes diretamente com o seu profissional, num só lugar.' },
+  { icon: 'Star', title: 'Avaliado por clientes', desc: 'Avaliações reais de trabalhos reais ajudam a escolher com confiança.' },
+];
+
+export type Step = { title: string; desc: string };
+
+export const CLIENT_STEPS: Step[] = [
+  { title: 'Descreva o serviço', desc: 'Diga o que precisa em poucos minutos, sem necessidade de conta.' },
+  { title: 'Encontramos o profissional', desc: 'Ligamos o seu pedido a um profissional qualificado e verificado perto de si.' },
+  { title: 'Serviço concluído', desc: 'O profissional resolve o problema. Avalie a experiência no final.' },
+];
+
+export const PRO_STEPS: Step[] = [
+  { title: 'Crie o seu perfil', desc: 'Registe-se e partilhe a sua área, localização e experiência.' },
+  { title: 'Seja aprovado', desc: 'A nossa equipa valida o seu perfil e documentos, de forma rápida e gratuita.' },
+  { title: 'Receba pedidos', desc: 'Comece a receber pedidos de clientes perto de si, no seu horário.' },
+];
+
+export type Faq = { q: string; a: string };
+
+export const FAQS: Faq[] = [
+  {
+    q: 'Como funciona a AUTONOMOUS?',
+    a: 'Descreve o serviço que precisa, ligamos o seu pedido a um profissional verificado perto de si e combina os detalhes diretamente. O profissional realiza o trabalho e você avalia a experiência.',
+  },
+  {
+    q: 'É gratuito para clientes?',
+    a: 'Sim. Solicitar um serviço e ser ligado a um profissional é totalmente gratuito para clientes. Paga apenas ao profissional pelo trabalho realizado.',
+  },
+  {
+    q: 'Como são verificados os profissionais?',
+    a: 'Cada profissional passa por uma verificação de identidade e documentos antes de entrar na rede. As avaliações dos clientes mantêm a qualidade ao longo do tempo.',
+  },
+  {
+    q: 'Em quanto tempo recebo resposta?',
+    a: 'A maioria dos pedidos é ligada a um profissional qualificado em poucos minutos durante o horário de funcionamento.',
+  },
+  {
+    q: 'Que zonas cobrem?',
+    a: 'Operamos em toda Angola, com maior concentração de profissionais em Luanda e em expansão para outras províncias.',
+  },
+  {
+    q: 'Como me torno profissional?',
+    a: 'Crie um perfil, partilhe a sua área e documentos e seja aprovado pela nossa equipa. O processo é rápido e gratuito.',
+  },
 ];

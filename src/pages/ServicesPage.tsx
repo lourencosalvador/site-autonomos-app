@@ -1,155 +1,69 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Search, Star, ArrowRight, SlidersHorizontal } from 'lucide-react';
+import { Star, ArrowRight } from 'lucide-react';
 import { Button } from '../components/Button';
 import { PageHero } from '../components/PageHero';
-import { CATEGORIES } from '../data';
-import { useValidServices } from '../hooks/useValidServices';
+import { Container } from '../components/ui/Container';
+import { Card } from '../components/ui/Card';
+import { SERVICES, type Service } from '../data';
 import { useNavigate } from '../router';
 
 export function ServicesPage() {
   const navigate = useNavigate();
-  const validServices = useValidServices();
-  const [query, setQuery] = useState('');
-  const [cat, setCat] = useState('Todos');
-
-  const categories = useMemo(
-    () => CATEGORIES.filter((c) => c === 'Todos' || validServices.some((s) => s.category === c)),
-    [validServices],
-  );
-
-  useEffect(() => {
-    if (cat !== 'Todos' && !categories.includes(cat)) setCat('Todos');
-  }, [cat, categories]);
-
-  const filtered = useMemo(() => {
-    return validServices.filter((s) => {
-      const matchCat = cat === 'Todos' || s.category === cat;
-      const matchQuery =
-        !query ||
-        s.title.toLowerCase().includes(query.toLowerCase()) ||
-        s.description.toLowerCase().includes(query.toLowerCase());
-      return matchCat && matchQuery;
-    });
-  }, [query, cat, validServices]);
 
   return (
     <>
       <PageHero
-        icon={SlidersHorizontal}
-        eyebrow="Catálogo completo"
-        title={<>Todos os serviços, <span className="text-gradient-cyan">num só lugar.</span></>}
-        subtitle="Encontre o profissional certo para qualquer necessidade. Mais de 15 categorias disponíveis."
-      >
-        <div className="mx-auto max-w-xl">
-          <div className="flex items-center gap-2 rounded-full border border-ink-900/10 bg-white p-1.5 shadow-soft focus-within:border-brand-cyan/50 focus-within:shadow-glowSoft">
-            <Search size={20} className="ml-3 text-ink-400" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Pesquisar serviço..."
-              className="flex-1 bg-transparent px-2 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none"
-            />
-            <Button size="md" variant="dark" className="shrink-0" onClick={() => navigate('/solicitar-servico')}>
-              Solicitar
-            </Button>
-          </div>
-        </div>
-      </PageHero>
+        eyebrow="Catálogo"
+        title="Todos os serviços, num só lugar"
+        description="Encontre o profissional certo para qualquer necessidade, com várias categorias disponíveis em toda Angola."
+      />
 
-      {/* Filters + grid */}
-      <section className="bg-cloud-50 py-16">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          {/* Category filters */}
-          <div className="no-scrollbar -mx-5 mb-10 flex gap-2.5 overflow-x-auto px-5 lg:mx-0 lg:flex-wrap lg:px-0">
-            {categories.map((c) => (
-              <button
-                key={c}
-                onClick={() => setCat(c)}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ${
-                  cat === c
-                    ? 'bg-ink-900 text-white shadow-soft'
-                    : 'border border-ink-900/12 bg-white text-ink-500 hover:border-brand-cyan hover:text-brand-dark'
-                }`}
-              >
-                {c}
-              </button>
+      <section className="py-16 lg:py-20">
+        <Container>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {SERVICES.map((s, i) => (
+              <ServiceCard key={s.id} service={s} index={i} onRequest={() => navigate('/request')} />
             ))}
           </div>
 
-          <p className="mb-6 text-sm text-ink-400">
-            {filtered.length} serviço{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
-          </p>
-
-          {filtered.length === 0 ? (
-            <div className="rounded-3xl border border-cloud-200 bg-white py-20 text-center">
-              <p className="font-display text-lg font-bold text-ink-900">Nenhum serviço encontrado</p>
-              <p className="mt-2 text-sm text-ink-400">Tente outra pesquisa ou categoria.</p>
-            </div>
-          ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((s, i) => (
-                <ServiceCard key={s.id} service={s} index={i} onRequest={() => navigate('/solicitar-servico')} />
-              ))}
-            </div>
-          )}
-
-          <p className="mt-10 text-center text-sm text-ink-400">
+          <p className="mt-12 text-center text-sm text-zinc-500">
             Os valores apresentados são estimativas iniciais e podem variar conforme a complexidade do serviço.
           </p>
-        </div>
+        </Container>
       </section>
     </>
   );
 }
 
-function ServiceCard({
-  service,
-  index,
-  onRequest,
-}: {
-  service: { id: string; title: string; description: string; price: string; image: string; category: string };
-  index: number;
-  onRequest: () => void;
-}) {
-  const [hidden, setHidden] = useState(false);
-  if (hidden) return null;
-
+function ServiceCard({ service, index, onRequest }: { service: Service; index: number; onRequest: () => void }) {
   return (
-    <article
-      className={`reveal reveal-delay-${(index % 3) + 1} group overflow-hidden rounded-3xl border border-cloud-200 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-cardHover`}
-    >
-      <div className="relative h-48 overflow-hidden">
+    <Card interactive as="article" className={`reveal reveal-delay-${(index % 3) + 1} group flex flex-col overflow-hidden`}>
+      <div className="relative aspect-[16/10] overflow-hidden border-b border-zinc-200 bg-zinc-100">
         <img
           src={service.image}
           alt={service.title}
           loading="lazy"
-          onError={() => setHidden(true)}
-          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/70 to-transparent" />
-        <span className="absolute left-4 top-4 rounded-full bg-brand-cyan px-3 py-1 text-xs font-bold text-brand-dark shadow-glow">
+        <span className="absolute left-3 top-3 rounded-full border border-zinc-200 bg-white/90 px-2.5 py-1 text-xs font-medium text-zinc-700 backdrop-blur">
           {service.category}
         </span>
       </div>
-      <div className="p-6">
-        <h3 className="font-display text-lg font-bold text-ink-900">{service.title}</h3>
-        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-500">{service.description}</p>
+      <div className="flex flex-1 flex-col p-5">
+        <h3 className="font-semibold text-zinc-900">{service.title}</h3>
+        <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-zinc-600">{service.description}</p>
         <div className="mt-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-ink-400">A partir de</p>
-            <p className="font-display text-base font-extrabold text-ink-900">{service.price}</p>
+            <p className="text-xs text-zinc-400">A partir de</p>
+            <p className="font-display text-base font-semibold text-zinc-900">{service.price}</p>
           </div>
-          <div className="flex items-center gap-0.5 text-brand-cyan2">
+          <div className="flex gap-0.5 text-amber-400">
             {Array.from({ length: 5 }).map((_, j) => <Star key={j} size={13} className="fill-current" />)}
           </div>
         </div>
-        <button
-          onClick={onRequest}
-          className="btn-ripple mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-ink-900 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-brand-cyan hover:text-brand-dark"
-        >
+        <Button onClick={onRequest} variant="secondary" size="md" className="mt-5 w-full">
           Solicitar <ArrowRight size={15} />
-        </button>
+        </Button>
       </div>
-    </article>
+    </Card>
   );
 }
