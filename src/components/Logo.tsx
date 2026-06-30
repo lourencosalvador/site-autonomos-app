@@ -9,9 +9,9 @@ export function Logo({ className = '' }: { light?: boolean; className?: string }
       aria-label="AUTONOMOUS — início"
     >
       <img
-        src="/logo-white.svg"
+        src="/logo-principal.svg"
         alt="AUTONOMOUS"
-        className="h-9 w-44 rounded-xl object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
+        className="h-9 w-44 object-cover object-center transition-transform duration-300 group-hover:scale-[1.03]"
       />
     </button>
   );

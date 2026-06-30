@@ -1,183 +1,68 @@
-import { useState, type FormEvent } from 'react';
-import { ArrowRight, Clock, ShieldCheck, Zap, Calendar } from 'lucide-react';
-import { Button } from '../components/Button';
+import { useState, type ReactNode } from 'react';
+import { Smartphone, Rocket } from 'lucide-react';
 import { PageHero } from '../components/PageHero';
-import { Field, TextInput, TextArea, Select } from '../components/Field';
-import { SuccessScreen } from '../components/SuccessScreen';
-import { CITIES, SERVICES } from '../data';
-import { supabase } from '../lib/supabase';
 
-const URGENCY = ['Hoje — Urgente', 'Nas próximas 24h', 'Esta semana', 'Sem pressa'];
-
-type Form = {
-  nome: string; telefone: string; email: string; cidade: string;
-  endereco: string; categoria: string; descricao: string; urgencia: string; data: string;
-};
-
-const EMPTY: Form = {
-  nome: '', telefone: '+244 ', email: '', cidade: '', endereco: '',
-  categoria: '', descricao: '', urgencia: '', data: '',
-};
-
-export function RequestPage() {
-  const [form, setForm] = useState<Form>(EMPTY);
-  const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
-  const [submitting, setSubmitting] = useState(false);
-  const [done, setDone] = useState(false);
-
-  const set = (k: keyof Form, v: string) => {
-    setForm((f) => ({ ...f, [k]: v }));
-    setErrors((e) => ({ ...e, [k]: undefined }));
-  };
-
-  const validate = () => {
-    const e: Partial<Record<keyof Form, string>> = {};
-    if (!form.nome.trim()) e.nome = 'Indique o seu nome';
-    if (form.telefone.replace(/\D/g, '').length < 6) e.telefone = 'Indique o seu telefone';
-    if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Email inválido';
-    if (!form.cidade) e.cidade = 'Selecione a cidade';
-    if (!form.categoria) e.categoria = 'Selecione a categoria';
-    if (!form.descricao.trim()) e.descricao = 'Descreva o serviço';
-    if (!form.urgencia) e.urgencia = 'Selecione a urgência';
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
-
-  const onSubmit = async (ev: FormEvent) => {
-    ev.preventDefault();
-    if (!validate()) return;
-    setSubmitting(true);
-    try {
-      const { error } = await supabase.from('service_requests').insert({
-        nome: form.nome, telefone: form.telefone, email: form.email || null,
-        cidade: form.cidade, endereco: form.endereco || null,
-        categoria: form.categoria, descricao: form.descricao,
-        urgencia: form.urgencia, data_pretendida: form.data || null,
-      });
-      if (error) throw error;
-      setDone(true);
-    } catch (err) {
-      // Fallback: still show success so the UX is never blocked by infra
-      console.error('submit error', err);
-      setDone(true);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  if (done) {
-    return (
-      <PageShell>
-        <SuccessScreen
-          title="Pedido enviado com sucesso!"
-          message="Recebemos o seu pedido. A nossa equipa irá entrar em contacto nos próximos minutos para confirmar os detalhes e encontrar o profissional certo para si."
-          primaryLabel="Voltar ao início"
-          primaryTo="/"
-          secondaryLabel="Ver serviços"
-          secondaryTo="/services"
-        />
-      </PageShell>
-    );
-  }
-
+function AppleIcon({ className = '' }: { className?: string }) {
   return (
-    <PageShell>
-      <div className="mx-auto max-w-3xl">
-        <div className="overflow-hidden rounded-3xl border border-brand-dark/10 bg-white shadow-card">
-          {/* Form header */}
-          <div className="border-b border-brand-dark/10 bg-gradient-to-br from-brand-dark to-brand-dark2 p-7 text-white">
-            <h2 className="font-display text-2xl font-extrabold">Detalhes do pedido</h2>
-            <p className="mt-2 text-sm text-white/70">Quanto mais detalhes partilhar, mais rápido encontraremos o profissional certo.</p>
-          </div>
-
-          <form onSubmit={onSubmit} className="p-7">
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Field label="Nome" name="nome" required error={errors.nome}>
-                <TextInput id="nome" value={form.nome} hasError={!!errors.nome} onChange={(e) => set('nome', e.target.value)} placeholder="O seu nome" />
-              </Field>
-              <Field label="Telefone" name="telefone" required error={errors.telefone}>
-                <TextInput id="telefone" type="tel" value={form.telefone} hasError={!!errors.telefone} onChange={(e) => set('telefone', e.target.value)} placeholder="+244 923 456 789" />
-              </Field>
-              <Field label="Email" name="email" error={errors.email}>
-                <TextInput id="email" type="email" value={form.email} hasError={!!errors.email} onChange={(e) => set('email', e.target.value)} placeholder="opcional" />
-              </Field>
-              <Field label="Cidade" name="cidade" required error={errors.cidade}>
-                <Select id="cidade" value={form.cidade} hasError={!!errors.cidade} onChange={(e) => set('cidade', e.target.value)}>
-                  <option value="">Selecione...</option>
-                  {CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                </Select>
-              </Field>
-              <div className="sm:col-span-2">
-                <Field label="Endereço" name="endereco">
-                  <TextInput id="endereco" value={form.endereco} onChange={(e) => set('endereco', e.target.value)} placeholder="Bairro, rua, referência (opcional)" />
-                </Field>
-              </div>
-              <Field label="Categoria do serviço" name="categoria" required error={errors.categoria}>
-                <Select id="categoria" value={form.categoria} hasError={!!errors.categoria} onChange={(e) => set('categoria', e.target.value)}>
-                  <option value="">Selecione...</option>
-                  {SERVICES.map((s) => <option key={s.id} value={s.title}>{s.title}</option>)}
-                </Select>
-              </Field>
-              <Field label="Urgência" name="urgencia" required error={errors.urgencia}>
-                <Select id="urgencia" value={form.urgencia} hasError={!!errors.urgencia} onChange={(e) => set('urgencia', e.target.value)}>
-                  <option value="">Selecione...</option>
-                  {URGENCY.map((u) => <option key={u} value={u}>{u}</option>)}
-                </Select>
-              </Field>
-              <div className="sm:col-span-2">
-                <Field label="Data pretendida" name="data">
-                  <TextInput id="data" type="date" value={form.data} onChange={(e) => set('data', e.target.value)} />
-                </Field>
-              </div>
-              <div className="sm:col-span-2">
-                <Field label="Descrição" name="descricao" required error={errors.descricao}>
-                  <TextArea id="descricao" value={form.descricao} hasError={!!errors.descricao} onChange={(e) => set('descricao', e.target.value)} placeholder="Descreva o problema, materiais necessários, etc." />
-                </Field>
-              </div>
-            </div>
-
-            <div className="mt-7 flex flex-col items-center gap-3 sm:flex-row sm:justify-between">
-              <p className="text-xs text-ink-700/55">Os seus dados são tratados com confidencialidade.</p>
-              <Button type="submit" size="lg" disabled={submitting} className="w-full sm:w-auto">
-                {submitting ? 'A enviar...' : <>Solicitar Serviço <ArrowRight size={18} /></>}
-              </Button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </PageShell>
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
+      <path d="M16.365 1.43c0 1.14-.42 2.21-1.18 3.02-.83.91-2.18 1.61-3.31 1.52-.14-1.1.42-2.27 1.13-3.02.81-.86 2.23-1.5 3.36-1.52zM20.5 17.04c-.55 1.27-.82 1.84-1.53 2.96-.99 1.57-2.39 3.52-4.12 3.53-1.54.02-1.93-1-4.02-.99-2.09.01-2.52 1.01-4.06.99-1.73-.02-3.05-1.78-4.04-3.35C-1.1 16.4-1.46 11.18 1.21 8.4 2.31 7.26 3.84 6.55 5.4 6.55c1.59 0 2.59 1 3.91 1 1.28 0 2.06-1 3.9-1 1.39 0 2.86.76 3.91 2.07-3.44 1.88-2.88 6.79.38 8.42z" />
+    </svg>
   );
 }
 
-function PageShell({ children }: { children: React.ReactNode }) {
-  const pills = [
-    { icon: Clock, label: 'Resposta em minutos' },
-    { icon: ShieldCheck, label: 'Profissionais verificados' },
-    { icon: Calendar, label: 'Escolha a data' },
-  ];
+function GooglePlayIcon({ className = '' }: { className?: string }) {
   return (
-    <>
-      <PageHero
-        icon={Zap}
-        eyebrow="Pedido rápido"
-        title={<>Solicite um serviço em <span className="text-gradient-cyan">poucos minutos.</span></>}
-        subtitle="Preencha o formulário e a nossa equipa encontra o profissional certo para si. Sem complicações."
-      >
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          {pills.map((p) => {
-            const Icon = p.icon;
-            return (
-              <span key={p.label} className="inline-flex items-center gap-2 rounded-full border border-ink-900/10 bg-white px-4 py-2 text-sm font-medium text-ink-700 shadow-soft">
-                <Icon size={16} className="text-brand-cyan" /> {p.label}
-              </span>
-            );
-          })}
-        </div>
-      </PageHero>
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <path d="M3.6 1.8a1.7 1.7 0 0 0-.6 1.3v17.8c0 .53.23 1 .6 1.3l.1.08L13.5 12.4v-.23L3.7 1.72l-.1.08z" fill="#02E6FF" />
+      <path d="M16.8 15.7l-3.3-3.3v-.23l3.3-3.3.08.05 3.9 2.22c1.12.63 1.12 1.67 0 2.31l-3.9 2.22-.08.04z" fill="#FFD400" />
+      <path d="M16.88 15.65 13.5 12.27 3.6 22.2c.37.39.98.44 1.67.05l11.6-6.6z" fill="#F4413F" />
+      <path d="M16.88 8.9 5.27 2.3c-.69-.39-1.3-.34-1.67.05l9.9 9.92 3.38-3.37z" fill="#34A853" />
+    </svg>
+  );
+}
 
-      <section className="relative bg-cloud-50 py-16">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">{children}</div>
-      </section>
-    </>
+function StoreButton({ icon, top, bottom, onClick }: { icon: ReactNode; top: string; bottom: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="group flex items-center gap-3 rounded-2xl bg-ink-900 px-5 py-3 text-white shadow-pill transition-all duration-300 hover:-translate-y-1 hover:bg-ink-800"
+    >
+      <span className="grid h-7 w-7 place-items-center">{icon}</span>
+      <span className="text-left leading-none">
+        <span className="block text-[10px] font-medium text-white/60">{top}</span>
+        <span className="mt-1 block font-display text-base font-bold tracking-tight">{bottom}</span>
+      </span>
+    </button>
+  );
+}
+
+export function RequestPage() {
+  const [comingSoon, setComingSoon] = useState(false);
+
+  return (
+    <PageHero
+      icon={Smartphone}
+      eyebrow="Solicitar serviço"
+      title="Solicite um serviço em poucos minutos."
+      subtitle="Baixe o nosso app para solicitar um serviço de forma rápida, simples e segura. Encontre o profissional certo onde quer que esteja."
+    >
+      <div className="flex flex-col items-center">
+        <div className="flex flex-wrap items-center justify-center gap-3.5">
+          <StoreButton icon={<AppleIcon className="h-6 w-6" />} top="Baixar na" bottom="App Store" onClick={() => setComingSoon(true)} />
+          <StoreButton icon={<GooglePlayIcon className="h-5 w-5" />} top="Disponível no" bottom="Google Play" onClick={() => setComingSoon(true)} />
+        </div>
+
+        {comingSoon && (
+          <div className="animate-fadeUp mt-6 flex max-w-md items-center gap-3 rounded-2xl border border-brand-cyan/30 bg-brand-cyan/10 px-5 py-4 text-left">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-cyan/20 text-brand-cyan2">
+              <Rocket size={20} />
+            </span>
+            <p className="text-sm text-brand-dark">
+              <span className="font-bold">O nosso app está a chegar!</span> Vai ser lançado em breve na App Store e no Google Play. Fica atento. 🚀
+            </p>
+          </div>
+        )}
+      </div>
+    </PageHero>
   );
 }

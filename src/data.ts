@@ -29,7 +29,7 @@ export const SERVICES: Service[] = [
     title: 'Ar Condicionado',
     description: 'Instalação, manutenção e reparação de sistemas de ar condicionado.',
     price: '20.000 Kz',
-    image: 'https://images.unsplash.com/photo-1631545910529-8c67f1b7b646?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/6476078/pexels-photo-6476078.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Ar Condicionado',
   },
   {
@@ -37,7 +37,7 @@ export const SERVICES: Service[] = [
     title: 'Refrigeração',
     description: 'Manutenção de frigoríficos e sistemas de refrigeração comercial.',
     price: '18.000 Kz',
-    image: 'https://images.unsplash.com/photo-1571175443880-49adfbe35289?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/4239130/pexels-photo-4239130.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Refrigeração',
   },
   {
@@ -45,7 +45,7 @@ export const SERVICES: Service[] = [
     title: 'Pintura',
     description: 'Pintura interior e exterior com acabamento profissional.',
     price: '25.000 Kz',
-    image: 'https://images.unsplash.com/photo-1562259949-e8e7689d7822?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/1669754/pexels-photo-1669754.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Pintura',
   },
   {
@@ -69,7 +69,7 @@ export const SERVICES: Service[] = [
     title: 'Carpintaria',
     description: 'Construção e montagem de estruturas em madeira.',
     price: '18.000 Kz',
-    image: 'https://images.unsplash.com/photo-1504148459948-0986732cc9f0?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/2092058/pexels-photo-2092058.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Carpintaria',
   },
   {
@@ -77,7 +77,7 @@ export const SERVICES: Service[] = [
     title: 'Serralharia',
     description: 'Trabalho em metal, portões e estruturas metálicas.',
     price: '20.000 Kz',
-    image: 'https://images.unsplash.com/photo-1504328345606-18bbc8c9d92d?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/2381463/pexels-photo-2381463.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Serralharia',
   },
   {
@@ -85,7 +85,7 @@ export const SERVICES: Service[] = [
     title: 'Construção Civil',
     description: 'Obras, reboco, assentamento e pequenas reparações estruturais.',
     price: '30.000 Kz',
-    image: 'https://images.unsplash.com/photo-1504307651254-35680fa356bf?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/1216544/pexels-photo-1216544.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Construção Civil',
   },
   {
@@ -125,7 +125,7 @@ export const SERVICES: Service[] = [
     title: 'Segurança Eletrônica',
     description: 'Câmaras, alarmes e sistemas de vigilância.',
     price: '35.000 Kz',
-    image: 'https://images.unsplash.com/photo-1558009403-6752d84d270a?auto=format&fit=crop&w=900&q=80',
+    image: 'https://images.pexels.com/photos/430208/pexels-photo-430208.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Segurança',
   },
 ];

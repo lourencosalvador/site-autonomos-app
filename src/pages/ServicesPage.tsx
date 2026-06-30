@@ -1,36 +1,10 @@
-import { useState, useMemo, useEffect } from 'react';
-import { Search, Star, ArrowRight, SlidersHorizontal } from 'lucide-react';
-import { Button } from '../components/Button';
+import { Star, ArrowRight, SlidersHorizontal } from 'lucide-react';
 import { PageHero } from '../components/PageHero';
-import { CATEGORIES } from '../data';
-import { useValidServices } from '../hooks/useValidServices';
+import { SERVICES, type Service } from '../data';
 import { useNavigate } from '../router';
 
 export function ServicesPage() {
   const navigate = useNavigate();
-  const validServices = useValidServices();
-  const [query, setQuery] = useState('');
-  const [cat, setCat] = useState('Todos');
-
-  const categories = useMemo(
-    () => CATEGORIES.filter((c) => c === 'Todos' || validServices.some((s) => s.category === c)),
-    [validServices],
-  );
-
-  useEffect(() => {
-    if (cat !== 'Todos' && !categories.includes(cat)) setCat('Todos');
-  }, [cat, categories]);
-
-  const filtered = useMemo(() => {
-    return validServices.filter((s) => {
-      const matchCat = cat === 'Todos' || s.category === cat;
-      const matchQuery =
-        !query ||
-        s.title.toLowerCase().includes(query.toLowerCase()) ||
-        s.description.toLowerCase().includes(query.toLowerCase());
-      return matchCat && matchQuery;
-    });
-  }, [query, cat, validServices]);
 
   return (
     <>
@@ -39,59 +13,15 @@ export function ServicesPage() {
         eyebrow="Catálogo completo"
         title={<>Todos os serviços, <span className="text-gradient-cyan">num só lugar.</span></>}
         subtitle="Encontre o profissional certo para qualquer necessidade. Mais de 15 categorias disponíveis."
-      >
-        <div className="mx-auto max-w-xl">
-          <div className="flex items-center gap-2 rounded-full border border-ink-900/10 bg-white p-1.5 shadow-soft focus-within:border-brand-cyan/50 focus-within:shadow-glowSoft">
-            <Search size={20} className="ml-3 text-ink-400" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Pesquisar serviço..."
-              className="flex-1 bg-transparent px-2 py-2 text-sm text-ink-900 placeholder:text-ink-400 focus:outline-none"
-            />
-            <Button size="md" variant="dark" className="shrink-0" onClick={() => navigate('/solicitar-servico')}>
-              Solicitar
-            </Button>
-          </div>
-        </div>
-      </PageHero>
+      />
 
-      {/* Filters + grid */}
       <section className="bg-cloud-50 py-16">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          {/* Category filters */}
-          <div className="no-scrollbar -mx-5 mb-10 flex gap-2.5 overflow-x-auto px-5 lg:mx-0 lg:flex-wrap lg:px-0">
-            {categories.map((c) => (
-              <button
-                key={c}
-                onClick={() => setCat(c)}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-all duration-200 ${
-                  cat === c
-                    ? 'bg-ink-900 text-white shadow-soft'
-                    : 'border border-ink-900/12 bg-white text-ink-500 hover:border-brand-cyan hover:text-brand-dark'
-                }`}
-              >
-                {c}
-              </button>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {SERVICES.map((s, i) => (
+              <ServiceCard key={s.id} service={s} index={i} onRequest={() => navigate('/solicitar-servico')} />
             ))}
           </div>
-
-          <p className="mb-6 text-sm text-ink-400">
-            {filtered.length} serviço{filtered.length !== 1 ? 's' : ''} encontrado{filtered.length !== 1 ? 's' : ''}
-          </p>
-
-          {filtered.length === 0 ? (
-            <div className="rounded-3xl border border-cloud-200 bg-white py-20 text-center">
-              <p className="font-display text-lg font-bold text-ink-900">Nenhum serviço encontrado</p>
-              <p className="mt-2 text-sm text-ink-400">Tente outra pesquisa ou categoria.</p>
-            </div>
-          ) : (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {filtered.map((s, i) => (
-                <ServiceCard key={s.id} service={s} index={i} onRequest={() => navigate('/solicitar-servico')} />
-              ))}
-            </div>
-          )}
 
           <p className="mt-10 text-center text-sm text-ink-400">
             Os valores apresentados são estimativas iniciais e podem variar conforme a complexidade do serviço.
@@ -102,28 +32,17 @@ export function ServicesPage() {
   );
 }
 
-function ServiceCard({
-  service,
-  index,
-  onRequest,
-}: {
-  service: { id: string; title: string; description: string; price: string; image: string; category: string };
-  index: number;
-  onRequest: () => void;
-}) {
-  const [hidden, setHidden] = useState(false);
-  if (hidden) return null;
-
+function ServiceCard({ service, index, onRequest }: { service: Service; index: number; onRequest: () => void }) {
   return (
     <article
       className={`reveal reveal-delay-${(index % 3) + 1} group overflow-hidden rounded-3xl border border-cloud-200 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-cardHover`}
     >
-      <div className="relative h-48 overflow-hidden">
+      <div className="relative h-48 overflow-hidden bg-gradient-to-br from-brand-dark to-brand-dark3">
         <img
           src={service.image}
           alt={service.title}
           loading="lazy"
-          onError={() => setHidden(true)}
+          onError={(e) => { (e.currentTarget as HTMLImageElement).style.visibility = 'hidden'; }}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/70 to-transparent" />
