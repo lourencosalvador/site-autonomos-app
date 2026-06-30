@@ -29,7 +29,7 @@ export const SERVICES: Service[] = [
     title: 'Ar Condicionado',
     description: 'Instalação, manutenção e reparação de sistemas de ar condicionado.',
     price: '20.000 Kz',
-    image: 'https://images.pexels.com/photos/6476078/pexels-photo-6476078.jpeg?auto=compress&cs=tinysrgb&w=900',
+    image: 'https://images.pexels.com/photos/32588555/pexels-photo-32588555.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Ar Condicionado',
   },
   {
@@ -37,7 +37,7 @@ export const SERVICES: Service[] = [
     title: 'Refrigeração',
     description: 'Manutenção de frigoríficos e sistemas de refrigeração comercial.',
     price: '18.000 Kz',
-    image: 'https://images.pexels.com/photos/4239130/pexels-photo-4239130.jpeg?auto=compress&cs=tinysrgb&w=900',
+    image: 'https://images.pexels.com/photos/32391499/pexels-photo-32391499.jpeg?auto=compress&cs=tinysrgb&w=900',
     category: 'Refrigeração',
   },
   {
