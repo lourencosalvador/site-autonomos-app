@@ -1,4 +1,5 @@
-import { Sparkles, Star } from 'lucide-react';
+import { useState, type ReactNode } from 'react';
+import { Rocket, Sparkles, Star } from 'lucide-react';
 import { PhoneMockup } from './PhoneMockup';
 
 /* ---- App-store style download buttons ---- */
@@ -25,14 +26,17 @@ function StoreButton({
   icon,
   top,
   bottom,
+  onClick,
 }: {
-  icon: React.ReactNode;
+  icon: ReactNode;
   top: string;
   bottom: string;
+  onClick: () => void;
 }) {
   return (
-    <a
-      href="#"
+    <button
+      type="button"
+      onClick={onClick}
       className="group flex items-center gap-3 rounded-2xl bg-ink-900 px-5 py-3 text-white shadow-pill transition-all duration-300 hover:-translate-y-1 hover:bg-ink-800"
     >
       <span className="grid h-7 w-7 place-items-center">{icon}</span>
@@ -40,7 +44,7 @@ function StoreButton({
         <span className="block text-[10px] font-medium text-white/60">{top}</span>
         <span className="mt-1 block font-display text-base font-bold tracking-tight">{bottom}</span>
       </span>
-    </a>
+    </button>
   );
 }
 
@@ -78,6 +82,8 @@ const AVATARS: Avatar[] = [
 ];
 
 export function Hero() {
+  const [comingSoon, setComingSoon] = useState(false);
+
   return (
     <section className="hero-wash relative overflow-hidden px-5 pb-0 pt-28 lg:pt-36">
       {/* ===== Background decor ===== */}
@@ -150,9 +156,20 @@ export function Hero() {
 
         {/* App-store buttons */}
         <div className="animate-fadeUp mt-9 flex flex-wrap items-center justify-center gap-3.5 [animation-delay:0.3s]">
-          <StoreButton icon={<AppleIcon className="h-6 w-6" />} top="Baixar na" bottom="App Store" />
-          <StoreButton icon={<GooglePlayIcon className="h-5 w-5" />} top="Disponível no" bottom="Google Play" />
+          <StoreButton icon={<AppleIcon className="h-6 w-6" />} top="Baixar na" bottom="App Store" onClick={() => setComingSoon(true)} />
+          <StoreButton icon={<GooglePlayIcon className="h-5 w-5" />} top="Disponível no" bottom="Google Play" onClick={() => setComingSoon(true)} />
         </div>
+
+        {comingSoon && (
+          <div className="animate-fadeUp mt-6 flex max-w-md items-center gap-3 rounded-2xl border border-brand-cyan/30 bg-brand-cyan/10 px-5 py-4 text-left shadow-soft [animation-delay:0.35s]">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-cyan/20 text-brand-cyan2">
+              <Rocket size={20} />
+            </span>
+            <p className="text-sm text-brand-dark">
+              <span className="font-bold">O nosso app está a chegar!</span> Vai ser lançado em breve na App Store e no Google Play. Fica atento. 🚀
+            </p>
+          </div>
+        )}
 
         {/* Social proof */}
         <div className="animate-fadeUp mt-7 flex items-center justify-center gap-3 [animation-delay:0.4s]">
