@@ -4,6 +4,7 @@ import { Button } from '../components/Button';
 import { SectionHeading } from '../components/SectionHeading';
 import { ServicesCarousel } from '../components/ServicesCarousel';
 import { TestimonialsSlider } from '../components/TestimonialsSlider';
+import { FaqSection } from '../components/FaqSection';
 import { Counter } from '../components/Counter';
 import { STATS, BENEFITS, CATEGORIES } from '../data';
 
@@ -142,6 +143,9 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ===== FAQ ===== */}
+      <FaqSection />
 
       {/* ===== FINAL CTA ===== */}
       <section className="bg-white px-5 py-20 lg:px-8">
