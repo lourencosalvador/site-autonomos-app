@@ -1,4 +1,4 @@
-import { Target, Eye, Sparkles, MapPin, TrendingUp, Users, CheckCircle2 } from 'lucide-react';
+import { Target, Eye, MapPin, TrendingUp, Users, CheckCircle2 } from 'lucide-react';
 import { SectionHeading } from '../components/SectionHeading';
 import { PageHero } from '../components/PageHero';
 import { Button } from '../components/Button';
@@ -9,7 +9,7 @@ export function AboutPage() {
   return (
     <>
       <PageHero
-        icon={Sparkles}
+        icon={Users}
         eyebrow="Sobre nós"
         title={<>Construímos a maior rede de <span className="text-gradient-cyan">profissionais de África.</span></>}
         subtitle="A AUTONOMOUS nasceu em Angola para resolver um problema simples: encontrar um profissional de confiança não deveria ser difícil."

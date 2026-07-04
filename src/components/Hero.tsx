@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { Rocket, Sparkles, Star } from 'lucide-react';
+import { MapPin, Rocket, Star } from 'lucide-react';
 import { PhoneMockup } from './PhoneMockup';
 
 /* ---- App-store style download buttons ---- */
@@ -134,7 +134,7 @@ export function Hero() {
       {/* ===== Center content ===== */}
       <div className="relative z-20 mx-auto max-w-4xl text-center">
         <span className="animate-fadeUp inline-flex items-center gap-2 rounded-full border border-ink-900/10 bg-white/80 px-4 py-2 text-xs font-semibold text-ink-700 shadow-soft backdrop-blur">
-          <Sparkles size={14} className="text-brand-cyan" />
+          <MapPin size={14} className="text-brand-cyan" />
           A maior rede de profissionais de Angola
         </span>
 

@@ -1,4 +1,4 @@
-import { ArrowRight, Search, UserCheck, Wrench, ShieldCheck, Clock, Sparkles, Headset, Tag } from 'lucide-react';
+import { ArrowRight, Search, UserCheck, Wrench, ShieldCheck, Clock, LayoutGrid, Headset, Tag } from 'lucide-react';
 import { Hero } from '../components/Hero';
 import { Button } from '../components/Button';
 import { SectionHeading } from '../components/SectionHeading';
@@ -9,7 +9,7 @@ import { ClientSignupSection } from '../components/ClientSignupSection';
 import { Counter } from '../components/Counter';
 import { STATS, BENEFITS, CATEGORIES } from '../data';
 
-const BENEFIT_ICONS = [ShieldCheck, Clock, Sparkles, ShieldCheck, Tag, Headset];
+const BENEFIT_ICONS = [ShieldCheck, Clock, LayoutGrid, ShieldCheck, Tag, Headset];
 
 const CUSTOMER_STEPS = [
   { n: '1', title: 'Solicite', desc: 'Descreva o serviço que precisa em poucos minutos.', icon: Search },

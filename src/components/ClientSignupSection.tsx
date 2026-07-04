@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { ArrowRight, BellRing, CheckCircle2, LogIn, ShieldCheck, Smartphone, Sparkles } from 'lucide-react';
+import { ArrowRight, BellRing, CheckCircle2, LogIn, ShieldCheck, Smartphone } from 'lucide-react';
 import { Button } from './Button';
 import { Field, TextInput, Select } from './Field';
 import { CITIES } from '../data';
@@ -135,10 +135,7 @@ export function ClientSignupSection() {
               </div>
             ) : (
               <form onSubmit={onSubmit} className="rounded-[1.6rem] p-6 sm:p-8">
-                <div className="flex items-center gap-2 text-brand-dark">
-                  <Sparkles size={18} className="text-brand-cyan2" />
-                  <h3 className="font-display text-xl font-extrabold">Junta-te à rede de clientes</h3>
-                </div>
+                <h3 className="font-display text-xl font-extrabold text-brand-dark">Junta-te à rede de clientes</h3>
                 <p className="mt-1.5 text-sm text-ink-700/70">
                   Leva menos de um minuto. É grátis.
                 </p>
