@@ -4,6 +4,7 @@ import { Button } from '../components/Button';
 import { PageHero } from '../components/PageHero';
 import { Field, TextInput, TextArea, Select } from '../components/Field';
 import { SuccessScreen } from '../components/SuccessScreen';
+import { useToast } from '../components/Toast';
 import { CITIES } from '../data';
 import { submitProviderApplication } from '../lib/providerApplication';
 
@@ -37,6 +38,7 @@ export function BecomeProPage() {
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const { success, error } = useToast();
 
   const set = (k: keyof Form, v: string | boolean | File | null) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -66,7 +68,10 @@ export function BecomeProPage() {
 
   const onSubmit = async (ev: FormEvent) => {
     ev.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      error('Confere os dados', 'Preenche os campos obrigatórios assinalados.');
+      return;
+    }
     setSubmitting(true);
     setSubmitError(null);
     try {
@@ -83,9 +88,11 @@ export function BecomeProPage() {
         idDocument: form.bi as File,
       });
       setDone(true);
+      success('Candidatura enviada!', 'Após aprovação, enviamos a tua chave de acesso por SMS.');
     } catch (err) {
       console.error('submit error', err);
       setSubmitError('Não foi possível enviar a candidatura. Verifique a ligação e tente novamente.');
+      error('Falha ao enviar', 'Verifica a ligação e tenta novamente.');
     } finally {
       setSubmitting(false);
     }

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { ArrowRight, BellRing, CheckCircle2, LogIn, ShieldCheck, Smartphone } from 'lucide-react';
 import { Button } from './Button';
 import { Field, TextInput, Select } from './Field';
+import { useToast } from './Toast';
 import { CITIES } from '../data';
 import { submitClientSignup } from '../lib/clientSignup';
 
@@ -26,6 +27,7 @@ export function ClientSignupSection() {
   const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const { success, error } = useToast();
 
   const set = (k: keyof Form, v: string) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -43,7 +45,10 @@ export function ClientSignupSection() {
 
   const onSubmit = async (ev: FormEvent) => {
     ev.preventDefault();
-    if (!validate()) return;
+    if (!validate()) {
+      error('Confere os dados', 'Preenche os campos assinalados a vermelho.');
+      return;
+    }
     setSubmitting(true);
     try {
       // Best-effort: the welcome experience is shown regardless of persistence.
@@ -56,6 +61,7 @@ export function ClientSignupSection() {
     } finally {
       setSubmitting(false);
       setDone(true);
+      success('Estás dentro! 🎉', 'Enviámos a tua chave de acesso por SMS.');
     }
   };
 

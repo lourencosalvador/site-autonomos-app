@@ -1,6 +1,7 @@
-import { useState, type ReactNode } from 'react';
-import { MapPin, Rocket, Star } from 'lucide-react';
+import { type ReactNode } from 'react';
+import { MapPin, Star } from 'lucide-react';
 import { PhoneMockup } from './PhoneMockup';
+import { useToast } from './Toast';
 
 /* ---- App-store style download buttons ---- */
 function AppleIcon({ className = '' }: { className?: string }) {
@@ -82,7 +83,9 @@ const AVATARS: Avatar[] = [
 ];
 
 export function Hero() {
-  const [comingSoon, setComingSoon] = useState(false);
+  const { info } = useToast();
+  const notifyComingSoon = () =>
+    info('App a chegar em breve', 'Vai estar disponível na App Store e Google Play. Fica atento! 🚀');
 
   return (
     <section className="hero-wash relative overflow-hidden px-5 pb-0 pt-28 lg:pt-36">
@@ -156,20 +159,9 @@ export function Hero() {
 
         {/* App-store buttons */}
         <div className="animate-fadeUp mt-9 flex flex-wrap items-center justify-center gap-3.5 [animation-delay:0.3s]">
-          <StoreButton icon={<AppleIcon className="h-6 w-6" />} top="Baixar na" bottom="App Store" onClick={() => setComingSoon(true)} />
-          <StoreButton icon={<GooglePlayIcon className="h-5 w-5" />} top="Disponível no" bottom="Google Play" onClick={() => setComingSoon(true)} />
+          <StoreButton icon={<AppleIcon className="h-6 w-6" />} top="Baixar na" bottom="App Store" onClick={notifyComingSoon} />
+          <StoreButton icon={<GooglePlayIcon className="h-5 w-5" />} top="Disponível no" bottom="Google Play" onClick={notifyComingSoon} />
         </div>
-
-        {comingSoon && (
-          <div className="animate-fadeUp mt-6 flex max-w-md items-center gap-3 rounded-2xl border border-brand-cyan/30 bg-brand-cyan/10 px-5 py-4 text-left shadow-soft [animation-delay:0.35s]">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-cyan/20 text-brand-cyan2">
-              <Rocket size={20} />
-            </span>
-            <p className="text-sm text-brand-dark">
-              <span className="font-bold">O nosso app está a chegar!</span> Vai ser lançado em breve na App Store e no Google Play. Fica atento. 🚀
-            </p>
-          </div>
-        )}
 
         {/* Social proof */}
         <div className="animate-fadeUp mt-7 flex items-center justify-center gap-3 [animation-delay:0.4s]">

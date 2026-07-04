@@ -1,6 +1,7 @@
-import { useState, type ReactNode } from 'react';
-import { Smartphone, Rocket } from 'lucide-react';
+import { type ReactNode } from 'react';
+import { Smartphone } from 'lucide-react';
 import { PageHero } from '../components/PageHero';
+import { useToast } from '../components/Toast';
 
 function AppleIcon({ className = '' }: { className?: string }) {
   return (
@@ -37,7 +38,9 @@ function StoreButton({ icon, top, bottom, onClick }: { icon: ReactNode; top: str
 }
 
 export function RequestPage() {
-  const [comingSoon, setComingSoon] = useState(false);
+  const { info } = useToast();
+  const notifyComingSoon = () =>
+    info('App a chegar em breve', 'Vai estar disponível na App Store e Google Play. Fica atento! 🚀');
 
   return (
     <PageHero
@@ -48,20 +51,9 @@ export function RequestPage() {
     >
       <div className="flex flex-col items-center">
         <div className="flex flex-wrap items-center justify-center gap-3.5">
-          <StoreButton icon={<AppleIcon className="h-6 w-6" />} top="Baixar na" bottom="App Store" onClick={() => setComingSoon(true)} />
-          <StoreButton icon={<GooglePlayIcon className="h-5 w-5" />} top="Disponível no" bottom="Google Play" onClick={() => setComingSoon(true)} />
+          <StoreButton icon={<AppleIcon className="h-6 w-6" />} top="Baixar na" bottom="App Store" onClick={notifyComingSoon} />
+          <StoreButton icon={<GooglePlayIcon className="h-5 w-5" />} top="Disponível no" bottom="Google Play" onClick={notifyComingSoon} />
         </div>
-
-        {comingSoon && (
-          <div className="animate-fadeUp mt-6 flex max-w-md items-center gap-3 rounded-2xl border border-brand-cyan/30 bg-brand-cyan/10 px-5 py-4 text-left">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-cyan/20 text-brand-cyan2">
-              <Rocket size={20} />
-            </span>
-            <p className="text-sm text-brand-dark">
-              <span className="font-bold">O nosso app está a chegar!</span> Vai ser lançado em breve na App Store e no Google Play. Fica atento. 🚀
-            </p>
-          </div>
-        )}
       </div>
     </PageHero>
   );
