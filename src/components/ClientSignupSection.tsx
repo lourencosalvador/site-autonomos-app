@@ -5,6 +5,13 @@ import { Field, TextInput, Select } from './Field';
 import { CITIES } from '../data';
 import { submitClientSignup } from '../lib/clientSignup';
 
+const AVATARS = [
+  'https://images.pexels.com/photos/33569519/pexels-photo-33569519.jpeg?auto=compress&cs=tinysrgb&w=96',
+  'https://images.pexels.com/photos/19379640/pexels-photo-19379640.jpeg?auto=compress&cs=tinysrgb&w=96',
+  'https://images.pexels.com/photos/37038761/pexels-photo-37038761.jpeg?auto=compress&cs=tinysrgb&w=96',
+  'https://images.pexels.com/photos/19039168/pexels-photo-19039168.jpeg?auto=compress&cs=tinysrgb&w=96',
+];
+
 const PERKS = [
   { icon: LogIn, title: 'Conta pronta no lançamento', desc: 'Quando a app chegar, só fazes login. Zero configuração.' },
   { icon: BellRing, title: 'Aviso em primeira mão', desc: 'És dos primeiros a saber quando abrirmos.' },
@@ -94,8 +101,8 @@ export function ClientSignupSection() {
 
           <div className="mt-9 flex items-center gap-4">
             <div className="flex -space-x-3">
-              {['from-brand-cyan to-brand-cyan2', 'from-lilac-200 to-brand-cyan', 'from-brand-cyan2 to-lilac-200'].map((g, i) => (
-                <span key={i} className={`h-9 w-9 rounded-full bg-gradient-to-br ${g} ring-2 ring-brand-dark`} />
+              {AVATARS.map((src) => (
+                <img key={src} src={src} alt="" loading="lazy" className="h-9 w-9 rounded-full object-cover ring-2 ring-brand-dark" />
               ))}
             </div>
             <p className="text-sm text-white/60">
