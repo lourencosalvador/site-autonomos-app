@@ -74,6 +74,37 @@ update provider_applications
 
 O trigger dispara e a chave segue por SMS para o número do prestador.
 
+## Estado do provisionamento e re-emissão da chave
+
+Cada adesão guarda `provision_status` (+ `provisioned_at`, `auth_user_id`):
+
+| valor         | significado                                             |
+|---------------|---------------------------------------------------------|
+| `pending`     | ainda não processado                                    |
+| `sms_sent`    | conta criada **e** SMS entregue ✅                       |
+| `sms_failed`  | conta criada mas **SMS não entregue** (re-emitir) ⚠️    |
+| `exists`      | já havia conta para este telefone                       |
+| `error`       | falha a criar a conta                                   |
+
+> A conta é criada mesmo que o SMS falhe — mas sem a chave a pessoa não consegue
+> entrar. Por isso, quando o SMS falha, o registo fica `sms_failed` para reenvio.
+
+**Ver quem ficou sem SMS:**
+```sql
+select id, name, phone, provision_status
+  from provider_applications where provision_status = 'sms_failed';
+select id, nome, telefone, provision_status
+  from client_signups where provision_status = 'sms_failed';
+```
+
+**Re-emitir a chave** (gera uma NOVA chave, repõe a password e reenvia o SMS):
+```sql
+update provider_applications set provision_status = 'reissue' where id = '<id>';
+update client_signups        set provision_status = 'reissue' where id = '<id>';
+```
+O trigger dispara a função em modo `reissue`; no fim o `provision_status` volta a
+`sms_sent` (ou `sms_failed` se ainda não houver remetente Twilio).
+
 ## Notas
 
 - **Idempotência:** se já existir um `profiles.phone` igual, a função devolve
