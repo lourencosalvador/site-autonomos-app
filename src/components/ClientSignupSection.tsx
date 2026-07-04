@@ -127,12 +127,12 @@ export function ClientSignupSection() {
                 </h3>
                 <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-ink-700/75">
                   Agora fazes parte da <span className="font-semibold text-brand-dark">rede de clientes</span> da
-                  AUTONOMOUS. Entraremos em contacto assim que a app estiver disponível
-                  para começares a solicitar serviços.
+                  AUTONOMOUS. Enviámos a tua <span className="font-semibold text-brand-dark">chave de acesso por SMS</span> para
+                  o número indicado — na app é só entrares com o teu número e essa chave.
                 </p>
                 <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-cyan/10 px-4 py-2 text-sm font-medium text-brand-dark">
                   <BellRing size={15} className="text-brand-cyan2" />
-                  Vais receber o aviso de lançamento em primeira mão.
+                  Podes alterar a chave quando quiseres, dentro da app.
                 </div>
                 <div className="mt-8">
                   <Button to="/solicitar-servico" size="md" className="w-full sm:w-auto">

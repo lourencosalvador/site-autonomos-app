@@ -1,0 +1,7 @@
+project_id = "dbmitproxcogmtwfyhen"
+
+# A função é chamada pelos triggers da BD (pg_net) com um segredo próprio
+# (x-provision-secret), não com um JWT do Supabase — por isso desligamos a
+# verificação de JWT. A autorização real é feita dentro da função.
+[functions.provision-account]
+verify_jwt = false

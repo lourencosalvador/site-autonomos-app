@@ -96,7 +96,7 @@ export function BecomeProPage() {
       <Shell>
         <SuccessScreen
           title="Candidatura recebida!"
-          message="Obrigado pelo seu interesse em fazer parte da AUTONOMOUS. A nossa equipa irá analisar o seu perfil e entrar em contacto em breve."
+          message="Obrigado pelo seu interesse em fazer parte da AUTONOMOUS. A nossa equipa vai analisar o seu perfil e, assim que for aprovado, enviamos a sua chave de acesso por SMS para entrar diretamente na app."
           primaryLabel="Voltar ao início"
           primaryTo="/"
           secondaryLabel="Ver serviços"
