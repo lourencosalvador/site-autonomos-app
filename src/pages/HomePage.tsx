@@ -5,6 +5,7 @@ import { SectionHeading } from '../components/SectionHeading';
 import { ServicesCarousel } from '../components/ServicesCarousel';
 import { TestimonialsSlider } from '../components/TestimonialsSlider';
 import { FaqSection } from '../components/FaqSection';
+import { ClientSignupSection } from '../components/ClientSignupSection';
 import { Counter } from '../components/Counter';
 import { STATS, BENEFITS, CATEGORIES } from '../data';
 
@@ -100,6 +101,9 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ===== CLIENT EARLY-ACCESS SIGNUP ===== */}
+      <ClientSignupSection />
 
       {/* ===== WHY CHOOSE ===== */}
       <section className="relative overflow-hidden bg-white py-24">
