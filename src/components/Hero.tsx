@@ -1,51 +1,19 @@
-import { type ReactNode } from 'react';
-import { MapPin, Star } from 'lucide-react';
+import { ArrowRight, MapPin, Star } from 'lucide-react';
 import { PhoneMockup } from './PhoneMockup';
-import { useToast } from './Toast';
 
-/* ---- App-store style download buttons ---- */
-function AppleIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
-      <path d="M16.365 1.43c0 1.14-.42 2.21-1.18 3.02-.83.91-2.18 1.61-3.31 1.52-.14-1.1.42-2.27 1.13-3.02.81-.86 2.23-1.5 3.36-1.52zM20.5 17.04c-.55 1.27-.82 1.84-1.53 2.96-.99 1.57-2.39 3.52-4.12 3.53-1.54.02-1.93-1-4.02-.99-2.09.01-2.52 1.01-4.06.99-1.73-.02-3.05-1.78-4.04-3.35C-1.1 16.4-1.46 11.18 1.21 8.4 2.31 7.26 3.84 6.55 5.4 6.55c1.59 0 2.59 1 3.91 1 1.28 0 2.06-1 3.9-1 1.39 0 2.86.76 3.91 2.07-3.44 1.88-2.88 6.79.38 8.42z" />
-    </svg>
-  );
-}
+/** Build do APK (Android) no Expo. */
+const APK_URL =
+  'https://expo.dev/accounts/lourenzocardoso/projects/autonomos-app/builds/4a6b259a-6c9b-47f3-af2b-6df4f96f06e6';
 
+/* Ícone Google Play monocromático (usa currentColor). */
 function GooglePlayIcon({ className = '' }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-      <path d="M3.6 1.8a1.7 1.7 0 0 0-.6 1.3v17.8c0 .53.23 1 .6 1.3l.1.08L13.5 12.4v-.23L3.7 1.72l-.1.08z" fill="#02E6FF" />
-      <path d="M16.8 15.7l-3.3-3.3v-.23l3.3-3.3.08.05 3.9 2.22c1.12.63 1.12 1.67 0 2.31l-3.9 2.22-.08.04z" fill="#FFD400" />
-      <path d="M16.88 15.65 13.5 12.27 3.6 22.2c.37.39.98.44 1.67.05l11.6-6.6z" fill="#F4413F" />
-      <path d="M16.88 8.9 5.27 2.3c-.69-.39-1.3-.34-1.67.05l9.9 9.92 3.38-3.37z" fill="#34A853" />
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
+      <path d="M3.6 1.8a1.7 1.7 0 0 0-.6 1.3v17.8c0 .53.23 1 .6 1.3l.1.08L13.5 12.4v-.23L3.7 1.72l-.1.08z" />
+      <path d="M16.8 15.7l-3.3-3.3v-.23l3.3-3.3.08.05 3.9 2.22c1.12.63 1.12 1.67 0 2.31l-3.9 2.22-.08.04z" />
+      <path d="M16.88 15.65 13.5 12.27 3.6 22.2c.37.39.98.44 1.67.05l11.6-6.6z" />
+      <path d="M16.88 8.9 5.27 2.3c-.69-.39-1.3-.34-1.67.05l9.9 9.92 3.38-3.37z" />
     </svg>
-  );
-}
-
-function StoreButton({
-  icon,
-  top,
-  bottom,
-  onClick,
-}: {
-  icon: ReactNode;
-  top: string;
-  bottom: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="group flex items-center gap-3 rounded-2xl bg-ink-900 px-5 py-3 text-white shadow-pill transition-all duration-300 hover:-translate-y-1 hover:bg-ink-800"
-    >
-      <span className="grid h-7 w-7 place-items-center">{icon}</span>
-      <span className="text-left leading-none">
-        <span className="block text-[10px] font-medium text-white/60">{top}</span>
-        <span className="mt-1 block font-display text-base font-bold tracking-tight">{bottom}</span>
-      </span>
-    </button>
   );
 }
 
@@ -83,10 +51,6 @@ const AVATARS: Avatar[] = [
 ];
 
 export function Hero() {
-  const { info } = useToast();
-  const notifyComingSoon = () =>
-    info('App a chegar em breve', 'Vai estar disponível na App Store e Google Play. Fica atento! 🚀');
-
   return (
     <section className="hero-wash relative overflow-hidden px-5 pb-0 pt-28 lg:pt-36">
       {/* ===== Background decor ===== */}
@@ -157,10 +121,20 @@ export function Hero() {
           Rápido, simples e seguro.
         </p>
 
-        {/* App-store buttons */}
-        <div className="animate-fadeUp mt-9 flex flex-wrap items-center justify-center gap-3.5 [animation-delay:0.3s]">
-          <StoreButton icon={<AppleIcon className="h-6 w-6" />} top="Baixar na" bottom="App Store" onClick={notifyComingSoon} />
-          <StoreButton icon={<GooglePlayIcon className="h-5 w-5" />} top="Disponível no" bottom="Google Play" onClick={notifyComingSoon} />
+        {/* Download APK (Android) */}
+        <div className="animate-fadeUp mt-9 flex justify-center [animation-delay:0.3s]">
+          <a
+            href={APK_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-4 rounded-full bg-gradient-to-r from-[#02E6FF] via-[#0AC8E0] to-[#03475E] py-2.5 pl-7 pr-2.5 text-brand-dark shadow-[0_12px_40px_-10px_rgba(2,230,255,0.5)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_20px_55px_-10px_rgba(2,230,255,0.65)]"
+          >
+            <GooglePlayIcon className="h-6 w-6 shrink-0" />
+            <span className="font-display text-lg font-bold tracking-tight">Baixar para Android</span>
+            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-brand-dark shadow-sm transition-transform duration-300 ease-out group-hover:translate-x-1">
+              <ArrowRight size={22} />
+            </span>
+          </a>
         </div>
 
         {/* Social proof */}
