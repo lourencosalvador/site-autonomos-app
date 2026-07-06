@@ -129,9 +129,7 @@ export function Hero() {
             rel="noopener noreferrer"
             className="group inline-flex items-center gap-4 rounded-full bg-gradient-to-r from-[#02E6FF] via-[#0AC8E0] to-[#03475E] py-2.5 pl-7 pr-2.5 text-brand-dark shadow-[0_12px_40px_-10px_rgba(2,230,255,0.5)] transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_20px_55px_-10px_rgba(2,230,255,0.65)]"
           >
-            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
-              <GooglePlayIcon className="h-5 w-5" />
-            </span>
+            <GooglePlayIcon className="h-6 w-6 shrink-0" />
             <span className="font-display text-lg font-bold tracking-tight">Baixar para Android</span>
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-brand-dark shadow-sm transition-transform duration-300 ease-out group-hover:translate-x-1">
               <ArrowRight size={22} />
