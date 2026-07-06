@@ -26,7 +26,7 @@ export function PageHero({
         <span className="reveal inline-flex items-center gap-2 rounded-full border border-ink-900/10 bg-white/80 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-ink-700 shadow-soft backdrop-blur">
           <Icon size={14} className="text-brand-cyan" /> {eyebrow}
         </span>
-        <h1 className="reveal reveal-delay-1 mt-5 font-display text-4xl font-extrabold leading-[1.05] tracking-tight text-ink-900 sm:text-5xl lg:text-6xl">
+        <h1 className="reveal reveal-delay-1 mt-5 font-display text-4xl font-extrabold leading-[1.18] tracking-tight text-ink-900 sm:text-5xl lg:text-6xl">
           {title}
         </h1>
         {subtitle && (
