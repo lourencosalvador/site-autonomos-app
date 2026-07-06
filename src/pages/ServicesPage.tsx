@@ -19,7 +19,7 @@ export function ServicesPage() {
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {SERVICES.map((s, i) => (
-              <ServiceCard key={s.id} service={s} index={i} onRequest={() => navigate('/solicitar-servico')} />
+              <ServiceCard key={s.id} service={s} index={i} onRequest={() => navigate(`/solicitar-servico?categoria=${encodeURIComponent(s.category)}`)} />
             ))}
           </div>
 
