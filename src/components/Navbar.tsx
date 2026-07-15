@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight, Instagram, Facebook } from 'lucide-react';
 import { Logo } from './Logo';
 import { Button } from './Button';
 import { useRoute, useNavigate, type Route } from '../router';
@@ -10,6 +10,11 @@ const LINKS: { label: string; route: Route['name']; path: string }[] = [
   { label: 'Ser Profissional', route: 'become-pro', path: '/ser-profissional' },
   { label: 'Sobre', route: 'about', path: '/sobre' },
   { label: 'Contato', route: 'contact', path: '/contato' },
+];
+
+const SOCIALS: { label: string; href: string; Icon: typeof Instagram }[] = [
+  { label: 'Instagram', href: 'https://instagram.com/autonomous.ao', Icon: Instagram },
+  { label: 'Facebook', href: 'https://www.facebook.com/autonomous.ao', Icon: Facebook },
 ];
 
 export function Navbar() {
@@ -60,6 +65,18 @@ export function Navbar() {
         </div>
 
         <div className="hidden items-center gap-2 lg:flex">
+          {SOCIALS.map(({ label, href, Icon }) => (
+            <a
+              key={label}
+              href={href}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={label}
+              className="grid h-9 w-9 place-items-center rounded-full border border-cloud-200 text-ink-500 transition-colors hover:border-brand-cyan hover:text-brand-dark"
+            >
+              <Icon size={16} />
+            </a>
+          ))}
           <Button to="/solicitar-servico" variant="dark" size="md">
             Solicitar Serviço <ArrowRight size={16} />
           </Button>
@@ -101,6 +118,20 @@ export function Navbar() {
             <Button to="/ser-profissional" variant="outline-dark" size="md" className="w-full" onClick={() => setOpen(false)}>
               Quero ser Prestador
             </Button>
+          </div>
+          <div className="mt-4 flex items-center justify-center gap-3 border-t border-cloud-100 pt-4">
+            {SOCIALS.map(({ label, href, Icon }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="grid h-10 w-10 place-items-center rounded-full border border-cloud-200 text-ink-500 transition-colors hover:border-brand-cyan hover:text-brand-dark"
+              >
+                <Icon size={18} />
+              </a>
+            ))}
           </div>
         </div>
       </div>

@@ -1,22 +1,6 @@
 import { ArrowRight, MapPin, Star } from 'lucide-react';
 import { PhoneMockup } from './PhoneMockup';
 
-/** Build do APK (Android) no Expo. */
-const APK_URL =
-  'https://expo.dev/accounts/lourenzocardoso/projects/autonomos-app/builds/4a6b259a-6c9b-47f3-af2b-6df4f96f06e6';
-
-/* Ícone Google Play (o mesmo colorido já usado no site). */
-function GooglePlayIcon({ className = '' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
-      <path d="M3.6 1.8a1.7 1.7 0 0 0-.6 1.3v17.8c0 .53.23 1 .6 1.3l.1.08L13.5 12.4v-.23L3.7 1.72l-.1.08z" fill="#02E6FF" />
-      <path d="M16.8 15.7l-3.3-3.3v-.23l3.3-3.3.08.05 3.9 2.22c1.12.63 1.12 1.67 0 2.31l-3.9 2.22-.08.04z" fill="#FFD400" />
-      <path d="M16.88 15.65 13.5 12.27 3.6 22.2c.37.39.98.44 1.67.05l11.6-6.6z" fill="#F4413F" />
-      <path d="M16.88 8.9 5.27 2.3c-.69-.39-1.3-.34-1.67.05l9.9 9.92 3.38-3.37z" fill="#34A853" />
-    </svg>
-  );
-}
-
 /* ---- Floating avatar bubbles ---- */
 type Avatar = { src: string; pos: string; size: string; anim: string; ring: string };
 const AVATARS: Avatar[] = [
@@ -50,16 +34,18 @@ const AVATARS: Avatar[] = [
   },
 ];
 
+function scrollToSignup() {
+  document.getElementById('rede-clientes')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 export function Hero() {
   return (
     <section className="hero-wash relative overflow-hidden px-5 pb-0 pt-28 lg:pt-36">
       {/* ===== Background decor ===== */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute inset-0 bg-dotgrid opacity-60 [mask-image:radial-gradient(70%_60%_at_50%_30%,#000,transparent)]" />
-        {/* aurora blobs */}
         <div className="absolute -left-24 top-24 h-72 w-72 animate-blob rounded-full bg-brand-cyan/20 blur-3xl" />
         <div className="absolute -right-20 top-10 h-72 w-72 animate-blob rounded-full bg-lilac-300/40 blur-3xl [animation-delay:3s]" />
-        {/* blueprint corner lines (like the reference) */}
         <svg className="absolute inset-0 h-full w-full text-brand-dark/15" fill="none" stroke="currentColor" strokeWidth="1" aria-hidden="true">
           <path d="M40 120 H 220 L 280 180" />
           <path d="M40 120 V 320" />
@@ -105,36 +91,34 @@ export function Hero() {
           A maior rede de profissionais de Angola
         </span>
 
-        <h1 className="animate-fadeUp mt-7 font-display text-[2rem] font-extrabold leading-[1.05] tracking-tight text-ink-900 [animation-delay:0.1s] sm:text-6xl sm:leading-[1.02] lg:text-7xl">
-          Profissionais de confiança
-          <br className="hidden sm:block" /> para{' '}
+        <h1 className="animate-fadeUp mt-7 font-display text-[2rem] font-extrabold leading-[1.08] tracking-tight text-ink-900 [animation-delay:0.1s] sm:text-5xl sm:leading-[1.06] lg:text-6xl">
+          O futuro dos serviços em Angola{' '}
           <span className="relative whitespace-nowrap">
-            <span className="text-gradient-cyan">qualquer serviço.</span>
+            <span className="text-gradient-cyan">cabe no seu bolso.</span>
             <svg className="absolute -bottom-2 left-0 w-full" viewBox="0 0 300 12" fill="none" aria-hidden="true">
               <path d="M3 8C60 3 120 3 297 7" stroke="#02E6FF" strokeWidth="4" strokeLinecap="round" />
             </svg>
           </span>
         </h1>
 
-        <p className="animate-fadeUp mx-auto mt-7 max-w-xl text-lg leading-relaxed text-ink-500 [animation-delay:0.2s]">
-          Baixe a AUTONOMOUS e encontre canalizadores, eletricistas, técnicos e muito mais.
-          Rápido, simples e seguro.
+        <p className="animate-fadeUp mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-ink-500 [animation-delay:0.2s]">
+          A AUTONOMOUS já conecta clientes a profissionais de confiança através da sua plataforma.
+          Muito em breve, lançaremos o nosso aplicativo móvel com novas funcionalidades que tornarão
+          a contratação e a prestação de serviços ainda mais rápidas, simples e seguras. Acompanhe as
+          nossas redes sociais e seja um dos primeiros a descobrir tudo o que está por vir.
         </p>
 
-        {/* Download APK (Android) */}
+        {/* Follow the launch → scrolls to the client signup form */}
         <div className="animate-fadeUp mt-9 flex justify-center [animation-delay:0.3s]">
-          <a
-            href={APK_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onClick={scrollToSignup}
             className="group inline-flex items-center gap-4 rounded-full bg-gradient-to-r from-[#02E6FF] via-[#0AC8E0] to-[#03475E] py-2.5 pl-7 pr-2.5 text-brand-dark shadow-[0_12px_40px_-10px_rgba(2,230,255,0.5)] transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:shadow-[0_18px_50px_-12px_rgba(2,230,255,0.6)]"
           >
-            <GooglePlayIcon className="h-6 w-6 shrink-0" />
-            <span className="font-display text-lg font-bold tracking-tight">Baixar para Android</span>
+            <span className="font-display text-lg font-bold tracking-tight">Acompanhar o lançamento</span>
             <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-brand-dark shadow-sm transition-transform duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1">
               <ArrowRight size={22} />
             </span>
-          </a>
+          </button>
         </div>
 
         {/* Social proof */}
@@ -155,14 +139,12 @@ export function Hero() {
 
       {/* ===== Phone ===== */}
       <div className="relative z-20 mx-auto mt-14 flex max-w-md justify-center">
-        {/* glow behind phone */}
         <div className="absolute -inset-x-10 bottom-0 top-10 -z-10 rounded-full bg-gradient-to-t from-brand-cyan/30 via-brand-cyan/10 to-transparent blur-3xl" />
         <div className="animate-scaleIn [animation-delay:0.45s]">
           <PhoneMockup />
         </div>
       </div>
 
-      {/* bottom fade into next section */}
       <div className="pointer-events-none h-24" />
     </section>
   );

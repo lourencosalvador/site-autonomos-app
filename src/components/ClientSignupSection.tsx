@@ -61,12 +61,12 @@ export function ClientSignupSection() {
     } finally {
       setSubmitting(false);
       setDone(true);
-      success('Estás dentro! 🎉', 'Enviámos a tua chave de acesso por SMS.');
+      success('Estás na lista! 🎉', 'Vamos avisar-te das novidades e do lançamento do app.');
     }
   };
 
   return (
-    <section className="relative overflow-hidden bg-brand-dark py-24">
+    <section id="rede-clientes" className="relative overflow-hidden bg-brand-dark py-24 scroll-mt-24">
       {/* ambient glow / grid */}
       <div className="absolute inset-0 bg-grid-dark opacity-25" />
       <div className="absolute -left-20 top-0 h-96 w-96 animate-blob rounded-full bg-brand-cyan/15 blur-3xl" />
@@ -129,16 +129,16 @@ export function ClientSignupSection() {
                   <CheckCircle2 className="h-11 w-11 text-brand-cyan2" />
                 </div>
                 <h3 className="mt-6 font-display text-2xl font-extrabold text-brand-dark">
-                  Bem-vindo à AUTONOMOUS! 🎉
+                  Estás na lista! 🎉
                 </h3>
                 <p className="mx-auto mt-3 max-w-sm text-base leading-relaxed text-ink-700/75">
-                  Agora fazes parte da <span className="font-semibold text-brand-dark">rede de clientes</span> da
-                  AUTONOMOUS. Enviámos a tua <span className="font-semibold text-brand-dark">chave de acesso por SMS</span> para
-                  o número indicado — na app é só entrares com o teu número e essa chave.
+                  Obrigado por te juntares à <span className="font-semibold text-brand-dark">rede de clientes</span> da
+                  AUTONOMOUS. Vamos notificar-te de todas as novidades e avisar-te em primeira mão
+                  assim que o nosso app for lançado.
                 </p>
                 <div className="mt-6 inline-flex items-center gap-2 rounded-full bg-brand-cyan/10 px-4 py-2 text-sm font-medium text-brand-dark">
                   <BellRing size={15} className="text-brand-cyan2" />
-                  Podes alterar a chave quando quiseres, dentro da app.
+                  Sem spam — só o essencial e o aviso do lançamento.
                 </div>
                 <div className="mt-8">
                   <Button to="/solicitar-servico" size="md" className="w-full sm:w-auto">
