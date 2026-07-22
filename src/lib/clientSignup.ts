@@ -15,13 +15,12 @@ export type ClientSignupResult = {
 /**
  * Adiciona um visitante à lista de early-access de clientes.
  *
- * NOTA: o Supabase foi desligado deste projeto. Este pedido é agora
- * best-effort no cliente (não persiste em nenhum backend) — a experiência
- * de boas-vindas é sempre mostrada. Para reativar a persistência, ligar
- * novamente a uma API/base de dados aqui.
+ * NOTA: o Supabase foi desligado deste projeto — não há backend para
+ * persistir a inscrição, por isso a submissão falha (mostra erro) em vez de
+ * fingir sucesso. Para reativar, ligar novamente a uma API/base de dados aqui.
  */
 export async function submitClientSignup(input: ClientSignupInput): Promise<ClientSignupResult> {
   await new Promise((resolve) => setTimeout(resolve, 500));
-  console.info('[clientSignup] Supabase desligado — signup não persistido:', input.name);
-  return { persisted: false, duplicate: false };
+  console.warn('[clientSignup] Supabase desligado — submissão indisponível:', input.name);
+  throw new Error('Submissão indisponível: o backend foi desligado.');
 }

@@ -51,17 +51,19 @@ export function ClientSignupSection() {
     }
     setSubmitting(true);
     try {
-      // Best-effort: the welcome experience is shown regardless of persistence.
       await submitClientSignup({
         name: form.nome,
         phone: form.telefone,
         email: form.email || undefined,
         city: form.cidade || undefined,
       });
-    } finally {
-      setSubmitting(false);
       setDone(true);
       success('Estás na lista! 🎉', 'Vamos avisar-te das novidades e do lançamento do app.');
+    } catch (err) {
+      console.error('signup error', err);
+      error('Não foi possível concluir', 'Ocorreu um erro ao enviar. Tenta novamente dentro de momentos.');
+    } finally {
+      setSubmitting(false);
     }
   };
 

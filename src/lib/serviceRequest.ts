@@ -14,11 +14,12 @@ export type ServiceRequestInput = {
 /**
  * Regista um pedido de serviço.
  *
- * NOTA: o Supabase foi desligado deste projeto — o pedido não é persistido
- * em backend. O ecrã de sucesso é sempre mostrado. Para reativar a
- * persistência, ligar novamente a uma API/base de dados aqui.
+ * NOTA: o Supabase foi desligado deste projeto — não há backend para
+ * registar o pedido, por isso a submissão falha (mostra erro) em vez de
+ * fingir sucesso. Para reativar, ligar novamente a uma API/base de dados aqui.
  */
 export async function submitServiceRequest(input: ServiceRequestInput): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 600));
-  console.info('[serviceRequest] Supabase desligado — pedido não persistido:', input.category);
+  console.warn('[serviceRequest] Supabase desligado — submissão indisponível:', input.category);
+  throw new Error('Submissão indisponível: o backend foi desligado.');
 }

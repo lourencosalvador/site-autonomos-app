@@ -14,12 +14,12 @@ export type ProviderApplicationInput = {
 /**
  * Envia uma candidatura de prestador.
  *
- * NOTA: o Supabase foi desligado deste projeto — a candidatura (e os
- * ficheiros foto/BI) não são persistidos em backend. O ecrã de sucesso é
- * sempre mostrado. Para reativar a persistência, ligar novamente a uma
- * API/base de dados aqui.
+ * NOTA: o Supabase foi desligado deste projeto — não há backend para
+ * registar a candidatura, por isso a submissão falha (mostra erro) em vez de
+ * fingir sucesso. Para reativar, ligar novamente a uma API/base de dados aqui.
  */
 export async function submitProviderApplication(input: ProviderApplicationInput): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 600));
-  console.info('[providerApplication] Supabase desligado — candidatura não persistida:', input.name);
+  console.warn('[providerApplication] Supabase desligado — submissão indisponível:', input.name);
+  throw new Error('Submissão indisponível: o backend foi desligado.');
 }
