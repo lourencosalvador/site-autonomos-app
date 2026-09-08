@@ -23,6 +23,23 @@ body {
 }
 
 /* ============================================================
+   ANIMATED GRADIENT — subtle, elegant panning wash
+   ============================================================ */
+.animate-gradient {
+  background: linear-gradient(120deg, #f4fdff 0%, #dff8ff 22%, #eef0ff 45%, #dbf6ff 68%, #f4fdff 100%);
+  background-size: 220% 220%;
+  animation: gradientPan 14s ease infinite;
+}
+@keyframes gradientPan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-gradient { animation: none; }
+}
+
+/* ============================================================
    SCROLL REVEAL — multiple directional variants
    ============================================================ */
 .reveal,

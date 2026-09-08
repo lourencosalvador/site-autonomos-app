@@ -6,8 +6,8 @@ import { ServicesCarousel } from '../components/ServicesCarousel';
 import { TestimonialsSlider } from '../components/TestimonialsSlider';
 import { FaqSection } from '../components/FaqSection';
 import { ClientSignupSection } from '../components/ClientSignupSection';
-import { Counter } from '../components/Counter';
-import { STATS, BENEFITS, CATEGORIES } from '../data';
+// import { Counter } from '../components/Counter'; // usado pelos cards de stats (comentados)
+import { BENEFITS, CATEGORIES } from '../data';
 
 const BENEFIT_ICONS = [ShieldCheck, Clock, LayoutGrid, ShieldCheck, Tag, Headset];
 
@@ -44,13 +44,14 @@ export function HomePage() {
       </section>
 
       {/* ===== STATS ===== */}
-      <section className="relative bg-cloud-50 py-20">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
+      <section className="animate-gradient relative overflow-hidden border-y border-cloud-200 py-20">
+        <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
           <SectionHeading
             eyebrow="Confiança"
             title={<>Uma rede que cresce <span className="text-gradient-cyan">todos os dias.</span></>}
             subtitle="Uma comunidade de profissionais verificados e clientes satisfeitos em toda Angola."
           />
+          {/* Cards de estatísticas comentados — reativar (com os imports de STATS e Counter) quando os números forem oficiais.
           <div className="mt-12 grid grid-cols-2 gap-5 lg:grid-cols-4">
             {STATS.map((s, i) => (
               <div
@@ -64,6 +65,7 @@ export function HomePage() {
               </div>
             ))}
           </div>
+          */}
         </div>
       </section>
 
