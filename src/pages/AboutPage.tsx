@@ -1,9 +1,9 @@
-import { Target, Eye, MapPin, TrendingUp, Users, CheckCircle2 } from 'lucide-react';
+import { Target, Eye, Users, CheckCircle2 } from 'lucide-react';
 import { SectionHeading } from '../components/SectionHeading';
 import { PageHero } from '../components/PageHero';
 import { Button } from '../components/Button';
-import { Counter } from '../components/Counter';
-import { STATS } from '../data';
+
+const GALLERY = Array.from({ length: 9 }, (_, i) => `/galeria/g${String(i + 1).padStart(2, '0')}.jpg`);
 
 export function AboutPage() {
   return (
@@ -85,47 +85,32 @@ export function AboutPage() {
         </div>
       </section>
 
-      {/* Traction — dark accent panel */}
-      <section className="bg-white px-5 py-12 lg:px-8">
-        <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] bg-brand-dark px-6 py-20 shadow-cardDark lg:px-12">
-          <div className="absolute inset-0 bg-grid-dark opacity-25" />
-          <div className="absolute left-1/2 top-0 h-72 w-[70%] -translate-x-1/2 rounded-full bg-brand-cyan/15 blur-3xl" />
-          <div className="relative">
-            <SectionHeading
-              light
-              eyebrow="Tração"
-              title="Um modelo já validado."
-              subtitle="Mais de 100 profissionais, clientes servidos e pedidos reais concluídos. O marketplace já está a funcionar."
-            />
-            <div className="mt-12 grid grid-cols-2 gap-5 lg:grid-cols-4">
-              {STATS.map((s, i) => (
-                <div key={s.label} className={`reveal-scale reveal-delay-${i + 1} rounded-3xl border border-white/10 bg-white/[0.04] p-7 text-center backdrop-blur`}>
-                  <p className="font-display text-4xl font-extrabold text-white lg:text-5xl">
-                    <Counter value={s.value} suffix={s.suffix} />
-                  </p>
-                  <p className="mt-2 text-sm font-medium text-white/65">{s.label}</p>
-                </div>
-              ))}
-            </div>
+      {/* Galeria — registos da AUTONOMOUS */}
+      <section className="relative overflow-hidden bg-white py-24">
+        <div className="pointer-events-none absolute -right-24 top-1/4 h-80 w-80 rounded-full bg-brand-cyan/10 blur-3xl" />
+        <div className="pointer-events-none absolute -left-24 bottom-10 h-80 w-80 rounded-full bg-lilac-200/40 blur-3xl" />
+        <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
+          <SectionHeading
+            eyebrow="Bastidores"
+            title={<>Registos da <span className="text-gradient-cyan">AUTONOMOUS.</span></>}
+            subtitle="Momentos reais da nossa jornada — a equipa, os profissionais e o trabalho no terreno."
+          />
 
-            <div className="mt-12 grid gap-4 sm:grid-cols-3">
-              {[
-                { icon: Users, t: 'Comunidade crescente', d: 'Mais de 100 profissionais registados.' },
-                { icon: TrendingUp, t: 'Modelo validado', d: 'Pedidos reais já concluídos com sucesso.' },
-                { icon: MapPin, t: 'Foco em Angola', d: 'Expansão para toda a África a caminho.' },
-              ].map((c, i) => {
-                const Icon = c.icon;
-                return (
-                  <div key={c.t} className={`reveal reveal-delay-${i + 1} flex items-start gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-6 backdrop-blur`}>
-                    <Icon size={22} className="mt-0.5 shrink-0 text-brand-cyan" />
-                    <div>
-                      <p className="font-semibold text-white">{c.t}</p>
-                      <p className="mt-1 text-sm text-white/65">{c.d}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+          <div className="reveal mt-14 columns-2 gap-4 sm:columns-3 lg:columns-4">
+            {GALLERY.map((src, i) => (
+              <figure
+                key={src}
+                className="group relative mb-4 break-inside-avoid overflow-hidden rounded-2xl border border-cloud-200 bg-cloud-100 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-cardHover"
+              >
+                <img
+                  src={src}
+                  alt={`Registo AUTONOMOUS ${i + 1}`}
+                  loading="lazy"
+                  className="block w-full align-middle transition-transform duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-dark/45 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              </figure>
+            ))}
           </div>
         </div>
       </section>
