@@ -3,7 +3,17 @@ import { SectionHeading } from '../components/SectionHeading';
 import { PageHero } from '../components/PageHero';
 import { Button } from '../components/Button';
 
-const GALLERY = Array.from({ length: 9 }, (_, i) => `/galeria/g${String(i + 1).padStart(2, '0')}.jpg`);
+const GALLERY: { src: string; caption: string }[] = [
+  { src: '/galeria/g01.jpg', caption: 'A nossa equipa em ação' },
+  { src: '/galeria/g02.jpg', caption: 'Nos bastidores da AUTONOMOUS' },
+  { src: '/galeria/g03.jpg', caption: 'Profissionais que fazem acontecer' },
+  { src: '/galeria/g04.jpg', caption: 'A construir a maior rede de Angola' },
+  { src: '/galeria/g05.jpg', caption: 'Cada detalhe conta' },
+  { src: '/galeria/g06.jpg', caption: 'No terreno, lado a lado' },
+  { src: '/galeria/g07.jpg', caption: 'Momentos que marcam a jornada' },
+  { src: '/galeria/g08.jpg', caption: 'Trabalho, dedicação e confiança' },
+  { src: '/galeria/g09.jpg', caption: 'A crescer todos os dias' },
+];
 
 export function AboutPage() {
   return (
@@ -97,18 +107,24 @@ export function AboutPage() {
           />
 
           <div className="reveal mt-14 columns-2 gap-4 sm:columns-3 lg:columns-4">
-            {GALLERY.map((src, i) => (
+            {GALLERY.map(({ src, caption }) => (
               <figure
                 key={src}
                 className="group relative mb-4 break-inside-avoid overflow-hidden rounded-2xl border border-cloud-200 bg-cloud-100 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-cardHover"
               >
                 <img
                   src={src}
-                  alt={`Registo AUTONOMOUS ${i + 1}`}
+                  alt={caption}
                   loading="lazy"
                   className="block w-full align-middle transition-transform duration-[650ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-[1.05]"
                 />
-                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-dark/45 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-dark/85 via-brand-dark/10 to-transparent opacity-0 transition-opacity duration-[400ms] group-hover:opacity-100" />
+                <figcaption className="pointer-events-none absolute inset-x-0 bottom-0 translate-y-3 p-4 opacity-0 transition-all duration-[450ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-y-0 group-hover:opacity-100">
+                  <span className="flex items-center gap-2 text-sm font-semibold leading-snug text-white">
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-brand-cyan" />
+                    {caption}
+                  </span>
+                </figcaption>
               </figure>
             ))}
           </div>
