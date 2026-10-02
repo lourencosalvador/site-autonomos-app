@@ -5,9 +5,8 @@ import { SectionHeading } from '../components/SectionHeading';
 import { ServicesCarousel } from '../components/ServicesCarousel';
 import { TestimonialsSlider } from '../components/TestimonialsSlider';
 import { FaqSection } from '../components/FaqSection';
-import { ClientSignupSection } from '../components/ClientSignupSection';
-// import { Counter } from '../components/Counter'; // usado pelos cards de stats (comentados)
-import { BENEFITS, CATEGORIES } from '../data';
+import { BENEFITS } from '../data';
+import { useCategories } from '../hooks/useServices';
 
 const BENEFIT_ICONS = [ShieldCheck, Clock, LayoutGrid, ShieldCheck, Tag, Headset];
 
@@ -24,7 +23,7 @@ const PRO_STEPS = [
 ];
 
 export function HomePage() {
-  const marquee = CATEGORIES.filter((c) => c !== 'Todos');
+  const marquee = useCategories();
   return (
     <>
       <Hero />
@@ -40,32 +39,6 @@ export function HomePage() {
               </span>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ===== STATS ===== */}
-      <section className="animate-gradient relative overflow-hidden border-y border-cloud-200 py-20">
-        <div className="relative mx-auto max-w-7xl px-5 lg:px-8">
-          <SectionHeading
-            eyebrow="Confiança"
-            title={<>Uma rede que cresce <span className="text-gradient-cyan">todos os dias.</span></>}
-            subtitle="Uma comunidade de profissionais verificados e clientes satisfeitos em toda Angola."
-          />
-          {/* Cards de estatísticas comentados — reativar (com os imports de STATS e Counter) quando os números forem oficiais.
-          <div className="mt-12 grid grid-cols-2 gap-5 lg:grid-cols-4">
-            {STATS.map((s, i) => (
-              <div
-                key={s.label}
-                className={`reveal-scale reveal-delay-${i + 1} group rounded-3xl border border-cloud-200 bg-white p-7 text-center shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-cyan/40 hover:shadow-cardHover`}
-              >
-                <p className="font-display text-4xl font-extrabold text-ink-900 lg:text-5xl">
-                  <Counter value={s.value} suffix={s.suffix} />
-                </p>
-                <p className="mt-2 text-sm font-medium text-ink-400">{s.label}</p>
-              </div>
-            ))}
-          </div>
-          */}
         </div>
       </section>
 
@@ -91,7 +64,7 @@ export function HomePage() {
           <SectionHeading
             eyebrow="Serviços"
             title="Tudo o que precisa, num só lugar."
-            subtitle="Mais de 15 categorias de serviços com profissionais prontos para ajudar."
+            subtitle="Mais de 25 categorias de serviços com profissionais prontos para ajudar."
           />
           <div className="reveal mt-12">
             <ServicesCarousel />
@@ -103,9 +76,6 @@ export function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ===== CLIENT EARLY-ACCESS SIGNUP ===== */}
-      <ClientSignupSection />
 
       {/* ===== WHY CHOOSE ===== */}
       <section className="relative overflow-hidden bg-white py-24">

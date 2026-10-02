@@ -3,16 +3,13 @@ import { ArrowRight, TrendingUp, Wallet, Clock, Eye, Upload, FileText, Image as 
 import { Button } from '../components/Button';
 import { PageHero } from '../components/PageHero';
 import { Field, TextInput, TextArea, Select } from '../components/Field';
-import { SuccessScreen } from '../components/SuccessScreen';
+import { SuccessDialog } from '../components/SuccessDialog';
 import { useToast } from '../components/Toast';
 import { CITIES } from '../data';
 import { submitProviderApplication } from '../lib/providerApplication';
-
-const AREAS = [
-  'Canalização', 'Eletricidade', 'Ar Condicionado', 'Refrigeração', 'Pintura',
-  'Jardinagem', 'Marcenaria', 'Carpintaria', 'Serralharia', 'Construção Civil',
-  'Limpeza', 'Vidraçaria', 'Informática', 'Montagem de Móveis', 'Segurança Eletrônica',
-];
+import { useNavigate } from '../router';
+import { useCategories } from '../hooks/useServices';
+import { track } from '../lib/analytics';
 
 const BENEFITS = [
   { icon: TrendingUp, title: 'Receba novos clientes', desc: 'Aumente a sua carteira sem precisar de procurar.' },
@@ -33,12 +30,14 @@ const EMPTY: Form = {
 };
 
 export function BecomeProPage() {
+  const areas = useCategories();
   const [form, setForm] = useState<Form>(EMPTY);
   const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const { success, error } = useToast();
+  const { error } = useToast();
+  const navigate = useNavigate();
 
   const set = (k: keyof Form, v: string | boolean | File | null) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -87,8 +86,8 @@ export function BecomeProPage() {
         photo: form.foto as File,
         idDocument: form.bi as File,
       });
+      track('application_submitted', form.area);
       setDone(true);
-      success('Candidatura enviada!', 'Após aprovação, enviamos a tua chave de acesso por SMS.');
     } catch (err) {
       console.error('submit error', err);
       setSubmitError('Não foi possível enviar a candidatura. Verifique a ligação e tente novamente.');
@@ -98,23 +97,22 @@ export function BecomeProPage() {
     }
   };
 
-  if (done) {
-    return (
-      <Shell>
-        <SuccessScreen
-          title="Candidatura recebida!"
-          message="Obrigado pelo seu interesse em fazer parte da AUTONOMOUS. A nossa equipa vai analisar o seu perfil e, assim que for aprovado, enviamos a sua chave de acesso por SMS para entrar diretamente na app."
-          primaryLabel="Voltar ao início"
-          primaryTo="/"
-          secondaryLabel="Ver serviços"
-          secondaryTo="/services"
-        />
-      </Shell>
-    );
-  }
+  const closeSuccess = () => {
+    setDone(false);
+    setForm(EMPTY);
+    navigate('/');
+  };
 
   return (
     <Shell>
+      <SuccessDialog open={done} title="Cadastro realizado com sucesso!" confirmLabel="Entendido" onClose={closeSuccess}>
+        <p>
+          Os seus dados foram recebidos e entrarão agora no nosso processo de verificação e validação profissional.
+          Após a aprovação, o seu perfil poderá ser ativado para começar a receber oportunidades de serviço através da AUTONOMOUS.
+        </p>
+        <p className="font-semibold text-brand-dark">Aguarde o nosso contacto para os próximos passos.</p>
+      </SuccessDialog>
+
       <div className="mx-auto max-w-3xl">
         <div className="overflow-hidden rounded-3xl border border-brand-dark/10 bg-white shadow-card">
           <div className="border-b border-brand-dark/10 bg-gradient-to-br from-brand-dark to-brand-dark2 p-7 text-white">
@@ -127,7 +125,7 @@ export function BecomeProPage() {
               <Field label="Nome" name="nome" required error={errors.nome}>
                 <TextInput id="nome" value={form.nome} hasError={!!errors.nome} onChange={(e) => set('nome', e.target.value)} placeholder="Nome completo" />
               </Field>
-              <Field label="Telefone" name="telefone" required error={errors.telefone}>
+              <Field label="Telefone / WhatsApp" name="telefone" required error={errors.telefone}>
                 <TextInput id="telefone" type="tel" value={form.telefone} hasError={!!errors.telefone} onChange={(e) => set('telefone', e.target.value)} placeholder="+244 923 456 789" />
               </Field>
               <Field label="Email" name="email" error={errors.email}>
@@ -142,7 +140,7 @@ export function BecomeProPage() {
               <Field label="Área de atuação" name="area" required error={errors.area}>
                 <Select id="area" value={form.area} hasError={!!errors.area} onChange={(e) => set('area', e.target.value)}>
                   <option value="">Selecione...</option>
-                  {AREAS.map((a) => <option key={a} value={a}>{a}</option>)}
+                  {areas.map((a) => <option key={a} value={a}>{a}</option>)}
                 </Select>
               </Field>
               <Field label="Especialidade" name="especialidade" required error={errors.especialidade}>

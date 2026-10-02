@@ -1,4 +1,4 @@
-import { ArrowRight, MapPin, Star } from 'lucide-react';
+import { MapPin, Star } from 'lucide-react';
 import { PhoneMockup } from './PhoneMockup';
 
 /* ---- Floating avatar bubbles ---- */
@@ -33,10 +33,6 @@ const AVATARS: Avatar[] = [
     ring: 'ring-brand-cyan/40',
   },
 ];
-
-function scrollToSignup() {
-  document.getElementById('rede-clientes')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
 
 export function Hero() {
   return (
@@ -108,21 +104,8 @@ export function Hero() {
           nossas redes sociais e seja um dos primeiros a descobrir tudo o que está por vir.
         </p>
 
-        {/* Follow the launch → scrolls to the client signup form */}
-        <div className="animate-fadeUp mt-9 flex justify-center [animation-delay:0.3s]">
-          <button
-            onClick={scrollToSignup}
-            className="group inline-flex items-center gap-4 rounded-full bg-gradient-to-r from-[#02E6FF] via-[#0AC8E0] to-[#03475E] py-2.5 pl-7 pr-2.5 text-brand-dark shadow-[0_12px_40px_-10px_rgba(2,230,255,0.5)] transition-all duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 hover:shadow-[0_18px_50px_-12px_rgba(2,230,255,0.6)]"
-          >
-            <span className="font-display text-lg font-bold tracking-tight">Acompanhar o lançamento</span>
-            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-brand-dark shadow-sm transition-transform duration-[600ms] ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1">
-              <ArrowRight size={22} />
-            </span>
-          </button>
-        </div>
-
         {/* Social proof */}
-        <div className="animate-fadeUp mt-7 flex items-center justify-center gap-3 [animation-delay:0.4s]">
+        <div className="animate-fadeUp mt-9 flex items-center justify-center gap-3 [animation-delay:0.3s]">
           <div className="flex -space-x-2.5">
             {AVATARS.map((a) => (
               <img key={a.src} src={a.src} alt="" className="h-8 w-8 rounded-full object-cover ring-2 ring-white" loading="lazy" />

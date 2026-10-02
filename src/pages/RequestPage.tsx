@@ -3,12 +3,12 @@ import { ClipboardList, ArrowRight, Paperclip, X, Image as ImageIcon, FileText }
 import { Button } from '../components/Button';
 import { PageHero } from '../components/PageHero';
 import { Field, TextInput, TextArea, Select } from '../components/Field';
-import { SuccessScreen } from '../components/SuccessScreen';
+import { SuccessDialog } from '../components/SuccessDialog';
 import { useToast } from '../components/Toast';
-import { CATEGORIES } from '../data';
 import { submitServiceRequest } from '../lib/serviceRequest';
-
-const SERVICE_CATEGORIES = CATEGORIES.filter((c) => c !== 'Todos');
+import { useNavigate } from '../router';
+import { useCategories } from '../hooks/useServices';
+import { track } from '../lib/analytics';
 
 const TIME_SLOTS = ['Manhã (08h–12h)', 'Tarde (12h–17h)', 'Fim de tarde (17h–20h)', 'Sem preferência'];
 
@@ -16,11 +16,11 @@ const MAX_FILES = 5;
 const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
 /** Lê ?categoria=... do hash (ex.: #/solicitar-servico?categoria=Pintura). */
-function categoryFromHash(): string {
+function categoryFromHash(categories: string[]): string {
   const q = window.location.hash.split('?')[1];
   if (!q) return '';
   const value = new URLSearchParams(q).get('categoria') ?? '';
-  return SERVICE_CATEGORIES.includes(value) ? value : '';
+  return categories.includes(value) ? value : '';
 }
 
 type Form = {
@@ -48,13 +48,15 @@ const EMPTY: Form = {
 };
 
 export function RequestPage() {
-  const [form, setForm] = useState<Form>(() => ({ ...EMPTY, categoria: categoryFromHash() }));
+  const categories = useCategories();
+  const [form, setForm] = useState<Form>(() => ({ ...EMPTY, categoria: categoryFromHash(categories) }));
   const [files, setFiles] = useState<File[]>([]);
   const [errors, setErrors] = useState<Partial<Record<keyof Form, string>>>({});
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const { success, error } = useToast();
+  const { error } = useToast();
+  const navigate = useNavigate();
 
   const set = (k: keyof Form, v: string) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -79,7 +81,7 @@ export function RequestPage() {
     if (form.telefone.replace(/\D/g, '').length < 9) e.telefone = 'Indique um telefone válido';
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Email inválido';
     if (!form.endereco.trim()) e.endereco = 'Indique o endereço';
-    if (!form.categoria) e.categoria = 'Selecione a categoria';
+    if (!form.categoria || !categories.includes(form.categoria)) e.categoria = 'Selecione a categoria';
     if (!form.servico.trim()) e.servico = 'Indique o serviço pretendido';
     if (!form.descricao.trim()) e.descricao = 'Descreva a necessidade';
     setErrors(e);
@@ -107,8 +109,8 @@ export function RequestPage() {
         timePreference: form.horario || undefined,
         attachments: files,
       });
+      track('request_submitted', form.categoria);
       setDone(true);
-      success('Pedido enviado!', 'Um profissional vai analisar a sua solicitação em breve.');
     } catch (err) {
       console.error('submit error', err);
       setSubmitError('Não foi possível enviar o pedido. Verifique a ligação e tente novamente.');
@@ -118,23 +120,20 @@ export function RequestPage() {
     }
   };
 
-  if (done) {
-    return (
-      <Shell>
-        <SuccessScreen
-          title="Pedido recebido!"
-          message="A sua solicitação foi registada com sucesso. Um profissional qualificado irá analisá-la e entrar em contacto consigo em breve."
-          primaryLabel="Voltar ao início"
-          primaryTo="/"
-          secondaryLabel="Ver serviços"
-          secondaryTo="/services"
-        />
-      </Shell>
-    );
-  }
+  const closeSuccess = () => {
+    setDone(false);
+    setForm(EMPTY);
+    setFiles([]);
+    navigate('/');
+  };
 
   return (
     <Shell>
+      <SuccessDialog open={done} title="Pedido enviado com sucesso!" confirmLabel="OK, entendi" onClose={closeSuccess}>
+        <p>Estamos a encontrar o profissional ideal para si.</p>
+        <p>Em breve, entraremos em contacto para confirmar os próximos passos.</p>
+      </SuccessDialog>
+
       <div className="mx-auto max-w-3xl">
         <div className="overflow-hidden rounded-3xl border border-brand-dark/10 bg-white shadow-card">
           <div className="border-b border-brand-dark/10 bg-gradient-to-br from-brand-dark to-brand-dark2 p-7 text-white">
@@ -149,7 +148,7 @@ export function RequestPage() {
               <Field label="Nome completo" name="nome" required error={errors.nome}>
                 <TextInput id="nome" value={form.nome} hasError={!!errors.nome} onChange={(e) => set('nome', e.target.value)} placeholder="O seu nome" />
               </Field>
-              <Field label="Número de telefone" name="telefone" required error={errors.telefone}>
+              <Field label="Telefone / WhatsApp" name="telefone" required error={errors.telefone}>
                 <TextInput id="telefone" type="tel" value={form.telefone} hasError={!!errors.telefone} onChange={(e) => set('telefone', e.target.value)} placeholder="+244 923 456 789" />
               </Field>
               <Field label="E-mail" name="email" error={errors.email}>
@@ -158,7 +157,7 @@ export function RequestPage() {
               <Field label="Categoria do serviço" name="categoria" required error={errors.categoria}>
                 <Select id="categoria" value={form.categoria} hasError={!!errors.categoria} onChange={(e) => set('categoria', e.target.value)}>
                   <option value="">Selecione...</option>
-                  {SERVICE_CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  {categories.map((c) => <option key={c} value={c}>{c}</option>)}
                 </Select>
               </Field>
               <div className="sm:col-span-2">

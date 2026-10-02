@@ -6,11 +6,15 @@ export type Route =
   | { name: 'become-pro' }
   | { name: 'request' }
   | { name: 'about' }
-  | { name: 'contact' };
+  | { name: 'contact' }
+  | { name: 'admin'; section: string };
 
 function parseHash(): Route {
   const hash = window.location.hash.replace(/^#/, '') || '/';
   const clean = hash.split('?')[0];
+  if (clean === '/admin' || clean.startsWith('/admin/')) {
+    return { name: 'admin', section: clean.slice('/admin/'.length) };
+  }
   switch (clean) {
     case '/':
     case '':

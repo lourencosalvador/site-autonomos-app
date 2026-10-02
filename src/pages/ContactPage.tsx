@@ -1,12 +1,13 @@
 import { Mail, Phone, MapPin, Clock, MessageSquare } from 'lucide-react';
 import { SectionHeading } from '../components/SectionHeading';
 import { PageHero } from '../components/PageHero';
+import { track } from '../lib/analytics';
 
 const CHANNELS = [
   { icon: Mail, label: 'Email', value: 'autonomous.ao@gmail.com', href: 'mailto:autonomous.ao@gmail.com' },
-  { icon: Phone, label: 'Telefone', value: '+244 976 477 097', href: 'tel:+244976477097' },
+  { icon: Phone, label: 'Telefone / WhatsApp', value: '+244 976 477 097', href: 'tel:+244976477097' },
   { icon: MapPin, label: 'Endereço', value: 'Luanda, Angola', href: null },
-  { icon: Clock, label: 'Atendimento', value: 'Seg–Dom · 08h às 18h', href: null },
+  { icon: Clock, label: 'Atendimento', value: 'Seg–Sáb · 08h às 18h', href: null },
 ];
 
 export function ContactPage() {
@@ -40,7 +41,7 @@ export function ContactPage() {
                     </div>
                   );
                   return c.href ? (
-                    <a key={c.label} href={c.href} className="block">{inner}</a>
+                    <a key={c.label} href={c.href} onClick={() => track('contact_click', c.label)} className="block">{inner}</a>
                   ) : (
                     <div key={c.label}>{inner}</div>
                   );
@@ -50,7 +51,7 @@ export function ContactPage() {
               <div className="reveal mt-8 rounded-3xl bg-gradient-to-br from-brand-dark to-brand-dark2 p-7 text-white shadow-card">
                 <h3 className="font-display text-lg font-bold">Suporte ao cliente</h3>
                 <p className="mt-2 text-sm text-white/70">
-                  Para questões sobre pedidos, profissionais ou parcerias, envie-nos um email ou ligue. Respondemos em poucas horas.
+                  Para questões sobre pedidos, profissionais ou parcerias, envie-nos um email, ligue ou fale connosco pelo WhatsApp. Atendimento de segunda a sábado — respondemos em poucas horas.
                 </p>
               </div>
             </div>

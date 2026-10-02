@@ -2,6 +2,8 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Star } from 'lucide-react';
 import { type Service } from '../data';
 import { useValidServices } from '../hooks/useValidServices';
+import { useServices } from '../hooks/useServices';
+import { track } from '../lib/analytics';
 import { useNavigate } from '../router';
 
 const CARD_W = 320; // px, base width incl. gap
@@ -9,7 +11,7 @@ const CARD_W = 320; // px, base width incl. gap
 export function ServicesCarousel() {
   const trackRef = useRef<HTMLDivElement | null>(null);
   const navigate = useNavigate();
-  const validServices = useValidServices();
+  const validServices = useValidServices(useServices());
   const [atStart, setAtStart] = useState(true);
   const [atEnd, setAtEnd] = useState(false);
 
@@ -68,7 +70,7 @@ export function ServicesCarousel() {
         style={{ scrollPaddingLeft: '1rem' }}
       >
         {items.map((s, i) => (
-          <ServiceCard key={`${s.id}-${i}`} service={s} onClick={() => navigate('/solicitar-servico')} />
+          <ServiceCard key={`${s.id}-${i}`} service={s} onClick={() => { track('service_click', s.category); navigate(`/solicitar-servico?categoria=${encodeURIComponent(s.category)}`); }} />
         ))}
       </div>
 
@@ -95,20 +97,17 @@ function ServiceCard({ service, onClick }: { service: Service; onClick: () => vo
           onError={() => setHidden(true)}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/80 via-brand-dark/10 to-transparent" />
-        <span className="absolute left-4 top-4 rounded-full bg-brand-cyan px-3 py-1 text-xs font-bold text-brand-dark shadow-glow">
-          {service.category}
-        </span>
+        <div className="absolute inset-0 bg-gradient-to-t from-brand-dark/60 via-brand-dark/10 to-transparent" />
       </div>
 
       <div className="p-5">
-        <h3 className="font-display text-lg font-bold text-brand-dark">{service.title}</h3>
+        <h3 className="line-clamp-1 font-display text-lg font-bold text-brand-dark" title={service.title}>{service.title}</h3>
         <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-700/75">{service.description}</p>
 
         <div className="mt-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-ink-700/55">A partir de</p>
-            <p className="font-display text-base font-extrabold text-brand-dark">{service.price}</p>
+            <p className="text-xs text-ink-700/55">{service.price ? 'A partir de' : 'Preço'}</p>
+            <p className="font-display text-base font-extrabold text-brand-dark">{service.price ?? 'Sob orçamento'}</p>
           </div>
           <div className="flex items-center gap-0.5 text-brand-cyan2">
             {Array.from({ length: 5 }).map((_, i) => (
