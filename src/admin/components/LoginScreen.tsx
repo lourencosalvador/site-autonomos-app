@@ -17,6 +17,10 @@ export function LoginScreen({ onSuccess }: { onSuccess: (s: AdminSession) => voi
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
   const [now, setNow] = useState(Date.now());
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const logoRef = useRef<HTMLImageElement | null>(null);
+  const backRef = useRef<HTMLAnchorElement | null>(null);
+  const formRef = useRef<HTMLDivElement | null>(null);
+  const footerRef = useRef<HTMLSpanElement | null>(null);
 
   const locked = lockedUntil !== null && lockedUntil > now;
   const remaining = locked ? Math.ceil((lockedUntil - now) / 1000) : 0;
@@ -69,20 +73,20 @@ export function LoginScreen({ onSuccess }: { onSuccess: (s: AdminSession) => voi
 
   return (
     <div className="relative flex min-h-[100dvh] flex-col overflow-hidden bg-black text-white">
-      <DotField className="absolute inset-0 h-full w-full" />
+      <DotField className="absolute inset-0 h-full w-full" avoid={[logoRef, backRef, formRef, footerRef]} />
       {/* vinheta: escurece as margens e dá foco ao formulário */}
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.55)_55%,#000_100%)]" />
 
       <header className="relative z-10 flex items-center justify-between px-6 py-5 sm:px-8">
-        <img src="/admin-logo-light.svg" alt="AUTONOMOUS" className="h-[22px] w-auto" />
-        <a href="#/" className="inline-flex items-center gap-1.5 text-[13px] text-white/50 transition-colors hover:text-white">
+        <img ref={logoRef} src="/admin-logo-light.svg" alt="AUTONOMOUS" className="h-[22px] w-auto" />
+        <a ref={backRef} href="#/" className="inline-flex items-center gap-1.5 text-[13px] text-white/50 transition-colors hover:text-white">
           <ArrowLeft className="size-3.5" /> Voltar ao site
         </a>
       </header>
 
       <main className="relative z-10 flex flex-1 items-center justify-center px-6 pb-16">
-        <div className="w-full max-w-[26rem]">
-          <div className="mx-auto mb-7 flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/[0.04]">
+        <div ref={formRef} className="w-full max-w-[26rem]">
+          <div className="mx-auto mb-7 flex size-11 items-center justify-center rounded-xl border border-white/10 bg-zinc-950">
             <ShieldCheck className="size-5 text-brand-cyan" />
           </div>
           <h1 className="text-center text-2xl font-semibold tracking-tight">Painel de administração</h1>
@@ -138,7 +142,7 @@ export function LoginScreen({ onSuccess }: { onSuccess: (s: AdminSession) => voi
             <button
               type="submit"
               disabled={value.length !== KEY_LENGTH || pending || locked}
-              className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-white text-sm font-semibold text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:bg-white/10 disabled:text-white/35"
+              className="mt-4 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-white text-sm font-semibold text-black transition-colors hover:bg-white/90 disabled:cursor-not-allowed disabled:bg-zinc-900 disabled:text-white/35"
             >
               {pending ? (
                 <>
@@ -155,7 +159,7 @@ export function LoginScreen({ onSuccess }: { onSuccess: (s: AdminSession) => voi
       </main>
 
       <footer className="relative z-10 px-6 pb-6 text-center text-xs text-white/30">
-        Acesso restrito à equipa AUTONOMOUS. As tentativas de acesso são registadas.
+        <span ref={footerRef}>Acesso restrito à equipa AUTONOMOUS. As tentativas de acesso são registadas.</span>
       </footer>
     </div>
   );

@@ -47,9 +47,9 @@ export function InputOTPSlot({ index, className, invalid }: { index: number; cla
   return (
     <div
       className={cn(
-        'relative flex h-12 w-10 items-center justify-center border-y border-r border-white/15 bg-white/[0.04] font-mono text-lg font-medium text-white transition-all sm:h-14 sm:w-12 sm:text-xl',
+        'relative flex h-12 w-10 items-center justify-center border-y border-r border-white/15 bg-zinc-950 font-mono text-lg font-medium text-white transition-all sm:h-14 sm:w-12 sm:text-xl',
         'first:rounded-l-lg first:border-l last:rounded-r-lg',
-        isActive && 'z-10 border-brand-cyan/70 bg-white/[0.08] ring-1 ring-brand-cyan/70',
+        isActive && 'z-10 border-brand-cyan/70 bg-zinc-900 ring-1 ring-brand-cyan/70',
         invalid && 'border-red-400/70',
         className,
       )}

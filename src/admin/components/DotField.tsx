@@ -1,12 +1,19 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
+
+/** Margem livre à volta dos elementos e largura da transição suave (px). */
+const CLEAR = 20;
+const FADE = 64;
 
 /**
  * Fundo do ecrã de login: grelha de pontos onde passam, devagar, focos de luz
  * na cor da marca. Desenhado em canvas; pára quando o separador está escondido
  * e fica estático com "reduzir movimento".
+ * Os elementos em `avoid` ficam com o fundo limpo: não há pontos por trás deles.
  */
-export function DotField({ className }: { className?: string }) {
+export function DotField({ className, avoid = [] }: { className?: string; avoid?: RefObject<HTMLElement | null>[] }) {
   const ref = useRef<HTMLCanvasElement | null>(null);
+  const avoidRef = useRef(avoid);
+  avoidRef.current = avoid;
 
   useEffect(() => {
     const canvas = ref.current;
@@ -50,8 +57,33 @@ export function DotField({ className }: { className?: string }) {
       const offsetX = (width % GAP) / 2;
       const offsetY = (height % GAP) / 2;
 
+      // Zonas a evitar, em coordenadas do canvas.
+      const origin = canvas.getBoundingClientRect();
+      const zones = avoidRef.current
+        .map((r) => r.current?.getBoundingClientRect())
+        .filter((b): b is DOMRect => !!b && b.width > 0)
+        .map((b) => ({ l: b.left - origin.left, t: b.top - origin.top, r: b.right - origin.left, b: b.bottom - origin.top }));
+
+      /** 0 = sem ponto (junto a um elemento), 1 = intensidade normal. */
+      const clearance = (x: number, y: number) => {
+        let k = 1;
+        for (const z of zones) {
+          const dx = Math.max(z.l - x, 0, x - z.r);
+          const dy = Math.max(z.t - y, 0, y - z.b);
+          const d = Math.hypot(dx, dy);
+          if (d <= CLEAR) return 0;
+          if (d < CLEAR + FADE) {
+            const f = (d - CLEAR) / FADE;
+            k = Math.min(k, f * f * (3 - 2 * f));
+          }
+        }
+        return k;
+      };
+
       for (let y = offsetY; y < height; y += GAP) {
         for (let x = offsetX; x < width; x += GAP) {
+          const k = zones.length ? clearance(x, y) : 1;
+          if (k === 0) continue;
           let glow = 0;
           for (const p of pos) {
             const dx = x - p.x;
@@ -60,10 +92,10 @@ export function DotField({ className }: { className?: string }) {
           }
           // ondulação subtil para os pontos não ficarem "parados"
           glow += 0.05 * Math.sin(x * 0.012 + y * 0.009 + t * 0.0009);
-          glow = Math.min(1, Math.max(0, glow));
+          glow = Math.min(1, Math.max(0, glow)) * k;
 
           if (glow < 0.18) {
-            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            ctx.fillStyle = `rgba(255,255,255,${(0.08 * k).toFixed(3)})`;
             ctx.fillRect(x - 0.6, y - 0.6, 1.2, 1.2);
           } else {
             const size = 0.8 + glow * 1.2;
