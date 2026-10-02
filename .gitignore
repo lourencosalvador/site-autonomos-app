@@ -21,3 +21,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+
+# Deno (gerado ao validar as Edge Functions localmente)
+deno.lock
