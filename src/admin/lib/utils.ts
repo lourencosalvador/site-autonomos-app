@@ -6,7 +6,7 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 const TZ = 'Africa/Luanda';
-const numberFmt = new Intl.NumberFormat('pt-PT');
+const numberFmt = new Intl.NumberFormat('pt-PT', { useGrouping: 'always' } as unknown as Intl.NumberFormatOptions);
 const dateFmt = new Intl.DateTimeFormat('pt-PT', { timeZone: TZ, day: '2-digit', month: 'short', year: 'numeric' });
 const dateTimeFmt = new Intl.DateTimeFormat('pt-PT', {
   timeZone: TZ, day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit',

@@ -62,6 +62,9 @@ O que o painel faz:
 - **Pedidos do site** e **Candidaturas** — tratar, aprovar ou rejeitar.
 - **Utilizadores** — editar, suspender o acesso (24 h, 7 dias, 30 dias ou indefinidamente), terminar sessões, remover.
 - **Serviços** — criar, editar, ocultar, reordenar e remover os serviços mostrados no site (com upload de imagem).
+- **Pagamentos** — total recebido, receita, escrow, saques e saldos dos prestadores; cobranças AppyPay
+  (Referência e Multicaixa Express), cobranças manuais, verificação, reembolsos e exportação CSV.
+  Configuração em `supabase/functions/README.md` (secção AppyPay).
 
 Segurança: a chave é verificada no servidor (só se guarda o hash bcrypt), com bloqueio de 15 minutos após 5 tentativas
 falhadas por IP. As sessões duram 12 horas e todas as ações exigem o token de sessão.

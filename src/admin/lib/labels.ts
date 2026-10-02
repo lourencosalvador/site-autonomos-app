@@ -1,4 +1,5 @@
 import type { SiteEvent, SiteRequest, Application } from './types';
+import { withdrawalStatus } from './money';
 
 export const PAGE_LABELS: Record<string, string> = {
   '/': 'Início',
@@ -64,6 +65,12 @@ const ACTIONS: Record<string, string> = {
   'admin.enable': 'reativou um administrador',
   'admin.disable': 'desativou um administrador',
   'admin.end_other_sessions': 'terminou as outras sessões',
+  'payment.charge_create': 'criou uma cobrança',
+  'payment.charge_cancel': 'cancelou uma cobrança',
+  'payment.refund_request': 'pediu um reembolso',
+  'payment.withdrawal_status': 'atualizou um saque',
+  'payment.export': 'exportou pagamentos',
+  'payments.settings': 'alterou a configuração de pagamentos',
 };
 
 export const actionLabel = (action: string) => ACTIONS[action] ?? action;
@@ -74,11 +81,13 @@ export function auditDetail(details: Record<string, unknown>): string | null {
   if (typeof d.title === 'string') return d.title;
   if (typeof d.name === 'string') return d.name;
   if (typeof d.nome === 'string') return d.nome;
+  if (typeof d.amount === 'number' || typeof d.amount === 'string') return `${Number(d.amount).toLocaleString('pt-PT')} Kz`;
+  if (typeof d.from === 'string' && typeof d.to === 'string' && !('status' in d)) return `${d.from} a ${d.to}`;
   if (typeof d.status === 'string') {
     const s = d.status as string;
     return (REQUEST_STATUS as Record<string, { label: string }>)[s]?.label
       ?? (APPLICATION_STATUS as Record<string, { label: string }>)[s]?.label
-      ?? s;
+      ?? withdrawalStatus(s).label;
   }
   if ('days' in d) return d.days ? `${d.days} dias` : 'Indefinidamente';
   if (typeof d.ip === 'string') return `IP ${d.ip}`;

@@ -12,8 +12,9 @@ import { ApplicationsPage } from './pages/ApplicationsPage';
 import { UsersPage } from './pages/UsersPage';
 import { ServicesAdminPage } from './pages/ServicesAdminPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { PaymentsPage } from './pages/PaymentsPage';
 
-const SECTIONS: SectionId[] = ['', 'atividade', 'pedidos', 'candidaturas', 'utilizadores', 'servicos', 'definicoes'];
+const SECTIONS: SectionId[] = ['', 'atividade', 'pagamentos', 'pedidos', 'candidaturas', 'utilizadores', 'servicos', 'definicoes'];
 
 export default function AdminApp({ section }: { section: string }) {
   const [session, setSession] = useState<AdminSession | null>(getSession);
@@ -70,16 +71,27 @@ export default function AdminApp({ section }: { section: string }) {
 function Dashboard({ section, session, onLogout }: { section: SectionId; session: AdminSession; onLogout: () => void }) {
   // Contadores da barra lateral (pedidos por tratar, candidaturas pendentes).
   const counts = useAdminQuery(() => rpc<Overview>('admin_overview', { p_days: 7 }), [], 60_000);
+  // Saques por pagar (a migração de pagamentos pode ainda não estar aplicada: nesse caso fica sem número).
+  const payCounts = useAdminQuery(
+    () => rpc<{ withdrawals_pending: number; charges_pending: number }>('admin_payment_counts').catch(() => null),
+    [],
+    60_000,
+  );
 
   return (
     <Shell
       section={section}
       session={session}
       onLogout={onLogout}
-      counts={{ requests: counts.data?.site_requests.open, applications: counts.data?.applications?.pending }}
+      counts={{
+        requests: counts.data?.site_requests.open,
+        applications: counts.data?.applications?.pending,
+        payments: payCounts.data?.withdrawals_pending,
+      }}
     >
       {section === '' && <OverviewPage />}
       {section === 'atividade' && <ActivityPage />}
+      {section === 'pagamentos' && <PaymentsPage onChange={payCounts.reload} />}
       {section === 'pedidos' && <RequestsPage onChange={counts.reload} />}
       {section === 'candidaturas' && <ApplicationsPage onChange={counts.reload} />}
       {section === 'utilizadores' && <UsersPage />}

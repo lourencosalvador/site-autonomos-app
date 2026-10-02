@@ -5,3 +5,12 @@ project_id = "dbmitproxcogmtwfyhen"
 # verificação de JWT. A autorização real é feita dentro da função.
 [functions.provision-account]
 verify_jwt = false
+
+# AppyPay: o webhook é chamado pela AppyPay (sem JWT; validado pelo segredo no URL)
+# e a função do painel usa o token de sessão do admin (x-admin-token), validado na BD.
+# appypay-charge mantém a verificação de JWT: só utilizadores com sessão na app.
+[functions.appypay-webhook]
+verify_jwt = false
+
+[functions.appypay-admin]
+verify_jwt = false

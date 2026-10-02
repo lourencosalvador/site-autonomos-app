@@ -35,6 +35,9 @@ const MESSAGES: Record<string, string> = {
   invalid_name: 'Indique um nome com pelo menos 2 caracteres.',
   invalid_title: 'Indique um título com pelo menos 2 caracteres.',
   cannot_disable_self: 'Não pode desativar a sua própria conta.',
+  not_pending: 'Só é possível cancelar cobranças pendentes.',
+  invalid_phone: 'Número de telefone inválido.',
+  invalid_amount: 'Valor inválido.',
 };
 
 export class AdminError extends Error {}
@@ -116,6 +119,60 @@ export async function uploadServiceImage(file: Blob, baseName: string): Promise<
   });
   if (error) throw new AdminError('Não foi possível carregar a imagem. Tente outra (JPG, PNG ou WebP, até 5 MB).');
   return supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl;
+}
+
+/* ------------------------------------------------------------------ */
+/* AppyPay (Edge Function appypay-admin)                               */
+/* ------------------------------------------------------------------ */
+
+const APPY_ERRORS: Record<string, string> = {
+  payments_unavailable: 'A AppyPay ainda não está configurada (faltam credenciais nas Edge Functions).',
+  gateway_unavailable: 'A AppyPay não respondeu. Tente novamente dentro de instantes.',
+  gateway_error: 'A AppyPay recusou o pedido.',
+  invalid_phone: 'Número de telefone inválido. Use 9XXXXXXXX.',
+  invalid_amount: 'Indique um valor de pelo menos 1 Kz.',
+  invalid_method: 'Escolha Referência ou Multicaixa Express.',
+  refund_not_supported: 'A AppyPay só reembolsa pagamentos Multicaixa Express.',
+  not_paid: 'Só é possível reembolsar cobranças pagas.',
+  no_gateway_id: 'Esta cobrança ainda não tem identificador na AppyPay.',
+  already_paid: 'Este pedido já está pago.',
+  request_not_found: 'Pedido não encontrado.',
+  not_found: 'Cobrança não encontrada.',
+};
+
+export async function appypayAdmin<T>(action: string, payload: Record<string, unknown> = {}): Promise<T> {
+  if (!session) {
+    expire();
+    throw new AdminError('Sessão terminada.');
+  }
+  const base = import.meta.env.VITE_SUPABASE_URL as string;
+  const anon = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+  let res: Response;
+  try {
+    res = await fetch(`${base}/functions/v1/appypay-admin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: anon,
+        Authorization: `Bearer ${anon}`,
+        'x-admin-token': session.token,
+      },
+      body: JSON.stringify({ action, ...payload }),
+    });
+  } catch {
+    throw new AdminError('Não foi possível contactar a função de pagamentos. Confirme que as Edge Functions estão publicadas.');
+  }
+  if (res.status === 404) throw new AdminError('A função appypay-admin ainda não foi publicada no Supabase.');
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    if (body?.error === 'invalid_session') {
+      expire();
+      throw new AdminError('A sessão expirou. Entre novamente.');
+    }
+    const msg = APPY_ERRORS[body?.error] ?? 'Ocorreu um erro inesperado.';
+    throw new AdminError(body?.message ? `${msg} (${body.message})` : msg);
+  }
+  return body as T;
 }
 
 /* ------------------------------------------------------------------ */

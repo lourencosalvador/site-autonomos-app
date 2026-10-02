@@ -114,3 +114,105 @@ O trigger dispara a função em modo `reissue`; no fim o `provision_status` volt
   criada na mesma; basta depois definir `TWILIO_FROM`/`TWILIO_MESSAGING_SERVICE_SID`.
 - A chave nunca é devolvida ao browser nem guardada em claro — só o hash da
   password fica no Supabase Auth.
+
+---
+
+# Pagamentos AppyPay (`appypay-charge`, `appypay-webhook`, `appypay-admin`)
+
+Pagamento por **Referência** (ATM, Multicaixa Express, Internet Banking) e por **Multicaixa Express** (GPO,
+aprovação no telemóvel) através da [AppyPay](https://appypay.stoplight.io/docs/appypay-payment-gateway/).
+
+## Fluxo
+
+```
+App (cliente com sessão)
+  └─ POST appypay-charge { request_id, method }      ← valor calculado no servidor (requests.client_total)
+        ├─ pay_prepare_charge  (SQL: valida pedido, cria payment_charges)
+        ├─ AppyPay POST /v2.0/charges
+        │     REF → devolve logo entidade + referência + validade
+        │     GPO → 202, o cliente aprova na app Multicaixa Express
+        └─ pay_record_gateway  (SQL: guarda a resposta)
+
+AppyPay ──► appypay-webhook?secret=…
+        ├─ confirma SEMPRE o estado com GET /v2.0/charges/{id} (não confia no aviso)
+        └─ pay_record_gateway → se pago: cria a linha em `payments` (escrow retido)
+                                e marca o pedido como pago — o mesmo formato que a carteira lê.
+
+Painel (#/admin → Pagamentos) ──► appypay-admin (x-admin-token)
+        status · cobrança manual · verificar estado · reembolso (só GPO)
+```
+
+## Configurar (uma vez)
+
+1. Correr no SQL Editor `supabase/migrations/20261002150000_payments_appypay.sql`
+   (depois da migração do painel `20261002120000_admin_dashboard.sql`).
+2. No [Web App da AppyPay](https://appypay.co.ao): criar as credenciais (Client ID / Secret) e as aplicações
+   dos métodos **REF** e **GPO** — cada uma tem um identificador do tipo `REF_xxxxxxxx-…` / `GPO_xxxxxxxx-…`.
+3. Definir os segredos das funções:
+
+```bash
+supabase secrets set APPYPAY_CLIENT_ID=... APPYPAY_CLIENT_SECRET=... \
+  APPYPAY_METHOD_REF=REF_... APPYPAY_METHOD_GPO=GPO_... \
+  APPYPAY_WEBHOOK_SECRET=$(openssl rand -hex 24)
+# Ambiente de testes da AppyPay (opcional):
+supabase secrets set APPYPAY_BASE_URL=https://gwy-api-tst.appypay.co.ao/v2.0
+```
+
+4. Publicar as funções:
+
+```bash
+supabase functions deploy appypay-charge
+supabase functions deploy appypay-webhook --no-verify-jwt
+supabase functions deploy appypay-admin --no-verify-jwt
+```
+
+5. Na AppyPay → Webhooks, configurar:
+   `https://dbmitproxcogmtwfyhen.supabase.co/functions/v1/appypay-webhook?secret=<APPYPAY_WEBHOOK_SECRET>`
+
+O painel mostra no topo de Pagamentos se a AppyPay está ligada e o que falta configurar.
+
+## API para a app mobile
+
+Todas as chamadas levam o JWT do utilizador (`Authorization: Bearer <access_token>`), como as restantes
+chamadas ao Supabase. Com o supabase-js: `supabase.functions.invoke('appypay-charge', { body })`.
+
+**Gerar referência**
+
+```http
+POST /functions/v1/appypay-charge
+{ "request_id": "<uuid do pedido>", "method": "REF" }
+
+200 { "charge": { "id": "…", "method": "REF", "status": "pending", "amount": 55000, "currency": "AOA",
+                  "reference": { "entity": "00123", "number": "397107019", "due_at": "2026-10-05T23:59:00+01:00" } } }
+```
+
+Pedir de novo devolve a mesma referência enquanto for válida (`"reused": true`).
+
+**Multicaixa Express**
+
+```http
+POST /functions/v1/appypay-charge
+{ "request_id": "<uuid>", "method": "GPO", "phone": "923 456 789" }
+
+200 { "charge": { "id": "…", "method": "GPO", "status": "pending", … } }
+```
+
+O cliente tem ~1 minuto para aprovar na app Multicaixa Express. A app acompanha o estado com
+`GET /functions/v1/appypay-charge?id=<charge.id>` (ou lendo `payment_charges`, que o cliente pode ler — e
+subscrever via Realtime). Estados: `pending` → `success` | `failed` | `expired`.
+
+**Erros** (`{ "error": "<código>" }`): `invalid_method`, `invalid_phone`, `amount_not_set`, `already_paid`,
+`request_closed`, `charge_in_progress` (já há um pedido Express ativo), `unsupported_currency`,
+`forbidden`, `payments_unavailable` (AppyPay por configurar), `gateway_unavailable`.
+
+## Compatibilidade com o backend / app
+
+Quando um pagamento AppyPay é confirmado é criada a linha em `payments` com:
+`status = 'succeeded'`, `escrow_status = 'held'`, `stripe_payment_intent_id = 'appypay_<transação>'`
+e as taxas copiadas de `requests` (`agreed_amount`, `request_fee`, `service_fee`, `urgent_bonus`,
+`provider_net`, `platform_net`). O pedido fica com `payment_status = 'succeeded'`.
+
+Estes nomes de estado e a unidade dos valores (cêntimos) são editáveis no painel → Pagamentos →
+Configuração, para coincidirem exatamente com o que a app e o backend (autonomos-server) usam.
+A libertação do escrow ("Serviço concluído", FlexPay 30/70 nos serviços de vários dias) continua a ser feita
+pelo backend: confirme que essa lógica trata também os pagamentos `appypay_…`.
