@@ -2,8 +2,7 @@ import { supabase } from './supabase';
 
 export type CallToken = { url: string; token: string; room: string; identity: string };
 
-/** Pede à Edge Function um token de chamada para este pedido. */
-export async function getCallToken(requestId: string): Promise<CallToken> {
+async function invokeToken(requestId: string): Promise<{ data: unknown; code: string | null }> {
   const { data, error } = await supabase.functions.invoke('livekit-function', {
     body: { request_id: requestId },
   });
@@ -14,10 +13,28 @@ export async function getCallToken(requestId: string): Promise<CallToken> {
       const body = ctx ? await ctx.json() : null;
       if (body?.error) code = body.error;
     } catch { /* mantém call_failed */ }
-    throw new Error(code);
+    return { data: null, code };
   }
-  if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);
-  return data as CallToken;
+  if ((data as { error?: string })?.error) return { data: null, code: (data as { error: string }).error };
+  return { data, code: null };
+}
+
+/** Pede à Edge Function um token de chamada para este pedido (renova a sessão se preciso). */
+export async function getCallToken(requestId: string): Promise<CallToken> {
+  // Garante que há sessão e, se o token estiver velho, renova antes de chamar.
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session) throw new Error('unauthorized');
+
+  let res = await invokeToken(requestId);
+  // Se o token foi recusado, tenta renovar a sessão uma vez e repete.
+  if (res.code === 'unauthorized') {
+    try { await supabase.auth.refreshSession(); } catch { /* refresh falhou */ }
+    const { data: { session: s2 } } = await supabase.auth.getSession();
+    if (!s2) throw new Error('unauthorized');
+    res = await invokeToken(requestId);
+  }
+  if (res.code) throw new Error(res.code);
+  return res.data as CallToken;
 }
 
 export type IncomingCall = {
