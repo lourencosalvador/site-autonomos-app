@@ -9,7 +9,7 @@ import { useAuth } from '../../auth/AuthContext';
 import { navigate } from '../../router';
 import {
   type Broadcast, type BroadcastPerson,
-  getBroadcast, expireBroadcast, cancelBroadcast, completeBroadcast,
+  getBroadcast, expireBroadcast, cancelBroadcast, completeBroadcast, providerMarkDone,
   secondsLeft, subscribeBroadcasts,
 } from '../../lib/broadcasts';
 import { notifyIncomingCall } from '../../lib/call';
@@ -83,7 +83,14 @@ export function RequestStatusPage({ id }: { id: string }) {
   const doComplete = async () => {
     if (busy) return;
     setBusy(true);
-    try { await completeBroadcast(b.id); await refetch(); success('Serviço concluído!'); }
+    try { await completeBroadcast(b.id); await refetch(); success('Serviço concluído!', 'O valor foi enviado ao prestador.'); }
+    catch (e) { toastError('Não foi possível concluir', e instanceof Error ? e.message : undefined); }
+    finally { setBusy(false); }
+  };
+  const doProviderDone = async () => {
+    if (busy) return;
+    setBusy(true);
+    try { await providerMarkDone(b.id); await refetch(); success('Marcado como concluído', 'A aguardar a confirmação do cliente.'); }
     catch (e) { toastError('Não foi possível concluir', e instanceof Error ? e.message : undefined); }
     finally { setBusy(false); }
   };
@@ -114,10 +121,12 @@ export function RequestStatusPage({ id }: { id: string }) {
                 person={other}
                 iAmClient={iAmClient}
                 paid={b.payment_status !== 'unpaid'}
+                providerDone={!!b.provider_done_at}
                 requestId={b.id}
                 priceMinor={b.price_minor ?? 200000}
                 onCancel={doCancel}
                 onComplete={doComplete}
+                onProviderDone={doProviderDone}
                 busy={busy}
                 onChat={() => navigate(`/conta/chat/${b.id}`)}
                 onCall={() => setCallOpen(true)}
@@ -199,9 +208,9 @@ function OpenForProvider() {
   );
 }
 
-function Accepted({ person, iAmClient, paid, requestId, priceMinor, onCancel, onComplete, onChat, onCall, busy }: {
-  person: BroadcastPerson; iAmClient: boolean; paid: boolean; requestId: string; priceMinor: number; busy: boolean;
-  onCancel: () => void; onComplete: () => void; onChat: () => void; onCall: () => void;
+function Accepted({ person, iAmClient, paid, providerDone, requestId, priceMinor, onCancel, onComplete, onProviderDone, onChat, onCall, busy }: {
+  person: BroadcastPerson; iAmClient: boolean; paid: boolean; providerDone: boolean; requestId: string; priceMinor: number; busy: boolean;
+  onCancel: () => void; onComplete: () => void; onProviderDone: () => void; onChat: () => void; onCall: () => void;
 }) {
   return (
     <div>
@@ -226,30 +235,50 @@ function Accepted({ person, iAmClient, paid, requestId, priceMinor, onCancel, on
       </div>
 
       {iAmClient ? (
-        paid ? (
+        !paid ? (
+          <>
+            <PaymentPanel requestId={requestId} priceMinor={priceMinor} />
+            <CancelLink onCancel={onCancel} busy={busy} />
+          </>
+        ) : providerDone ? (
           <div className="mt-5">
-            <SlideToConfirm label="Deslize para concluir" confirmingLabel="A concluir…" tone="emerald" busy={busy} onConfirm={onComplete} />
-            <div className="mt-3 text-center">
-              <button onClick={onCancel} disabled={busy} className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-400 hover:text-red-600 disabled:opacity-50">
-                <XCircle size={14} /> Cancelar pedido
-              </button>
-            </div>
+            <p className="mb-2 text-center text-sm text-ink-500">O prestador marcou o serviço como concluído. Confirme para libertar o pagamento.</p>
+            <SlideToConfirm label="Confirmar conclusão" confirmingLabel="A confirmar…" tone="emerald" busy={busy} onConfirm={onComplete} />
+            <CancelLink onCancel={onCancel} busy={busy} />
           </div>
         ) : (
           <>
-            <PaymentPanel requestId={requestId} priceMinor={priceMinor} />
-            <div className="mt-3 text-center">
-              <button onClick={onCancel} disabled={busy} className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-400 hover:text-red-600 disabled:opacity-50">
-                <XCircle size={14} /> Cancelar pedido
-              </button>
-            </div>
+            <p className="mt-5 flex items-center justify-center gap-1.5 rounded-2xl bg-cloud-50 px-4 py-3 text-center text-sm text-ink-500">
+              <Clock size={15} className="text-ink-400" /> Pago. A aguardar que o prestador conclua o serviço.
+            </p>
+            <CancelLink onCancel={onCancel} busy={busy} />
           </>
         )
       ) : (
-        <p className="mt-5 flex items-center justify-center gap-1.5 rounded-2xl bg-cloud-50 px-4 py-3 text-center text-sm text-ink-500">
-          <Clock size={15} className="text-ink-400" /> {paid ? 'Pago. A aguardar que o cliente conclua o serviço.' : 'A aguardar o pagamento do cliente.'}
-        </p>
+        !paid ? (
+          <p className="mt-5 flex items-center justify-center gap-1.5 rounded-2xl bg-cloud-50 px-4 py-3 text-center text-sm text-ink-500">
+            <Clock size={15} className="text-ink-400" /> A aguardar o pagamento do cliente.
+          </p>
+        ) : providerDone ? (
+          <p className="mt-5 flex items-center justify-center gap-1.5 rounded-2xl bg-emerald-50 px-4 py-3 text-center text-sm text-emerald-700">
+            <CheckCircle2 size={15} /> Concluído do seu lado. A aguardar a confirmação do cliente.
+          </p>
+        ) : (
+          <div className="mt-5">
+            <SlideToConfirm label="Serviço concluído" confirmingLabel="A marcar…" tone="emerald" busy={busy} onConfirm={onProviderDone} />
+          </div>
+        )
       )}
+    </div>
+  );
+}
+
+function CancelLink({ onCancel, busy }: { onCancel: () => void; busy: boolean }) {
+  return (
+    <div className="mt-3 text-center">
+      <button onClick={onCancel} disabled={busy} className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-400 hover:text-red-600 disabled:opacity-50">
+        <XCircle size={14} /> Cancelar pedido
+      </button>
     </div>
   );
 }

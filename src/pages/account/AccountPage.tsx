@@ -7,9 +7,10 @@ import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../components/Button';
 import { useToast } from '../../components/Toast';
 import { useNavigate } from '../../router';
+import { SlideToConfirm } from '../../components/SlideToConfirm';
 import {
   type Broadcast, type BroadcastStatus,
-  acceptBroadcast, listOpenBroadcasts, myBroadcasts, secondsLeft, subscribeBroadcasts,
+  acceptBroadcast, completeBroadcast, listOpenBroadcasts, myBroadcasts, providerMarkDone, secondsLeft, subscribeBroadcasts,
 } from '../../lib/broadcasts';
 
 const STATUS_LABEL: Record<BroadcastStatus, string> = {
@@ -102,13 +103,22 @@ function ClientHome({ navigate }: { navigate: (p: string) => void }) {
 /** Pedidos ativos/recentes do cliente. */
 function MyRequests() {
   const navigate = useNavigate();
+  const { success, error: toastError } = useToast();
   const [rows, setRows] = useState<Broadcast[] | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try { setRows(await myBroadcasts()); } catch { setRows([]); }
   }, []);
   useEffect(() => { void load(); }, [load]);
   useEffect(() => subscribeBroadcasts({}, () => { void load(); }), [load]);
+
+  const confirm = async (id: string) => {
+    setBusy(id);
+    try { await completeBroadcast(id); success('Serviço concluído!', 'O valor foi enviado ao prestador.'); await load(); }
+    catch (e) { toastError('Não foi possível confirmar', e instanceof Error ? e.message : undefined); }
+    finally { setBusy(null); }
+  };
 
   if (!rows || rows.length === 0) return null;
   const active = rows.filter((r) => r.status === 'open' || r.status === 'accepted');
@@ -118,22 +128,33 @@ function MyRequests() {
     <div className="mt-6">
       <h3 className="mb-3 font-display text-base font-bold text-ink-900">Os meus pedidos</h3>
       <div className="grid gap-3">
-        {active.map((r) => (
-          <button key={r.id} onClick={() => navigate(`/conta/pedido/${r.id}`)}
-            className="flex items-center gap-4 rounded-2xl border border-cloud-200 bg-white p-4 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand-cyan/40 hover:shadow-cardHover">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-cyan/12 text-brand-dark">
-              {r.status === 'open' ? <Search size={19} /> : <CheckCircle2 size={19} />}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <p className="truncate font-semibold text-ink-900">{r.category}</p>
-                <StatusChip status={r.status} />
+        {active.map((r) => {
+          const needsConfirm = r.status === 'accepted' && !!r.provider_done_at && r.payment_status !== 'unpaid';
+          return (
+          <div key={r.id} className={`rounded-2xl border bg-white shadow-soft ${needsConfirm ? 'border-emerald-200' : 'border-cloud-200'}`}>
+            <button onClick={() => navigate(`/conta/pedido/${r.id}`)}
+              className="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-cloud-50/60">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-cyan/12 text-brand-dark">
+                {r.status === 'open' ? <Search size={19} /> : <CheckCircle2 size={19} />}
               </div>
-              <p className="truncate text-sm text-ink-500">{r.description}</p>
-            </div>
-            <ArrowRight size={16} className="shrink-0 text-ink-300" />
-          </button>
-        ))}
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <p className="truncate font-semibold text-ink-900">{r.category}</p>
+                  <StatusChip status={r.status} />
+                </div>
+                <p className="truncate text-sm text-ink-500">{r.description}</p>
+              </div>
+              <ArrowRight size={16} className="shrink-0 text-ink-300" />
+            </button>
+            {needsConfirm && (
+              <div className="border-t border-cloud-100 p-4">
+                <p className="mb-2 text-sm font-medium text-ink-600">O prestador concluiu o serviço. Confirme para libertar o pagamento.</p>
+                <SlideToConfirm label="Confirmar conclusão" confirmingLabel="A confirmar…" tone="emerald" busy={busy === r.id} onConfirm={() => confirm(r.id)} />
+              </div>
+            )}
+          </div>
+          );
+        })}
         {past.map((r) => (
           <button key={r.id} onClick={() => navigate(`/conta/pedido/${r.id}`)}
             className="flex items-center gap-4 rounded-2xl border border-cloud-100 bg-white/60 p-4 text-left transition-colors hover:bg-white">
@@ -158,6 +179,7 @@ function ProviderHome({ approved }: { approved: boolean }) {
   const [mine, setMine] = useState<Broadcast[]>([]);
   const [now, setNow] = useState(Date.now());
   const [accepting, setAccepting] = useState<string | null>(null);
+  const [doneBusy, setDoneBusy] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!approved) { setJobs([]); return; }
@@ -193,6 +215,13 @@ function ProviderHome({ approved }: { approved: boolean }) {
     } finally { setAccepting(null); }
   };
 
+  const markDone = async (id: string) => {
+    setDoneBusy(id);
+    try { await providerMarkDone(id); success('Marcado como concluído', 'A aguardar a confirmação do cliente.'); await load(); }
+    catch (e) { toastError('Não foi possível concluir', e instanceof Error ? e.message : undefined); }
+    finally { setDoneBusy(null); }
+  };
+
   return (
     <>
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -207,17 +236,31 @@ function ProviderHome({ approved }: { approved: boolean }) {
         <div className="mt-6">
           <h3 className="mb-3 font-display text-base font-bold text-ink-900">Em curso</h3>
           <div className="grid gap-3">
-            {mine.map((r) => (
-              <button key={r.id} onClick={() => navigate(`/conta/pedido/${r.id}`)}
-                className="flex items-center gap-4 rounded-2xl border border-cloud-200 bg-white p-4 text-left shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand-cyan/40 hover:shadow-cardHover">
-                <Avatar name={r.client?.name || '?'} src={r.client?.avatar_url ?? null} sm />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold text-ink-900">{r.category}</p>
-                  <p className="truncate text-sm text-ink-500">{r.client?.name} · {r.description}</p>
+            {mine.map((r) => {
+              const canFinish = r.payment_status !== 'unpaid' && !r.provider_done_at;
+              return (
+              <div key={r.id} className="rounded-2xl border border-cloud-200 bg-white shadow-soft">
+                <button onClick={() => navigate(`/conta/pedido/${r.id}`)}
+                  className="flex w-full items-center gap-4 p-4 text-left transition-colors hover:bg-cloud-50/60">
+                  <Avatar name={r.client?.name || '?'} src={r.client?.avatar_url ?? null} sm />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-semibold text-ink-900">{r.category}</p>
+                    <p className="truncate text-sm text-ink-500">{r.client?.name} · {r.description}</p>
+                  </div>
+                  <ArrowRight size={16} className="shrink-0 text-ink-300" />
+                </button>
+                <div className="border-t border-cloud-100 p-4">
+                  {r.provider_done_at ? (
+                    <p className="flex items-center gap-1.5 text-sm text-emerald-700"><CheckCircle2 size={15} /> Concluído. A aguardar a confirmação do cliente.</p>
+                  ) : canFinish ? (
+                    <SlideToConfirm label="Serviço concluído" confirmingLabel="A marcar…" tone="emerald" busy={doneBusy === r.id} onConfirm={() => markDone(r.id)} />
+                  ) : (
+                    <p className="flex items-center gap-1.5 text-sm text-ink-500"><Clock size={15} className="text-ink-400" /> A aguardar o pagamento do cliente.</p>
+                  )}
                 </div>
-                <ArrowRight size={16} className="shrink-0 text-ink-300" />
-              </button>
-            ))}
+              </div>
+              );
+            })}
           </div>
         </div>
       )}

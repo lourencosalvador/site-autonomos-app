@@ -32,8 +32,8 @@ export type Broadcast = {
   // FlexPay
   price_minor?: number;
   payment_status?: 'unpaid' | 'paid';
-  provider_share_minor?: number | null;
   held_minor?: number | null;
+  provider_done_at?: string | null;
   escrow_released?: boolean;
   client?: BroadcastPerson | null;
   provider?: BroadcastPerson | null;
@@ -94,6 +94,13 @@ export async function cancelBroadcast(id: string): Promise<Broadcast | null> {
 
 export async function completeBroadcast(id: string): Promise<Broadcast | null> {
   const { data, error } = await supabase.rpc('complete_broadcast', { p_id: id });
+  if (error) throw error;
+  return (data as Broadcast | null) ?? null;
+}
+
+/** Passo 1 da conclusão: o prestador marca o serviço como concluído. */
+export async function providerMarkDone(id: string): Promise<Broadcast | null> {
+  const { data, error } = await supabase.rpc('provider_mark_done', { p_id: id });
   if (error) throw error;
   return (data as Broadcast | null) ?? null;
 }
