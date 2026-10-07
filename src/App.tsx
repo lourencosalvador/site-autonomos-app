@@ -15,6 +15,8 @@ import { ContactPage } from './pages/ContactPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
 import { AccountPage } from './pages/account/AccountPage';
+import { NewRequestPage } from './pages/account/NewRequestPage';
+import { RequestStatusPage } from './pages/account/RequestStatusPage';
 
 // O painel só é descarregado por quem abre #/admin — não pesa no site público.
 const AdminApp = lazy(() => import('./admin/AdminApp'));
@@ -60,10 +62,20 @@ function App() {
   if (route.name === 'account') {
     if (loading) return <Loading />;
     if (!user) { navigate('/entrar?next=/conta'); return <Loading />; }
+    const section = route.section;
+    let content;
+    if (section === 'pedir') {
+      if (user.role === 'professional') { navigate('/conta'); content = <Loading />; }
+      else content = <NewRequestPage />;
+    } else if (section.startsWith('pedido/')) {
+      content = <RequestStatusPage id={section.slice('pedido/'.length)} />;
+    } else {
+      content = <AccountPage />;
+    }
     return (
       <div className="min-h-screen bg-white">
         <Navbar />
-        <main className="overflow-x-clip"><AccountPage /></main>
+        <main className="overflow-x-clip">{content}</main>
         <Footer />
       </div>
     );
