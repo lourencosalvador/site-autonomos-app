@@ -3,6 +3,7 @@ import { ArrowLeft, Ban, CheckCircle2, Clock, Loader2, MessageSquare, Phone, Sea
 import { Button } from '../../components/Button';
 import { useToast } from '../../components/Toast';
 import { CallModal } from '../../components/CallModal';
+import { SlideToConfirm } from '../../components/SlideToConfirm';
 import { useAuth } from '../../auth/AuthContext';
 import { navigate } from '../../router';
 import {
@@ -220,17 +221,20 @@ function Accepted({ person, iAmClient, onCancel, onComplete, onChat, onCall, bus
         <Button onClick={onCall} variant="outline-dark" size="md"><Phone size={17} /> Ligar</Button>
       </div>
 
-      <div className="mt-3 flex items-center justify-center gap-4">
-        {iAmClient ? (
-          <button onClick={onCancel} disabled={busy} className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-500 hover:text-red-600 disabled:opacity-50">
-            {busy ? <Loader2 size={14} className="animate-spin" /> : <XCircle size={14} />} Cancelar
-          </button>
-        ) : (
-          <button onClick={onComplete} disabled={busy} className="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 hover:text-emerald-700 disabled:opacity-50">
-            {busy ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle2 size={14} />} Marcar concluído
-          </button>
-        )}
-      </div>
+      {iAmClient ? (
+        <div className="mt-5">
+          <SlideToConfirm label="Deslize para concluir" confirmingLabel="A concluir…" tone="emerald" busy={busy} onConfirm={onComplete} />
+          <div className="mt-3 text-center">
+            <button onClick={onCancel} disabled={busy} className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-400 hover:text-red-600 disabled:opacity-50">
+              <XCircle size={14} /> Cancelar pedido
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="mt-5 flex items-center justify-center gap-1.5 rounded-2xl bg-cloud-50 px-4 py-3 text-center text-sm text-ink-500">
+          <Clock size={15} className="text-ink-400" /> A aguardar que o cliente conclua o serviço.
+        </p>
+      )}
     </div>
   );
 }
