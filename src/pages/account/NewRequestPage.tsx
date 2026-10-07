@@ -49,7 +49,7 @@ export function NewRequestPage() {
   };
 
   return (
-    <section className="bg-cloud-50 pb-20 pt-28 lg:pt-32">
+    <section className="bg-cloud-50 pb-28 pt-28 lg:pt-32">
       <div className="mx-auto max-w-2xl px-5 lg:px-8">
         <button onClick={() => navigate('/conta')} className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-ink-500 transition-colors hover:text-ink-900">
           <ArrowLeft size={16} /> Voltar ao painel

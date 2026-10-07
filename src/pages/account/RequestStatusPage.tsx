@@ -3,6 +3,8 @@ import { ArrowLeft, ArrowRight, Ban, CheckCircle2, Clock, Loader2, MessageSquare
 import { Button } from '../../components/Button';
 import { useToast } from '../../components/Toast';
 import { CallModal } from '../../components/CallModal';
+import { CelebrationModal } from '../../components/CelebrationModal';
+import { RatingModal } from '../../components/RatingModal';
 import { SlideToConfirm } from '../../components/SlideToConfirm';
 import { PaymentPanel } from './PaymentPanel';
 import { useAuth } from '../../auth/AuthContext';
@@ -22,6 +24,8 @@ export function RequestStatusPage({ id }: { id: string }) {
   const [left, setLeft] = useState(60);
   const [busy, setBusy] = useState(false);
   const [callOpen, setCallOpen] = useState(false);
+  const [celebrate, setCelebrate] = useState(false);
+  const [rateOpen, setRateOpen] = useState(false);
   const expiring = useRef(false);
 
   const refetch = useCallback(async () => {
@@ -83,20 +87,20 @@ export function RequestStatusPage({ id }: { id: string }) {
   const doComplete = async () => {
     if (busy) return;
     setBusy(true);
-    try { await completeBroadcast(b.id); await refetch(); success('Serviço concluído!', 'O valor foi enviado ao prestador.'); }
+    try { await completeBroadcast(b.id); await refetch(); setRateOpen(true); }
     catch (e) { toastError('Não foi possível concluir', e instanceof Error ? e.message : undefined); }
     finally { setBusy(false); }
   };
   const doProviderDone = async () => {
     if (busy) return;
     setBusy(true);
-    try { await providerMarkDone(b.id); await refetch(); success('Marcado como concluído', 'A aguardar a confirmação do cliente.'); }
+    try { await providerMarkDone(b.id); await refetch(); setCelebrate(true); }
     catch (e) { toastError('Não foi possível concluir', e instanceof Error ? e.message : undefined); }
     finally { setBusy(false); }
   };
 
   return (
-    <section className="bg-cloud-50 pb-20 pt-28 lg:pt-32">
+    <section className="bg-cloud-50 pb-28 pt-28 lg:pt-32">
       <div className="mx-auto max-w-xl px-5 lg:px-8">
         <button onClick={() => navigate('/conta')} className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-ink-500 transition-colors hover:text-ink-900">
           <ArrowLeft size={16} /> Painel
@@ -160,6 +164,19 @@ export function RequestStatusPage({ id }: { id: string }) {
           if (other?.id && user) void notifyIncomingCall(other.id, { broadcastId: b.id, fromId: user.id, fromName: user.name, fromAvatar: user.avatarUrl });
           navigate(`/conta/chamada/${b.id}`);
         }}
+      />
+
+      <CelebrationModal
+        open={celebrate}
+        onClose={() => setCelebrate(false)}
+        onWallet={() => { setCelebrate(false); navigate('/conta/financas'); }}
+      />
+
+      <RatingModal
+        open={rateOpen}
+        broadcastId={b.id}
+        providerName={other?.name || 'o prestador'}
+        onClose={() => setRateOpen(false)}
       />
     </section>
   );
@@ -326,7 +343,7 @@ function Avatar({ person }: { person: BroadcastPerson }) {
 
 function Centered({ children }: { children: React.ReactNode }) {
   return (
-    <section className="bg-cloud-50 pb-20 pt-28 lg:pt-32">
+    <section className="bg-cloud-50 pb-28 pt-28 lg:pt-32">
       <div className="mx-auto flex min-h-[40vh] max-w-xl items-center justify-center px-5">{children}</div>
     </section>
   );

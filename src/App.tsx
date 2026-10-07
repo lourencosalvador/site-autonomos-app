@@ -19,7 +19,11 @@ import { NewRequestPage } from './pages/account/NewRequestPage';
 import { RequestStatusPage } from './pages/account/RequestStatusPage';
 import { ChatPage } from './pages/account/ChatPage';
 import { CallPage } from './pages/account/CallPage';
+import { ServicesHub } from './pages/account/ServicesHub';
+import { WalletPage } from './pages/account/WalletPage';
+import { SettingsPage } from './pages/account/SettingsPage';
 import { IncomingCallOverlay } from './components/IncomingCallOverlay';
+import { Dock } from './components/Dock';
 
 // O painel só é descarregado por quem abre #/admin — não pesa no site público.
 const AdminApp = lazy(() => import('./admin/AdminApp'));
@@ -78,16 +82,22 @@ function App() {
       content = <RequestStatusPage id={section.slice('pedido/'.length)} />;
     } else if (section.startsWith('chat/')) {
       content = <ChatPage id={section.slice('chat/'.length)} />;
+    } else if (section === 'servicos') {
+      content = <ServicesHub />;
+    } else if (section === 'financas') {
+      content = <WalletPage />;
+    } else if (section === 'definicoes') {
+      content = <SettingsPage />;
     } else {
       content = <AccountPage />;
     }
-    const hideFooter = section.startsWith('chat/');
+    const isChat = section.startsWith('chat/');
     return (
       <div className="min-h-screen bg-white">
         <IncomingCallOverlay />
         <Navbar />
         <main className="overflow-x-clip">{content}</main>
-        {!hideFooter && <Footer />}
+        {!isChat && <Dock />}
       </div>
     );
   }

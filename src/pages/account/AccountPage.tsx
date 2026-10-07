@@ -8,6 +8,8 @@ import { Button } from '../../components/Button';
 import { useToast } from '../../components/Toast';
 import { useNavigate } from '../../router';
 import { SlideToConfirm } from '../../components/SlideToConfirm';
+import { CelebrationModal } from '../../components/CelebrationModal';
+import { RatingModal } from '../../components/RatingModal';
 import {
   type Broadcast, type BroadcastStatus,
   acceptBroadcast, completeBroadcast, listOpenBroadcasts, myBroadcasts, providerMarkDone, secondsLeft, subscribeBroadcasts,
@@ -30,7 +32,7 @@ export function AccountPage() {
   const isPro = user.role === 'professional';
 
   return (
-    <section className="bg-cloud-50 pb-20 pt-28 lg:pt-32">
+    <section className="bg-cloud-50 pb-28 pt-28 lg:pt-32">
       <div className="mx-auto max-w-6xl px-5 lg:px-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-4">
@@ -103,7 +105,7 @@ function ClientHome({ navigate }: { navigate: (p: string) => void }) {
 /** Pedidos ativos/recentes do cliente. */
 function MyRequests() {
   const navigate = useNavigate();
-  const { success, error: toastError } = useToast();
+  const { error: toastError } = useToast();
   const [rows, setRows] = useState<Broadcast[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
 
@@ -113,9 +115,10 @@ function MyRequests() {
   useEffect(() => { void load(); }, [load]);
   useEffect(() => subscribeBroadcasts({}, () => { void load(); }), [load]);
 
-  const confirm = async (id: string) => {
+  const [rate, setRate] = useState<{ id: string; name: string } | null>(null);
+  const confirm = async (id: string, providerName: string) => {
     setBusy(id);
-    try { await completeBroadcast(id); success('Serviço concluído!', 'O valor foi enviado ao prestador.'); await load(); }
+    try { await completeBroadcast(id); await load(); setRate({ id, name: providerName }); }
     catch (e) { toastError('Não foi possível confirmar', e instanceof Error ? e.message : undefined); }
     finally { setBusy(null); }
   };
@@ -149,7 +152,7 @@ function MyRequests() {
             {needsConfirm && (
               <div className="border-t border-cloud-100 p-4">
                 <p className="mb-2 text-sm font-medium text-ink-600">O prestador concluiu o serviço. Confirme para libertar o pagamento.</p>
-                <SlideToConfirm label="Confirmar conclusão" confirmingLabel="A confirmar…" tone="emerald" busy={busy === r.id} onConfirm={() => confirm(r.id)} />
+                <SlideToConfirm label="Confirmar conclusão" confirmingLabel="A confirmar…" tone="emerald" busy={busy === r.id} onConfirm={() => confirm(r.id, r.provider?.name || 'o prestador')} />
               </div>
             )}
           </div>
@@ -165,6 +168,10 @@ function MyRequests() {
           </button>
         ))}
       </div>
+
+      {rate && (
+        <RatingModal open broadcastId={rate.id} providerName={rate.name} onClose={() => setRate(null)} />
+      )}
     </div>
   );
 }
@@ -180,6 +187,7 @@ function ProviderHome({ approved }: { approved: boolean }) {
   const [now, setNow] = useState(Date.now());
   const [accepting, setAccepting] = useState<string | null>(null);
   const [doneBusy, setDoneBusy] = useState<string | null>(null);
+  const [celebrate, setCelebrate] = useState(false);
 
   const load = useCallback(async () => {
     if (!approved) { setJobs([]); return; }
@@ -217,7 +225,7 @@ function ProviderHome({ approved }: { approved: boolean }) {
 
   const markDone = async (id: string) => {
     setDoneBusy(id);
-    try { await providerMarkDone(id); success('Marcado como concluído', 'A aguardar a confirmação do cliente.'); await load(); }
+    try { await providerMarkDone(id); await load(); setCelebrate(true); }
     catch (e) { toastError('Não foi possível concluir', e instanceof Error ? e.message : undefined); }
     finally { setDoneBusy(null); }
   };
@@ -317,6 +325,8 @@ function ProviderHome({ approved }: { approved: boolean }) {
         <Tile icon={MessageSquare} title="Mensagens" desc="Converse com os seus clientes." soon />
         <Tile icon={Wrench} title="O meu catálogo" desc="Mostre os seus trabalhos e preços." soon />
       </div>
+
+      <CelebrationModal open={celebrate} onClose={() => setCelebrate(false)} onWallet={() => { setCelebrate(false); navigate('/conta/financas'); }} />
     </>
   );
 }
