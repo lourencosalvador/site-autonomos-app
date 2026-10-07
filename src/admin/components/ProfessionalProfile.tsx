@@ -139,9 +139,6 @@ function Header({ profile, name, avatar, onReload, onStatusChange }: {
             </div>
           </DialogDescription>
         </div>
-        <button type="button" onClick={onReload} className="hidden rounded-md p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700 sm:block" title="Atualizar" aria-label="Atualizar">
-          <RefreshCw className="size-4" />
-        </button>
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -157,6 +154,7 @@ function Header({ profile, name, avatar, onReload, onStatusChange }: {
           </a>
         )}
         <div className="ml-auto flex gap-2">
+          <Button variant="outline" size="icon-sm" onClick={onReload} title="Atualizar" aria-label="Atualizar"><RefreshCw /></Button>
           {app && app.status !== 'rejected' && <Button variant="outline" size="sm" onClick={() => setConfirm('rejected')}><X /> Rejeitar</Button>}
           {app && app.status !== 'approved' && <Button size="sm" onClick={() => setConfirm('approved')}><Check /> Aprovar</Button>}
         </div>
