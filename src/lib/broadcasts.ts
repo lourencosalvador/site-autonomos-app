@@ -29,6 +29,12 @@ export type Broadcast = {
   completed_at: string | null;
   updated_at: string | null;
   seconds_left?: number;
+  // FlexPay
+  price_minor?: number;
+  payment_status?: 'unpaid' | 'paid';
+  provider_share_minor?: number | null;
+  held_minor?: number | null;
+  escrow_released?: boolean;
   client?: BroadcastPerson | null;
   provider?: BroadcastPerson | null;
 };

@@ -4,6 +4,7 @@ import { Button } from '../../components/Button';
 import { useToast } from '../../components/Toast';
 import { CallModal } from '../../components/CallModal';
 import { SlideToConfirm } from '../../components/SlideToConfirm';
+import { PaymentPanel } from './PaymentPanel';
 import { useAuth } from '../../auth/AuthContext';
 import { navigate } from '../../router';
 import {
@@ -112,6 +113,9 @@ export function RequestStatusPage({ id }: { id: string }) {
               <Accepted
                 person={other}
                 iAmClient={iAmClient}
+                paid={b.payment_status === 'paid'}
+                requestId={b.id}
+                priceMinor={b.price_minor ?? 200000}
                 onCancel={doCancel}
                 onComplete={doComplete}
                 busy={busy}
@@ -195,8 +199,8 @@ function OpenForProvider() {
   );
 }
 
-function Accepted({ person, iAmClient, onCancel, onComplete, onChat, onCall, busy }: {
-  person: BroadcastPerson; iAmClient: boolean; busy: boolean;
+function Accepted({ person, iAmClient, paid, requestId, priceMinor, onCancel, onComplete, onChat, onCall, busy }: {
+  person: BroadcastPerson; iAmClient: boolean; paid: boolean; requestId: string; priceMinor: number; busy: boolean;
   onCancel: () => void; onComplete: () => void; onChat: () => void; onCall: () => void;
 }) {
   return (
@@ -222,17 +226,28 @@ function Accepted({ person, iAmClient, onCancel, onComplete, onChat, onCall, bus
       </div>
 
       {iAmClient ? (
-        <div className="mt-5">
-          <SlideToConfirm label="Deslize para concluir" confirmingLabel="A concluir…" tone="emerald" busy={busy} onConfirm={onComplete} />
-          <div className="mt-3 text-center">
-            <button onClick={onCancel} disabled={busy} className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-400 hover:text-red-600 disabled:opacity-50">
-              <XCircle size={14} /> Cancelar pedido
-            </button>
+        paid ? (
+          <div className="mt-5">
+            <SlideToConfirm label="Deslize para concluir" confirmingLabel="A concluir…" tone="emerald" busy={busy} onConfirm={onComplete} />
+            <div className="mt-3 text-center">
+              <button onClick={onCancel} disabled={busy} className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-400 hover:text-red-600 disabled:opacity-50">
+                <XCircle size={14} /> Cancelar pedido
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            <PaymentPanel requestId={requestId} priceMinor={priceMinor} />
+            <div className="mt-3 text-center">
+              <button onClick={onCancel} disabled={busy} className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-400 hover:text-red-600 disabled:opacity-50">
+                <XCircle size={14} /> Cancelar pedido
+              </button>
+            </div>
+          </>
+        )
       ) : (
         <p className="mt-5 flex items-center justify-center gap-1.5 rounded-2xl bg-cloud-50 px-4 py-3 text-center text-sm text-ink-500">
-          <Clock size={15} className="text-ink-400" /> A aguardar que o cliente conclua o serviço.
+          <Clock size={15} className="text-ink-400" /> {paid ? 'Pago. A aguardar que o cliente conclua o serviço.' : 'A aguardar o pagamento do cliente.'}
         </p>
       )}
     </div>
