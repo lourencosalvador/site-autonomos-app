@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Ban, CheckCircle2, Clock, Loader2, MessageSquare, Phone, Search, UserX, XCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Ban, CheckCircle2, Clock, Loader2, MessageSquare, Phone, Search, UserX, XCircle } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { useToast } from '../../components/Toast';
 import { CallModal } from '../../components/CallModal';
@@ -212,6 +212,7 @@ function Accepted({ person, iAmClient, paid, providerDone, requestId, priceMinor
   person: BroadcastPerson; iAmClient: boolean; paid: boolean; providerDone: boolean; requestId: string; priceMinor: number; busy: boolean;
   onCancel: () => void; onComplete: () => void; onProviderDone: () => void; onChat: () => void; onCall: () => void;
 }) {
+  const [continued, setContinued] = useState(false);
   return (
     <div>
       <div className="mb-5 flex items-center justify-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
@@ -236,10 +237,17 @@ function Accepted({ person, iAmClient, paid, providerDone, requestId, priceMinor
 
       {iAmClient ? (
         !paid ? (
-          <>
-            <PaymentPanel requestId={requestId} priceMinor={priceMinor} />
-            <CancelLink onCancel={onCancel} busy={busy} />
-          </>
+          !continued ? (
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <Button onClick={onCancel} variant="outline-dark" size="md">Cancelar</Button>
+              <Button onClick={() => setContinued(true)} size="md">Continuar <ArrowRight size={16} /></Button>
+            </div>
+          ) : (
+            <>
+              <PaymentPanel requestId={requestId} priceMinor={priceMinor} />
+              <CancelLink onCancel={onCancel} busy={busy} />
+            </>
+          )
         ) : providerDone ? (
           <div className="mt-5">
             <p className="mb-2 text-center text-sm text-ink-500">O prestador marcou o serviço como concluído. Confirme para libertar o pagamento.</p>
