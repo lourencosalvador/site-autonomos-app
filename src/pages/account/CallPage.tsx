@@ -4,7 +4,7 @@ import { Loader2, Mic, MicOff, PhoneOff, PhoneCall, AlertTriangle } from 'lucide
 import { useAuth } from '../../auth/AuthContext';
 import { navigate } from '../../router';
 import { type Broadcast, type BroadcastPerson, getBroadcast } from '../../lib/broadcasts';
-import { getCallToken, callErrorMessage } from '../../lib/call';
+import { getCallToken, callErrorMessage, notifyCallEvent } from '../../lib/call';
 
 type Phase = 'connecting' | 'connected' | 'error';
 
@@ -37,7 +37,12 @@ export function CallPage({ id }: { id: string }) {
     });
     room.on(RoomEvent.ParticipantConnected, () => setRemoteJoined(true));
     room.on(RoomEvent.ParticipantDisconnected, () => {
-      if (room.remoteParticipants.size === 0) setRemoteJoined(false);
+      // O outro desligou → termina também deste lado e volta ao chat.
+      if (room.remoteParticipants.size === 0) {
+        hangingUp.current = true;
+        void room.disconnect();
+        if (!cancelled) navigate(`/conta/chat/${id}`);
+      }
     });
     room.on(RoomEvent.Disconnected, () => {
       if (cancelled || hangingUp.current) return; // limpeza/StrictMode ou o próprio user desligou
@@ -83,7 +88,12 @@ export function CallPage({ id }: { id: string }) {
     await room.localParticipant.setMicrophoneEnabled(!next);
     setMuted(next);
   };
-  const hangUp = () => { hangingUp.current = true; void roomRef.current?.disconnect(); navigate(`/conta/chat/${id}`); };
+  const hangUp = () => {
+    hangingUp.current = true;
+    if (other?.id) void notifyCallEvent(other.id, 'cancel', { broadcastId: id }); // tira o toque se ainda não atendeu
+    void roomRef.current?.disconnect();
+    navigate(`/conta/chat/${id}`);
+  };
 
   const name = other?.name || 'Chamada';
   const initials = (other?.name || '?').trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
