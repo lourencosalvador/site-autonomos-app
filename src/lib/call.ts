@@ -4,7 +4,7 @@ export type CallToken = { url: string; token: string; room: string; identity: st
 
 /** Pede à Edge Function um token de chamada para este pedido. */
 export async function getCallToken(requestId: string): Promise<CallToken> {
-  const { data, error } = await supabase.functions.invoke('livekit-token', {
+  const { data, error } = await supabase.functions.invoke('livekit-function', {
     body: { request_id: requestId },
   });
   if (error) {
