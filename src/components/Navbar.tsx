@@ -43,25 +43,27 @@ export function Navbar() {
       >
         <Logo />
 
-        {/* Center pill nav */}
-        <div className="hidden items-center gap-0.5 rounded-full bg-cloud-100/80 p-1 lg:flex">
-          {LINKS.map((l) => {
-            const active = route.name === l.route;
-            return (
-              <button
-                key={l.path}
-                onClick={() => navigate(l.path)}
-                className={`relative rounded-full px-4 py-1.5 text-sm font-semibold transition-all duration-200 ${
-                  active
-                    ? 'bg-ink-900 text-white shadow-soft'
-                    : 'text-ink-500 hover:text-ink-900'
-                }`}
-              >
-                {l.label}
-              </button>
-            );
-          })}
-        </div>
+        {/* Center pill nav — escondido quando há sessão (só logo + área do utilizador) */}
+        {!user && (
+          <div className="hidden items-center gap-0.5 rounded-full bg-cloud-100/80 p-1 lg:flex">
+            {LINKS.map((l) => {
+              const active = route.name === l.route;
+              return (
+                <button
+                  key={l.path}
+                  onClick={() => navigate(l.path)}
+                  className={`relative rounded-full px-4 py-1.5 text-sm font-semibold transition-all duration-200 ${
+                    active
+                      ? 'bg-ink-900 text-white shadow-soft'
+                      : 'text-ink-500 hover:text-ink-900'
+                  }`}
+                >
+                  {l.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         <div className="hidden items-center gap-2 lg:flex">
           {user ? (
@@ -97,19 +99,21 @@ export function Navbar() {
         }`}
       >
         <div className="mx-1 mt-2 rounded-3xl bg-white p-5 shadow-card border border-cloud-200">
-          <div className="flex flex-col gap-1">
-            {LINKS.map((l) => (
-              <button
-                key={l.path}
-                onClick={() => { navigate(l.path); setOpen(false); }}
-                className={`rounded-xl px-4 py-3 text-left text-base font-semibold transition-colors ${
-                  route.name === l.route ? 'bg-brand-cyan/12 text-brand-dark' : 'text-ink-700 hover:bg-cloud-100'
-                }`}
-              >
-                {l.label}
-              </button>
-            ))}
-          </div>
+          {!user && (
+            <div className="flex flex-col gap-1">
+              {LINKS.map((l) => (
+                <button
+                  key={l.path}
+                  onClick={() => { navigate(l.path); setOpen(false); }}
+                  className={`rounded-xl px-4 py-3 text-left text-base font-semibold transition-colors ${
+                    route.name === l.route ? 'bg-brand-cyan/12 text-brand-dark' : 'text-ink-700 hover:bg-cloud-100'
+                  }`}
+                >
+                  {l.label}
+                </button>
+              ))}
+            </div>
+          )}
           {user ? (
             <>
               <div className="mt-4 flex items-center gap-3 rounded-2xl border border-cloud-200 bg-cloud-50 px-4 py-3">
