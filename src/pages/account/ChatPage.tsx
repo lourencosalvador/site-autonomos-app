@@ -6,6 +6,7 @@ import { CallModal } from '../../components/CallModal';
 import { navigate } from '../../router';
 import { type Broadcast, type BroadcastPerson, getBroadcast } from '../../lib/broadcasts';
 import { type Message, listMessages, sendMessage, markRead, subscribeMessages } from '../../lib/chat';
+import { notifyIncomingCall } from '../../lib/call';
 
 export function ChatPage({ id }: { id: string }) {
   const { user } = useAuth();
@@ -126,7 +127,11 @@ export function ChatPage({ id }: { id: string }) {
         open={callOpen}
         onClose={() => setCallOpen(false)}
         person={other}
-        onInternetCall={() => { setCallOpen(false); navigate(`/conta/chamada/${id}`); }}
+        onInternetCall={() => {
+          setCallOpen(false);
+          if (other?.id && user) void notifyIncomingCall(other.id, { broadcastId: id, fromId: user.id, fromName: user.name, fromAvatar: user.avatarUrl });
+          navigate(`/conta/chamada/${id}`);
+        }}
       />
     </section>
   );

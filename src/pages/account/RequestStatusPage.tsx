@@ -10,6 +10,7 @@ import {
   getBroadcast, expireBroadcast, cancelBroadcast, completeBroadcast,
   secondsLeft, subscribeBroadcasts,
 } from '../../lib/broadcasts';
+import { notifyIncomingCall } from '../../lib/call';
 
 export function RequestStatusPage({ id }: { id: string }) {
   const { user } = useAuth();
@@ -140,7 +141,11 @@ export function RequestStatusPage({ id }: { id: string }) {
         open={callOpen}
         onClose={() => setCallOpen(false)}
         person={other}
-        onInternetCall={() => { setCallOpen(false); navigate(`/conta/chamada/${b.id}`); }}
+        onInternetCall={() => {
+          setCallOpen(false);
+          if (other?.id && user) void notifyIncomingCall(other.id, { broadcastId: b.id, fromId: user.id, fromName: user.name, fromAvatar: user.avatarUrl });
+          navigate(`/conta/chamada/${b.id}`);
+        }}
       />
     </section>
   );

@@ -20,6 +20,46 @@ export async function getCallToken(requestId: string): Promise<CallToken> {
   return data as CallToken;
 }
 
+export type IncomingCall = {
+  broadcastId: string;
+  fromId: string;
+  fromName: string;
+  fromAvatar: string | null;
+};
+
+/** Avisa o outro utilizador (toque) de que está a receber uma chamada. */
+export async function notifyIncomingCall(calleeId: string, payload: IncomingCall): Promise<void> {
+  const ch = supabase.channel(`calls:${calleeId}`);
+  await new Promise<void>((resolve) => {
+    ch.subscribe((status) => { if (status === 'SUBSCRIBED') resolve(); });
+  });
+  await ch.send({ type: 'broadcast', event: 'ring', payload });
+  setTimeout(() => { void supabase.removeChannel(ch); }, 1500);
+}
+
+/** Envia um sinal de "cancelado/recusado/terminado" para o canal de chamadas de um utilizador. */
+export async function notifyCallEvent(targetUserId: string, event: 'cancel' | 'decline', payload: { broadcastId: string }): Promise<void> {
+  const ch = supabase.channel(`calls:${targetUserId}`);
+  await new Promise<void>((resolve) => {
+    ch.subscribe((status) => { if (status === 'SUBSCRIBED') resolve(); });
+  });
+  await ch.send({ type: 'broadcast', event, payload });
+  setTimeout(() => { void supabase.removeChannel(ch); }, 1500);
+}
+
+/** Ouve chamadas recebidas (e cancelamentos) dirigidas a este utilizador. */
+export function subscribeIncomingCalls(
+  userId: string,
+  handlers: { onRing: (c: IncomingCall) => void; onCancel?: (broadcastId: string) => void },
+): () => void {
+  const ch = supabase
+    .channel(`calls:${userId}`, { config: { broadcast: { self: false } } })
+    .on('broadcast', { event: 'ring' }, ({ payload }) => handlers.onRing(payload as IncomingCall))
+    .on('broadcast', { event: 'cancel' }, ({ payload }) => handlers.onCancel?.((payload as { broadcastId: string }).broadcastId))
+    .subscribe();
+  return () => { void supabase.removeChannel(ch); };
+}
+
 /** Mensagens amigáveis para os erros da chamada. */
 export function callErrorMessage(code: string): string {
   switch (code) {

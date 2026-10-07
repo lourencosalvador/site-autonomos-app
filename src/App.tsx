@@ -19,6 +19,7 @@ import { NewRequestPage } from './pages/account/NewRequestPage';
 import { RequestStatusPage } from './pages/account/RequestStatusPage';
 import { ChatPage } from './pages/account/ChatPage';
 import { CallPage } from './pages/account/CallPage';
+import { IncomingCallOverlay } from './components/IncomingCallOverlay';
 
 // O painel só é descarregado por quem abre #/admin — não pesa no site público.
 const AdminApp = lazy(() => import('./admin/AdminApp'));
@@ -83,6 +84,7 @@ function App() {
     const hideFooter = section.startsWith('chat/');
     return (
       <div className="min-h-screen bg-white">
+        <IncomingCallOverlay />
         <Navbar />
         <main className="overflow-x-clip">{content}</main>
         {!hideFooter && <Footer />}
@@ -92,6 +94,7 @@ function App() {
 
   return (
     <div className="min-h-screen bg-white">
+      <IncomingCallOverlay />
       <Navbar />
       {/* clip: as animações de entrada (reveal-left/right) começam fora do ecrã e não devem alargar a página no telemóvel */}
       <main className="overflow-x-clip">
