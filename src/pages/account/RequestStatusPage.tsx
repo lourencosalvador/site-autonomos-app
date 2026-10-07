@@ -113,7 +113,7 @@ export function RequestStatusPage({ id }: { id: string }) {
               <Accepted
                 person={other}
                 iAmClient={iAmClient}
-                paid={b.payment_status === 'paid'}
+                paid={b.payment_status !== 'unpaid'}
                 requestId={b.id}
                 priceMinor={b.price_minor ?? 200000}
                 onCancel={doCancel}
