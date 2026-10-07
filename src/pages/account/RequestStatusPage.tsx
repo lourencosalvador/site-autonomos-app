@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, Ban, CheckCircle2, Clock, Loader2, MessageSquare, Phone, RefreshCw, Search, UserX, XCircle } from 'lucide-react';
+import { ArrowLeft, Ban, CheckCircle2, Clock, Loader2, MessageSquare, Phone, Search, UserX, XCircle } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { useToast } from '../../components/Toast';
+import { CallModal } from '../../components/CallModal';
 import { useAuth } from '../../auth/AuthContext';
 import { navigate } from '../../router';
 import {
@@ -17,6 +18,7 @@ export function RequestStatusPage({ id }: { id: string }) {
   const [loading, setLoading] = useState(true);
   const [left, setLeft] = useState(60);
   const [busy, setBusy] = useState(false);
+  const [callOpen, setCallOpen] = useState(false);
   const expiring = useRef(false);
 
   const refetch = useCallback(async () => {
@@ -111,8 +113,8 @@ export function RequestStatusPage({ id }: { id: string }) {
                 onCancel={doCancel}
                 onComplete={doComplete}
                 busy={busy}
-                onChat={() => info('Chat em breve', 'A conversa fica disponível na próxima atualização.')}
-                onCall={() => info('Chamada em breve', 'A ligação fica disponível na próxima atualização.')}
+                onChat={() => navigate(`/conta/chat/${b.id}`)}
+                onCall={() => setCallOpen(true)}
               />
             )}
 
@@ -133,6 +135,13 @@ export function RequestStatusPage({ id }: { id: string }) {
           </div>
         </div>
       </div>
+
+      <CallModal
+        open={callOpen}
+        onClose={() => setCallOpen(false)}
+        person={other}
+        onInternetCall={() => { setCallOpen(false); info('Chamada pela internet', 'A ligação por voz fica disponível em breve.'); }}
+      />
     </section>
   );
 }
