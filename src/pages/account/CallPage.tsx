@@ -14,11 +14,13 @@ export function CallPage({ id }: { id: string }) {
   const [errorMsg, setErrorMsg] = useState('');
   const [remoteJoined, setRemoteJoined] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [micError, setMicError] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [other, setOther] = useState<BroadcastPerson | null>(null);
 
   const roomRef = useRef<Room | null>(null);
   const audioBox = useRef<HTMLDivElement | null>(null);
+  const hangingUp = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -37,7 +39,11 @@ export function CallPage({ id }: { id: string }) {
     room.on(RoomEvent.ParticipantDisconnected, () => {
       if (room.remoteParticipants.size === 0) setRemoteJoined(false);
     });
-    room.on(RoomEvent.Disconnected, () => { if (!cancelled) navigate(`/conta/chat/${id}`); });
+    room.on(RoomEvent.Disconnected, () => {
+      if (cancelled || hangingUp.current) return; // limpeza/StrictMode ou o próprio user desligou
+      setErrorMsg('A chamada terminou ou não foi possível estabelecer a ligação.');
+      setPhase('error');
+    });
 
     (async () => {
       try {
@@ -45,7 +51,11 @@ export function CallPage({ id }: { id: string }) {
         if (b) setOther(user?.id === b.client_id ? b.provider ?? null : b.client ?? null);
         const { url, token } = await getCallToken(id);
         await room.connect(url, token);
-        await room.localParticipant.setMicrophoneEnabled(true);
+        try {
+          await room.localParticipant.setMicrophoneEnabled(true);
+        } catch {
+          setMicError(true); // sem microfone (bloqueado/sem permissão) — continua a ouvir
+        }
         if (cancelled) { await room.disconnect(); return; }
         setRemoteJoined(room.remoteParticipants.size > 0);
         setPhase('connected');
@@ -73,7 +83,7 @@ export function CallPage({ id }: { id: string }) {
     await room.localParticipant.setMicrophoneEnabled(!next);
     setMuted(next);
   };
-  const hangUp = () => { void roomRef.current?.disconnect(); navigate(`/conta/chat/${id}`); };
+  const hangUp = () => { hangingUp.current = true; void roomRef.current?.disconnect(); navigate(`/conta/chat/${id}`); };
 
   const name = other?.name || 'Chamada';
   const initials = (other?.name || '?').trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
@@ -94,9 +104,12 @@ export function CallPage({ id }: { id: string }) {
             <p className="mt-2 flex items-center gap-2 text-white/70"><Loader2 size={16} className="animate-spin" /> A ligar…</p>
           )}
           {phase === 'connected' && (
-            <p className="mt-2 text-white/70">
-              {remoteJoined ? formatTime(elapsed) : 'A tocar… à espera que atenda'}
-            </p>
+            <>
+              <p className="mt-2 text-white/70">
+                {remoteJoined ? formatTime(elapsed) : 'A tocar… à espera que atenda'}
+              </p>
+              {micError && <p className="mt-1 text-xs text-amber-300">Microfone bloqueado — só consegue ouvir.</p>}
+            </>
           )}
           {phase === 'error' && (
             <div className="mt-4 flex max-w-xs flex-col items-center text-center">
