@@ -150,6 +150,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         name: input.name.trim(),
         phone: input.phone ?? null,
         work_area: input.role === 'professional' ? input.workArea ?? null : null,
+        // Prestador entra "por aprovar"; o admin aprova para começar a receber pedidos.
+        approval_status: input.role === 'professional' ? 'pending' : null,
       };
       let { error: upErr } = await supabase.from('profiles').upsert(full, { onConflict: 'id' });
       for (let i = 0; i < 4 && upErr; i++) {
