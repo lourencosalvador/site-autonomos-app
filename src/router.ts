@@ -7,6 +7,9 @@ export type Route =
   | { name: 'request' }
   | { name: 'about' }
   | { name: 'contact' }
+  | { name: 'login' }
+  | { name: 'register' }
+  | { name: 'account'; section: string }
   | { name: 'admin'; section: string };
 
 function parseHash(): Route {
@@ -14,6 +17,9 @@ function parseHash(): Route {
   const clean = hash.split('?')[0];
   if (clean === '/admin' || clean.startsWith('/admin/')) {
     return { name: 'admin', section: clean.slice('/admin/'.length) };
+  }
+  if (clean === '/conta' || clean.startsWith('/conta/')) {
+    return { name: 'account', section: clean.slice('/conta/'.length) };
   }
   switch (clean) {
     case '/':
@@ -29,9 +35,19 @@ function parseHash(): Route {
       return { name: 'about' };
     case '/contato':
       return { name: 'contact' };
+    case '/entrar':
+      return { name: 'login' };
+    case '/criar-conta':
+      return { name: 'register' };
     default:
       return { name: 'home' };
   }
+}
+
+/** Lê um parâmetro do hash (ex.: #/entrar?next=/conta). */
+export function hashParam(key: string): string | null {
+  const q = window.location.hash.split('?')[1];
+  return q ? new URLSearchParams(q).get(key) : null;
 }
 
 export function navigate(path: string) {

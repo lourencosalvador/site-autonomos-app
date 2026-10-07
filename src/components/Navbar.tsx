@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Menu, X, ArrowRight, Instagram, Facebook } from 'lucide-react';
+import { Menu, X, ArrowRight, LayoutGrid, LogOut } from 'lucide-react';
 import { Logo } from './Logo';
 import { Button } from './Button';
+import { UserMenu } from './UserMenu';
+import { useAuth } from '../auth/AuthContext';
 import { useRoute, useNavigate, type Route } from '../router';
 
 const LINKS: { label: string; route: Route['name']; path: string }[] = [
@@ -12,16 +14,13 @@ const LINKS: { label: string; route: Route['name']; path: string }[] = [
   { label: 'Contato', route: 'contact', path: '/contato' },
 ];
 
-const SOCIALS: { label: string; href: string; Icon: typeof Instagram }[] = [
-  { label: 'Instagram', href: 'https://instagram.com/autonomous.ao', Icon: Instagram },
-  { label: 'Facebook', href: 'https://www.facebook.com/autonomous.ao', Icon: Facebook },
-];
-
 export function Navbar() {
   const route = useRoute();
   const navigate = useNavigate();
+  const { user, signOut } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const firstName = user?.name.split(/\s+/)[0] ?? '';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -65,21 +64,21 @@ export function Navbar() {
         </div>
 
         <div className="hidden items-center gap-2 lg:flex">
-          {SOCIALS.map(({ label, href, Icon }) => (
-            <a
-              key={label}
-              href={href}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={label}
-              className="grid h-9 w-9 place-items-center rounded-full border border-cloud-200 text-ink-500 transition-colors hover:border-brand-cyan hover:text-brand-dark"
-            >
-              <Icon size={16} />
-            </a>
-          ))}
-          <Button to="/solicitar-servico" variant="dark" size="md">
-            Solicitar Serviço <ArrowRight size={16} />
-          </Button>
+          {user ? (
+            <UserMenu />
+          ) : (
+            <>
+              <button
+                onClick={() => navigate('/entrar')}
+                className="rounded-full px-4 py-2 text-sm font-semibold text-ink-700 transition-colors hover:text-ink-900"
+              >
+                Entrar
+              </button>
+              <Button to="/criar-conta" variant="dark" size="md">
+                Criar conta <ArrowRight size={16} />
+              </Button>
+            </>
+          )}
         </div>
 
         <button
@@ -111,28 +110,36 @@ export function Navbar() {
               </button>
             ))}
           </div>
-          <div className="mt-4 flex flex-col gap-3">
-            <Button to="/solicitar-servico" variant="dark" size="md" className="w-full" onClick={() => setOpen(false)}>
-              Solicitar Serviço
-            </Button>
-            <Button to="/ser-profissional" variant="outline-dark" size="md" className="w-full" onClick={() => setOpen(false)}>
-              Quero ser Prestador
-            </Button>
-          </div>
-          <div className="mt-4 flex items-center justify-center gap-3 border-t border-cloud-100 pt-4">
-            {SOCIALS.map(({ label, href, Icon }) => (
-              <a
-                key={label}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={label}
-                className="grid h-10 w-10 place-items-center rounded-full border border-cloud-200 text-ink-500 transition-colors hover:border-brand-cyan hover:text-brand-dark"
-              >
-                <Icon size={18} />
-              </a>
-            ))}
-          </div>
+          {user ? (
+            <>
+              <div className="mt-4 flex items-center gap-3 rounded-2xl border border-cloud-200 bg-cloud-50 px-4 py-3">
+                <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-brand-dark text-sm font-bold text-white">
+                  {user.avatarUrl ? <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" /> : (firstName[0] ?? '?').toUpperCase()}
+                </span>
+                <div className="min-w-0">
+                  <p className="truncate font-semibold text-ink-900">{user.name}</p>
+                  <p className="text-xs text-ink-400">{user.role === 'professional' ? 'Profissional' : 'Cliente'}</p>
+                </div>
+              </div>
+              <div className="mt-3 flex flex-col gap-2">
+                <button onClick={() => { navigate('/conta'); setOpen(false); }} className="flex items-center gap-2.5 rounded-xl px-4 py-3 text-left text-base font-semibold text-ink-700 hover:bg-cloud-100">
+                  <LayoutGrid size={18} className="text-ink-400" /> O meu painel
+                </button>
+                <button onClick={async () => { setOpen(false); await signOut(); navigate('/'); }} className="flex items-center gap-2.5 rounded-xl px-4 py-3 text-left text-base font-semibold text-red-600 hover:bg-red-50">
+                  <LogOut size={18} className="text-red-500" /> Terminar sessão
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="mt-4 flex flex-col gap-3">
+              <Button to="/criar-conta" variant="dark" size="md" className="w-full" onClick={() => setOpen(false)}>
+                Criar conta
+              </Button>
+              <Button to="/entrar" variant="outline-dark" size="md" className="w-full" onClick={() => setOpen(false)}>
+                Entrar
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </header>
