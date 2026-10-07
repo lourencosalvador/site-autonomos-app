@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import {
-  Ban, Eye, LogOut, MoreHorizontal, Pencil, ShieldCheck, Star, Trash2, Users,
+  Ban, Eye, LogOut, MoreHorizontal, Pencil, ShieldCheck, Star, Trash2, UserCircle, Users,
 } from 'lucide-react';
 import { PageHeader } from '../components/Shell';
 import { SearchInput } from '../components/SearchInput';
 import { Avatar, ConfirmDialog, DetailRow } from '../components/blocks';
+import { ProfessionalProfileSheet } from '../components/ProfessionalProfile';
 import { Badge, Card, Skeleton, StatusDot } from '../ui/card';
 import { Button } from '../ui/button';
 import { Input, Label, Select } from '../ui/input';
@@ -41,6 +42,7 @@ export function UsersPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(0);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [profileId, setProfileId] = useState<string | null>(null);
   const [editing, setEditing] = useState<AppUser | null>(null);
   const [action, setAction] = useState<PendingAction | null>(null);
   const debounced = useDebounced(search);
@@ -124,7 +126,7 @@ export function UsersPage() {
                         : <StatusDot tone="success">Ativo</StatusDot>}
                     </TD>
                     <TD onClick={(e) => e.stopPropagation()}>
-                      <UserMenu user={u} onView={() => setDetailId(u.id)} onEdit={() => setEditing(u)} onAction={setAction} />
+                      <UserMenu user={u} onView={() => setDetailId(u.id)} onProfile={u.role === 'professional' ? () => setProfileId(u.id) : undefined} onEdit={() => setEditing(u)} onAction={setAction} />
                     </TD>
                   </TR>
                 ))}
@@ -139,8 +141,15 @@ export function UsersPage() {
         userId={detailId}
         version={version}
         onClose={() => setDetailId(null)}
+        onProfile={(u) => { setDetailId(null); setProfileId(u.id); }}
         onEdit={setEditing}
         onAction={setAction}
+      />
+
+      <ProfessionalProfileSheet
+        target={profileId ? { userId: profileId } : null}
+        onClose={() => setProfileId(null)}
+        onStatusChange={changed}
       />
 
       <EditUserDialog
@@ -204,9 +213,10 @@ function confirmText(a: PendingAction): { title: string; description: React.Reac
   }
 }
 
-function UserMenu({ user, onView, onEdit, onAction }: {
+function UserMenu({ user, onView, onProfile, onEdit, onAction }: {
   user: AppUser;
   onView: () => void;
+  onProfile?: () => void;
   onEdit: () => void;
   onAction: (a: PendingAction) => void;
 }) {
@@ -218,6 +228,7 @@ function UserMenu({ user, onView, onEdit, onAction }: {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-48">
+        {onProfile && <DropdownMenuItem onSelect={onProfile}><UserCircle /> Perfil profissional</DropdownMenuItem>}
         <DropdownMenuItem onSelect={onView}><Eye /> Ver detalhes</DropdownMenuItem>
         <DropdownMenuItem onSelect={onEdit}><Pencil /> Editar</DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -243,10 +254,11 @@ function UserMenu({ user, onView, onEdit, onAction }: {
   );
 }
 
-function UserSheet({ userId, version, onClose, onEdit, onAction }: {
+function UserSheet({ userId, version, onClose, onProfile, onEdit, onAction }: {
   userId: string | null;
   version: number;
   onClose: () => void;
+  onProfile: (u: AppUser) => void;
   onEdit: (u: AppUser) => void;
   onAction: (a: PendingAction) => void;
 }) {
@@ -335,6 +347,7 @@ function UserSheet({ userId, version, onClose, onEdit, onAction }: {
                 <Trash2 /> Remover
               </Button>
               <div className="flex gap-2">
+                {u.role === 'professional' && <Button variant="outline" size="sm" onClick={() => onProfile(u)}><UserCircle /> Perfil</Button>}
                 {u.suspended ? (
                   <Button variant="outline" size="sm" onClick={() => onAction({ kind: 'unsuspend', user: u })}><ShieldCheck /> Reativar</Button>
                 ) : (

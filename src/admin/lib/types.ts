@@ -301,3 +301,96 @@ export type PaymentMeta = {
 };
 
 export type AppyPayStatus = { environment: string; ref: boolean; gpo: boolean; webhook: boolean; missing: string[] };
+
+/* ---------------- Perfil do profissional ---------------- */
+
+export type ProfApplication = Application & { reviewed_at?: string | null; auth_user_id?: string | null };
+
+export type ProfJob = {
+  id: string;
+  service: string | null;
+  status: string;
+  description: string | null;
+  location: string | null;
+  service_date: string | null;
+  service_time: string | null;
+  created_at: string;
+  accepted_at: string | null;
+  completed_at: string | null;
+  cancelled_at: string | null;
+  rejected_at: string | null;
+  is_urgent: boolean | null;
+  is_multi_day: boolean | null;
+  agreed_amount: number | null;
+  client_total: number | null;
+  provider_net: number | null;
+  payment_status: string | null;
+  escrow_status: string | null;
+  client: { id: string | null; name: string | null; avatar_url: string | null };
+  rating: number | null;
+};
+
+export type ProfReview = {
+  id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  client: { id: string | null; name: string | null; avatar_url: string | null };
+  service: string | null;
+  request_id: string | null;
+};
+
+export type ProfPost = {
+  id: string;
+  image_url: string;
+  caption: string | null;
+  highlight: string | null;
+  type: 'post' | 'story';
+  created_at: string;
+};
+
+export type ProfPayment = {
+  id: string;
+  paid_at: string;
+  amount: number;
+  agreed_amount: number | null;
+  provider_net: number | null;
+  platform_net: number | null;
+  currency: string;
+  released_at: string | null;
+  escrow_status: string | null;
+  service: string | null;
+  client: string | null;
+};
+
+export type ProfStats = {
+  jobs_total?: number; jobs_pending?: number; jobs_accepted?: number; jobs_completed?: number;
+  jobs_rejected?: number; jobs_cancelled?: number; clients?: number; repeat_clients?: number;
+  first_job_at?: string | null; last_job_at?: string | null; avg_response_hours?: number | null;
+  reviews_count?: number; rating_avg?: number | null; rating_dist?: Record<string, number>; reviews_with_comment?: number;
+  posts?: number; stories?: number;
+  earned?: number; held?: number; released?: number; platform_generated?: number; gross_billed?: number;
+  avg_ticket?: number; paid_jobs?: number; withdrawn?: number; pending_withdrawals?: number; available?: number;
+};
+
+export type ProfTimelineItem = { kind: string; at: string; title: string | null; detail: string | null; details?: Record<string, unknown> };
+
+export type AdminNote = { id: number; body: string; admin_name: string | null; created_at: string; entity: 'application' | 'user' };
+
+export type ProfessionalProfile = {
+  factor: number;
+  application: ProfApplication | null;
+  account: (AppUser & Record<string, unknown>) | null;
+  link: 'auth_user_id' | 'phone' | 'email' | 'account' | null;
+  other_applications: { id: string; status: Application['status']; work_area: string | null; created_at: string }[];
+  stats: ProfStats;
+  jobs?: ProfJob[];
+  services?: { label: string; count: number; completed: number }[];
+  monthly?: { month: string; jobs: number; completed: number; earned: number }[];
+  reviews?: ProfReview[];
+  catalog?: ProfPost[];
+  payments?: ProfPayment[];
+  withdrawals?: Withdrawal[];
+  notes: AdminNote[];
+  timeline: ProfTimelineItem[];
+};
