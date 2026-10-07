@@ -13,8 +13,9 @@ import { UsersPage } from './pages/UsersPage';
 import { ServicesAdminPage } from './pages/ServicesAdminPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { PaymentsPage } from './pages/PaymentsPage';
+import { TestPage } from './pages/TestPage';
 
-const SECTIONS: SectionId[] = ['', 'atividade', 'pagamentos', 'pedidos', 'candidaturas', 'utilizadores', 'servicos', 'definicoes'];
+const SECTIONS: SectionId[] = ['', 'atividade', 'pagamentos', 'pedidos', 'candidaturas', 'utilizadores', 'servicos', 'teste', 'definicoes'];
 
 export default function AdminApp({ section }: { section: string }) {
   const [session, setSession] = useState<AdminSession | null>(getSession);
@@ -96,6 +97,7 @@ function Dashboard({ section, session, onLogout }: { section: SectionId; session
       {section === 'candidaturas' && <ApplicationsPage onChange={counts.reload} />}
       {section === 'utilizadores' && <UsersPage />}
       {section === 'servicos' && <ServicesAdminPage />}
+      {section === 'teste' && <TestPage />}
       {section === 'definicoes' && <SettingsPage session={session} onLogout={onLogout} />}
     </Shell>
   );

@@ -1,12 +1,12 @@
 import { useState, type ReactNode } from 'react';
 import {
-  Activity, ClipboardList, LayoutDashboard, LogOut, Menu, Settings, UserPlus, Users, Wallet, Wrench, ExternalLink,
+  Activity, ClipboardList, FlaskConical, LayoutDashboard, LogOut, Menu, Settings, UserPlus, Users, Wallet, Wrench, ExternalLink,
 } from 'lucide-react';
 import { Dialog, SheetContent, DialogTitle } from '../ui/dialog';
 import { cn, formatTime, initials } from '../lib/utils';
 import type { AdminSession } from '../lib/session';
 
-export type SectionId = '' | 'atividade' | 'pagamentos' | 'pedidos' | 'candidaturas' | 'utilizadores' | 'servicos' | 'definicoes';
+export type SectionId = '' | 'atividade' | 'pagamentos' | 'pedidos' | 'candidaturas' | 'utilizadores' | 'servicos' | 'teste' | 'definicoes';
 
 type NavItem = { id: SectionId; label: string; icon: React.ComponentType<{ className?: string }>; count?: number };
 
@@ -37,6 +37,7 @@ export function Shell({
         { id: 'candidaturas', label: 'Candidaturas', icon: UserPlus, count: counts.applications },
         { id: 'utilizadores', label: 'Utilizadores', icon: Users },
         { id: 'servicos', label: 'Serviços', icon: Wrench },
+        { id: 'teste', label: 'Teste da app', icon: FlaskConical },
       ],
     },
     {
