@@ -18,6 +18,7 @@ import { AccountPage } from './pages/account/AccountPage';
 import { NewRequestPage } from './pages/account/NewRequestPage';
 import { RequestStatusPage } from './pages/account/RequestStatusPage';
 import { ChatPage } from './pages/account/ChatPage';
+import { CallPage } from './pages/account/CallPage';
 
 // O painel só é descarregado por quem abre #/admin — não pesa no site público.
 const AdminApp = lazy(() => import('./admin/AdminApp'));
@@ -64,6 +65,10 @@ function App() {
     if (loading) return <Loading />;
     if (!user) { navigate('/entrar?next=/conta'); return <Loading />; }
     const section = route.section;
+    // Chamada de voz — ecrã inteiro, sem navbar/rodapé.
+    if (section.startsWith('chamada/')) {
+      return <CallPage id={section.slice('chamada/'.length)} />;
+    }
     let content;
     if (section === 'pedir') {
       if (user.role === 'professional') { navigate('/conta'); content = <Loading />; }

@@ -13,7 +13,7 @@ import {
 
 export function RequestStatusPage({ id }: { id: string }) {
   const { user } = useAuth();
-  const { success, error: toastError, info } = useToast();
+  const { success, error: toastError } = useToast();
   const [b, setB] = useState<Broadcast | null>(null);
   const [loading, setLoading] = useState(true);
   const [left, setLeft] = useState(60);
@@ -140,7 +140,7 @@ export function RequestStatusPage({ id }: { id: string }) {
         open={callOpen}
         onClose={() => setCallOpen(false)}
         person={other}
-        onInternetCall={() => { setCallOpen(false); info('Chamada pela internet', 'A ligação por voz fica disponível em breve.'); }}
+        onInternetCall={() => { setCallOpen(false); navigate(`/conta/chamada/${b.id}`); }}
       />
     </section>
   );

@@ -9,7 +9,7 @@ import { type Message, listMessages, sendMessage, markRead, subscribeMessages } 
 
 export function ChatPage({ id }: { id: string }) {
   const { user } = useAuth();
-  const { error: toastError, info } = useToast();
+  const { error: toastError } = useToast();
   const [broadcast, setBroadcast] = useState<Broadcast | null>(null);
   const [msgs, setMsgs] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -126,7 +126,7 @@ export function ChatPage({ id }: { id: string }) {
         open={callOpen}
         onClose={() => setCallOpen(false)}
         person={other}
-        onInternetCall={() => { setCallOpen(false); info('Chamada pela internet', 'A ligação por voz fica disponível em breve.'); }}
+        onInternetCall={() => { setCallOpen(false); navigate(`/conta/chamada/${id}`); }}
       />
     </section>
   );
