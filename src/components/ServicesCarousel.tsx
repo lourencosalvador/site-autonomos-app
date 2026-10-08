@@ -5,11 +5,13 @@ import { useValidServices } from '../hooks/useValidServices';
 import { useServices } from '../hooks/useServices';
 import { track } from '../lib/analytics';
 import { useNavigate } from '../router';
+import { useAuth } from '../auth/AuthContext';
 
 const CARD_W = 320; // px, base width incl. gap
 
 export function ServicesCarousel() {
   const trackRef = useRef<HTMLDivElement | null>(null);
+  const { user } = useAuth();
   const navigate = useNavigate();
   const validServices = useValidServices(useServices());
   const [atStart, setAtStart] = useState(true);
@@ -70,7 +72,7 @@ export function ServicesCarousel() {
         style={{ scrollPaddingLeft: '1rem' }}
       >
         {items.map((s, i) => (
-          <ServiceCard key={`${s.id}-${i}`} service={s} onClick={() => { track('service_click', s.category); navigate(`/solicitar-servico?categoria=${encodeURIComponent(s.category)}`); }} />
+          <ServiceCard key={`${s.id}-${i}`} service={s} onClick={() => { track('service_click', s.category); navigate(`${user ? '/conta/pedir' : '/solicitar-servico'}?categoria=${encodeURIComponent(s.category)}`); }} />
         ))}
       </div>
 
@@ -106,8 +108,8 @@ function ServiceCard({ service, onClick }: { service: Service; onClick: () => vo
 
         <div className="mt-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-ink-700/55">{service.price ? 'A partir de' : 'Preço'}</p>
-            <p className="font-display text-base font-extrabold text-brand-dark">{service.price ?? 'Sob orçamento'}</p>
+            <p className="text-xs text-ink-700/55">Preço</p>
+            <p className="font-display text-base font-extrabold text-brand-dark">Sob consulta</p>
           </div>
           <div className="flex items-center gap-0.5 text-brand-cyan2">
             {Array.from({ length: 5 }).map((_, i) => (

@@ -6,6 +6,13 @@ import { useNavigate } from '../router';
 import { refreshReveal } from '../hooks/useScrollReveal';
 import { useServices } from '../hooks/useServices';
 import { track } from '../lib/analytics';
+import { useAuth } from '../auth/AuthContext';
+
+/** Caminho para solicitar: logado → fluxo da conta; visitante → formulário público. Mantém a categoria. */
+function requestPath(loggedIn: boolean, category?: string) {
+  const base = loggedIn ? '/conta/pedir' : '/solicitar-servico';
+  return category ? `${base}?categoria=${encodeURIComponent(category)}` : base;
+}
 
 const POPULAR = ['Eletricidade', 'Canalização', 'Ar condicionado', 'Limpeza', 'Energia solar', 'Pintura'];
 
@@ -25,6 +32,7 @@ function searchServices(services: Service[], query: string): Service[] {
 
 export function ServicesPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const services = useServices();
   const [query, setQuery] = useState('');
   const results = useMemo(() => searchServices(services, query), [services, query]);
@@ -109,7 +117,7 @@ export function ServicesPage() {
           {results.length > 0 ? (
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {results.map((s, i) => (
-                <ServiceCard key={s.id} service={s} index={i} onRequest={() => { track('service_click', s.category); navigate(`/solicitar-servico?categoria=${encodeURIComponent(s.category)}`); }} />
+                <ServiceCard key={s.id} service={s} index={i} onRequest={() => { track('service_click', s.category); navigate(requestPath(!!user, s.category)); }} />
               ))}
             </div>
           ) : (
@@ -126,7 +134,7 @@ export function ServicesPage() {
               <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <button
                   type="button"
-                  onClick={() => navigate('/solicitar-servico')}
+                  onClick={() => navigate(requestPath(!!user))}
                   className="btn-ripple inline-flex items-center gap-2 rounded-full bg-ink-900 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-brand-cyan hover:text-brand-dark"
                 >
                   Solicitar serviço <ArrowRight size={15} />
@@ -171,8 +179,8 @@ function ServiceCard({ service, index, onRequest }: { service: Service; index: n
         <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-ink-500">{service.description}</p>
         <div className="mt-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-ink-400">{service.price ? 'A partir de' : 'Preço'}</p>
-            <p className="font-display text-base font-extrabold text-ink-900">{service.price ?? 'Sob orçamento'}</p>
+            <p className="text-xs text-ink-400">Preço</p>
+            <p className="font-display text-base font-extrabold text-ink-900">Sob consulta</p>
           </div>
           <div className="flex items-center gap-0.5 text-brand-cyan2">
             {Array.from({ length: 5 }).map((_, j) => <Star key={j} size={13} className="fill-current" />)}

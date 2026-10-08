@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
-import { useRoute, navigate } from './router';
+import { useRoute, navigate, hashParam } from './router';
 import { useScrollReveal, refreshReveal } from './hooks/useScrollReveal';
 import { track } from './lib/analytics';
 import { useAuth } from './auth/AuthContext';
@@ -103,6 +103,18 @@ function App() {
         {!isChat && <Dock />}
       </div>
     );
+  }
+
+  // Com sessão iniciada, o site de marketing não faz sentido: só "Serviços" fica acessível;
+  // o resto (início, sobre, contacto, ser-profissional, formulário público) vai para a área da conta.
+  if (user && route.name !== 'services') {
+    if (route.name === 'request') {
+      const cat = hashParam('categoria');
+      navigate('/conta/pedir' + (cat ? `?categoria=${encodeURIComponent(cat)}` : ''));
+    } else {
+      navigate('/conta');
+    }
+    return <Loading />;
   }
 
   return (

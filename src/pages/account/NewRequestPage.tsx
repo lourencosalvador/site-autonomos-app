@@ -6,14 +6,14 @@ import { useToast } from '../../components/Toast';
 import { useAuth } from '../../auth/AuthContext';
 import { useCategories } from '../../hooks/useServices';
 import { createBroadcast } from '../../lib/broadcasts';
-import { navigate } from '../../router';
+import { navigate, hashParam } from '../../router';
 
 export function NewRequestPage() {
   const { user } = useAuth();
   const { error: toastError } = useToast();
   const categories = useCategories();
   const [form, setForm] = useState({
-    category: '',
+    category: hashParam('categoria') ?? '',
     description: '',
     date: '',
     time: '',

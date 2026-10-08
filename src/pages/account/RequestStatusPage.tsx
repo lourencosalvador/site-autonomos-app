@@ -157,8 +157,8 @@ export function RequestStatusPage({ id }: { id: string }) {
                   De momento não temos prestadores disponíveis para este serviço. Para qualquer informação, fale com o nosso apoio ao cliente.
                 </p>
                 <div className="mt-6 flex flex-wrap justify-center gap-2">
-                  <Button to="/contato" variant="dark" size="md">Falar com o apoio</Button>
-                  <Button to="/conta/pedir" variant="outline-dark" size="md">Tentar outro pedido</Button>
+                  <Button to="/conta/pedir" variant="dark" size="md">Tentar outro pedido</Button>
+                  <Button to="/conta" variant="outline-dark" size="md">Voltar ao painel</Button>
                 </div>
               </div>
             )}
