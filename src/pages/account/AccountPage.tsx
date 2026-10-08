@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ArrowRight, Bell, CheckCircle2, ClipboardList, Clock, Loader2, MapPin,
-  MessageSquare, Search, Star, Wallet, Wrench,
+  Search, Star, Wallet, Wrench,
 } from 'lucide-react';
 import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../components/Button';
@@ -93,10 +93,9 @@ function ClientHome({ navigate }: { navigate: (p: string) => void }) {
 
       <MyRequests />
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        <Tile icon={MessageSquare} title="Mensagens" desc="Converse com os profissionais." soon />
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Tile icon={Search} title="Explorar serviços" desc="Veja todas as categorias disponíveis." onClick={() => navigate('/services')} />
-        <Tile icon={ClipboardList} title="Como funciona" desc="Peça, aceitam em 1 minuto, combinam." soon />
+        <Tile icon={ClipboardList} title="Os meus serviços" desc="Acompanhe os pedidos e o histórico." onClick={() => navigate('/conta/servicos')} />
       </div>
     </>
   );
@@ -322,8 +321,8 @@ function ProviderHome({ approved }: { approved: boolean }) {
       </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <Tile icon={MessageSquare} title="Mensagens" desc="Converse com os seus clientes." soon />
-        <Tile icon={Wrench} title="O meu catálogo" desc="Mostre os seus trabalhos e preços." soon />
+        <Tile icon={Wrench} title="O meu catálogo" desc="Mostre os seus trabalhos e preços." onClick={() => navigate('/conta/catalogo')} />
+        <Tile icon={ClipboardList} title="Os meus serviços" desc="Em curso e já prestados." onClick={() => navigate('/conta/servicos')} />
       </div>
 
       <CelebrationModal open={celebrate} onClose={() => setCelebrate(false)} onWallet={() => { setCelebrate(false); navigate('/conta/financas'); }} />

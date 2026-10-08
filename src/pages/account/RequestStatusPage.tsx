@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Ban, CheckCircle2, Clock, Loader2, MessageSquare, Phone, Search, UserX, XCircle } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { ArrowLeft, ArrowRight, Ban, CheckCircle2, Clock, Loader2, MessageSquare, Phone, UserX, XCircle } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { useToast } from '../../components/Toast';
 import { CallModal } from '../../components/CallModal';
@@ -11,8 +11,8 @@ import { useAuth } from '../../auth/AuthContext';
 import { navigate } from '../../router';
 import {
   type Broadcast, type BroadcastPerson,
-  getBroadcast, expireBroadcast, cancelBroadcast, completeBroadcast, providerMarkDone,
-  secondsLeft, subscribeBroadcasts,
+  getBroadcast, cancelBroadcast, completeBroadcast, providerMarkDone,
+  subscribeBroadcasts,
 } from '../../lib/broadcasts';
 import { notifyIncomingCall } from '../../lib/call';
 
@@ -21,12 +21,11 @@ export function RequestStatusPage({ id }: { id: string }) {
   const { success, error: toastError } = useToast();
   const [b, setB] = useState<Broadcast | null>(null);
   const [loading, setLoading] = useState(true);
-  const [left, setLeft] = useState(60);
+  const [elapsed, setElapsed] = useState(0);
   const [busy, setBusy] = useState(false);
   const [callOpen, setCallOpen] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
   const [rateOpen, setRateOpen] = useState(false);
-  const expiring = useRef(false);
 
   const refetch = useCallback(async () => {
     try {
@@ -42,21 +41,15 @@ export function RequestStatusPage({ id }: { id: string }) {
   // Tempo real: qualquer mudança nesta linha (aceite, cancelado…) → recarrega.
   useEffect(() => subscribeBroadcasts({ id }, () => { void refetch(); }), [id, refetch]);
 
-  // Contador de 1s enquanto está aberto; ao chegar a 0, o cliente finaliza o timeout.
+  // Enquanto está aberto, conta o tempo decorrido (não expira automaticamente — o apoio trata dos sem resposta).
   useEffect(() => {
     if (!b || b.status !== 'open') return;
-    const tick = () => {
-      const s = secondsLeft(b);
-      setLeft(s);
-      if (s <= 0 && !expiring.current && user?.id === b.client_id) {
-        expiring.current = true;
-        void expireBroadcast(b.id).then(() => refetch());
-      }
-    };
+    const start = new Date(b.created_at).getTime();
+    const tick = () => setElapsed(Math.max(0, Math.floor((Date.now() - start) / 1000)));
     tick();
     const t = setInterval(tick, 1000);
     return () => clearInterval(t);
-  }, [b, user?.id, refetch]);
+  }, [b]);
 
   if (loading) {
     return <Centered><Loader2 className="size-7 animate-spin text-ink-300" /></Centered>;
@@ -117,7 +110,7 @@ export function RequestStatusPage({ id }: { id: string }) {
 
           <div className="px-6 py-7">
             {b.status === 'open' && (iAmClient
-              ? <Searching left={left} onCancel={doCancel} busy={busy} />
+              ? <Searching elapsed={elapsed} onCancel={doCancel} busy={busy} />
               : <OpenForProvider />)}
 
             {b.status === 'accepted' && other && (
@@ -185,30 +178,49 @@ export function RequestStatusPage({ id }: { id: string }) {
 
 /* ───────────────── Estados ───────────────── */
 
-function Searching({ left, onCancel, busy }: { left: number; onCancel: () => void; busy: boolean }) {
-  const pct = Math.max(0, Math.min(1, left / 60));
+const SEARCH_STEPS = [
+  { s: 0,  t: 'Pedido enviado aos prestadores', e: '📨' },
+  { s: 5,  t: 'A procurar prestadores perto de si', e: '🔍' },
+  { s: 12, t: 'Estamos a tratar disso, aguenta aí 💪', e: '🛠️' },
+  { s: 22, t: 'Quase lá — a contactar mais prestadores', e: '⏳' },
+  { s: 35, t: 'Continuamos à procura do melhor para si', e: '✨' },
+  { s: 55, t: 'A alargar a procura para te atender', e: '📡' },
+];
+
+function Searching({ elapsed, onCancel, busy }: { elapsed: number; onCancel: () => void; busy: boolean }) {
+  const step = [...SEARCH_STEPS].reverse().find((x) => elapsed >= x.s) ?? SEARCH_STEPS[0];
+  const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
+  const ss = String(elapsed % 60).padStart(2, '0');
   return (
     <div className="flex flex-col items-center text-center">
-      <div className="relative flex h-32 w-32 items-center justify-center">
-        <span className="absolute inset-0 animate-ping rounded-full bg-brand-cyan/20" />
-        <span className="absolute inset-3 rounded-full bg-brand-cyan/10" />
-        <svg className="absolute inset-0 -rotate-90" viewBox="0 0 100 100">
-          <circle cx="50" cy="50" r="46" fill="none" stroke="#e8eef1" strokeWidth="6" />
-          <circle cx="50" cy="50" r="46" fill="none" stroke="#02E6FF" strokeWidth="6" strokeLinecap="round"
-            strokeDasharray={2 * Math.PI * 46} strokeDashoffset={2 * Math.PI * 46 * (1 - pct)}
-            style={{ transition: 'stroke-dashoffset 1s linear' }} />
-        </svg>
-        <div className="relative flex flex-col items-center">
-          <Search className="mb-0.5 size-5 text-brand-dark" />
-          <span className="font-display text-2xl font-extrabold tabular-nums text-ink-900">{left}s</span>
+      {/* Orbe animado */}
+      <div className="relative flex h-28 w-28 items-center justify-center">
+        <span className="absolute inset-0 animate-ping rounded-full bg-brand-cyan/20" style={{ animationDuration: '1.8s' }} />
+        <span className="absolute inset-2 animate-ping rounded-full bg-brand-cyan/15" style={{ animationDuration: '2.4s' }} />
+        <span className="absolute inset-0 rounded-full border-2 border-brand-cyan/30 border-t-brand-cyan" style={{ animation: 'spin 1.1s linear infinite' }} />
+        <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-brand-dark text-3xl shadow-cardDark">
+          <span key={step.e} style={{ animation: 'msg-in 0.4s ease' }}>{step.e}</span>
         </div>
       </div>
-      <h2 className="mt-5 font-display text-lg font-bold text-ink-900">À procura de um profissional…</h2>
-      <p className="mt-1 max-w-xs text-sm text-ink-500">
-        A avisar os profissionais da área. O primeiro a aceitar aparece aqui.
-      </p>
+
+      {/* Mensagem a rodar */}
+      <h2 className="mt-6 min-h-[2.6rem] max-w-xs font-display text-lg font-bold leading-snug text-ink-900">
+        <span key={step.t} style={{ animation: 'msg-in 0.45s ease' }} className="inline-block">{step.t}</span>
+      </h2>
+
+      {/* Barras de progresso "a trabalhar" */}
+      <div className="mt-3 flex items-center gap-1.5">
+        {[0, 1, 2].map((i) => (
+          <span key={i} className="h-1.5 w-8 overflow-hidden rounded-full bg-cloud-200">
+            <span className="block h-full w-full rounded-full bg-brand-cyan" style={{ animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
+          </span>
+        ))}
+      </div>
+
+      <p className="mt-4 text-sm font-medium tabular-nums text-ink-400">À espera há {mm}:{ss}</p>
+
       <button onClick={onCancel} disabled={busy}
-        className="mt-6 inline-flex items-center gap-1.5 rounded-full border border-cloud-200 px-4 py-2 text-sm font-semibold text-ink-600 transition-colors hover:border-red-200 hover:text-red-600 disabled:opacity-50">
+        className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-cloud-200 px-4 py-2 text-sm font-semibold text-ink-600 transition-colors hover:border-red-200 hover:text-red-600 disabled:opacity-50">
         {busy ? <Loader2 size={15} className="animate-spin" /> : <XCircle size={15} />} Cancelar pedido
       </button>
     </div>
