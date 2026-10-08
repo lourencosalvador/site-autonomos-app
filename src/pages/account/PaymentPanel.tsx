@@ -6,14 +6,13 @@ import { type Charge, type PaymentMethod, formatKz, payErrorMessage, prepareBroa
 
 const FEE_RATE = 0.10;
 
-/** Recibo + pagamento FlexPay. O valor pago fica retido até o cliente confirmar a conclusão. */
 export function PaymentPanel({ requestId, priceMinor, onPaid }: { requestId: string; priceMinor: number; onPaid?: () => void }) {
   const work = priceMinor;
   const fee = Math.round(work * FEE_RATE);
   const total = work + fee;
 
   const [escrowOpen, setEscrowOpen] = useState(false);
-  const [choosing, setChoosing] = useState(false); // já confirmou o escrow, a escolher método
+  const [choosing, setChoosing] = useState(false);
   const [method, setMethod] = useState<PaymentMethod | null>(null);
   const [phone, setPhone] = useState('+244 ');
   const [charge, setCharge] = useState<Charge | null>(null);
@@ -52,10 +51,8 @@ export function PaymentPanel({ requestId, priceMinor, onPaid }: { requestId: str
   return (
     <div className="mt-5 overflow-hidden rounded-3xl border border-cloud-200 bg-white p-3 shadow-soft">
      <div className="grid items-stretch gap-3 md:grid-cols-[1.05fr_1fr]">
-      {/* Recibo (esquerda) */}
       <Receipt_ work={work} fee={fee} total={total} />
 
-      {/* Ação (direita) */}
       <div className="flex flex-col justify-center rounded-2xl bg-cloud-50/50 p-5">
         {charge ? (
           charge.method === 'REF' && charge.reference?.number ? (
@@ -122,7 +119,6 @@ export function PaymentPanel({ requestId, priceMinor, onPaid }: { requestId: str
       </div>
      </div>
 
-      {/* Modal de escrow */}
       {escrowOpen && (
         <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={() => setEscrowOpen(false)}>
           <div className="w-full max-w-sm rounded-t-3xl bg-white p-6 shadow-cardHover sm:rounded-3xl" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
@@ -145,7 +141,6 @@ export function PaymentPanel({ requestId, priceMinor, onPaid }: { requestId: str
   );
 }
 
-/* Recibo com efeito de bordas rasgadas (scalloped) em cima e em baixo. */
 function Receipt_({ work, fee, total }: { work: number; fee: number; total: number }) {
   const scallop: React.CSSProperties = {
     WebkitMask:

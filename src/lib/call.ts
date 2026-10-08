@@ -12,23 +12,21 @@ async function invokeToken(requestId: string): Promise<{ data: unknown; code: st
       const ctx = (error as { context?: Response }).context;
       const body = ctx ? await ctx.json() : null;
       if (body?.error) code = body.error;
-    } catch { /* mantém call_failed */ }
+    } catch {}
     return { data: null, code };
   }
   if ((data as { error?: string })?.error) return { data: null, code: (data as { error: string }).error };
   return { data, code: null };
 }
 
-/** Pede à Edge Function um token de chamada para este pedido (renova a sessão se preciso). */
 export async function getCallToken(requestId: string): Promise<CallToken> {
-  // Garante que há sessão e, se o token estiver velho, renova antes de chamar.
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error('unauthorized');
 
   let res = await invokeToken(requestId);
-  // Se o token foi recusado, tenta renovar a sessão uma vez e repete.
+
   if (res.code === 'unauthorized') {
-    try { await supabase.auth.refreshSession(); } catch { /* refresh falhou */ }
+    try { await supabase.auth.refreshSession(); } catch {}
     const { data: { session: s2 } } = await supabase.auth.getSession();
     if (!s2) throw new Error('unauthorized');
     res = await invokeToken(requestId);
@@ -44,7 +42,6 @@ export type IncomingCall = {
   fromAvatar: string | null;
 };
 
-/** Avisa o outro utilizador (toque) de que está a receber uma chamada. */
 export async function notifyIncomingCall(calleeId: string, payload: IncomingCall): Promise<void> {
   const ch = supabase.channel(`calls:${calleeId}`);
   await new Promise<void>((resolve) => {
@@ -54,7 +51,6 @@ export async function notifyIncomingCall(calleeId: string, payload: IncomingCall
   setTimeout(() => { void supabase.removeChannel(ch); }, 1500);
 }
 
-/** Envia um sinal de "cancelado/recusado/terminado" para o canal de chamadas de um utilizador. */
 export async function notifyCallEvent(targetUserId: string, event: 'cancel' | 'decline', payload: { broadcastId: string }): Promise<void> {
   const ch = supabase.channel(`calls:${targetUserId}`);
   await new Promise<void>((resolve) => {
@@ -64,7 +60,6 @@ export async function notifyCallEvent(targetUserId: string, event: 'cancel' | 'd
   setTimeout(() => { void supabase.removeChannel(ch); }, 1500);
 }
 
-/** Ouve chamadas recebidas (e cancelamentos) dirigidas a este utilizador. */
 export function subscribeIncomingCalls(
   userId: string,
   handlers: { onRing: (c: IncomingCall) => void; onCancel?: (broadcastId: string) => void },
@@ -77,7 +72,6 @@ export function subscribeIncomingCalls(
   return () => { void supabase.removeChannel(ch); };
 }
 
-/** Mensagens amigáveis para os erros da chamada. */
 export function callErrorMessage(code: string): string {
   switch (code) {
     case 'livekit_not_configured': return 'A chamada por voz ainda não está configurada.';

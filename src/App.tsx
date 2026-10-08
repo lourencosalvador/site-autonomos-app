@@ -26,7 +26,6 @@ import { CatalogPage } from './pages/account/CatalogPage';
 import { IncomingCallOverlay } from './components/IncomingCallOverlay';
 import { Dock } from './components/Dock';
 
-// O painel só é descarregado por quem abre #/admin — não pesa no site público.
 const AdminApp = lazy(() => import('./admin/AdminApp'));
 
 function Loading() {
@@ -42,7 +41,6 @@ function App() {
   const { user, loading } = useAuth();
   useScrollReveal();
 
-  // Re-scan for new .reveal elements after each route change
   useEffect(() => {
     refreshReveal();
   }, [route.name]);
@@ -59,19 +57,17 @@ function App() {
     );
   }
 
-  // Páginas de autenticação — ecrã inteiro, sem navbar/rodapé.
   if (route.name === 'login' || route.name === 'register') {
     if (loading) return <Loading />;
     if (user) { navigate('/conta'); return <Loading />; }
     return route.name === 'login' ? <LoginPage /> : <RegisterPage />;
   }
 
-  // Área autenticada.
   if (route.name === 'account') {
     if (loading) return <Loading />;
     if (!user) { navigate('/entrar?next=/conta'); return <Loading />; }
     const section = route.section;
-    // Chamada de voz — ecrã inteiro, sem navbar/rodapé.
+
     if (section.startsWith('chamada/')) {
       return <CallPage id={section.slice('chamada/'.length)} />;
     }
@@ -105,8 +101,6 @@ function App() {
     );
   }
 
-  // Com sessão iniciada, o site de marketing não faz sentido: só "Serviços" fica acessível;
-  // o resto (início, sobre, contacto, ser-profissional, formulário público) vai para a área da conta.
   if (user && route.name !== 'services') {
     if (route.name === 'request') {
       const cat = hashParam('categoria');
@@ -121,7 +115,6 @@ function App() {
     <div className="min-h-screen bg-white">
       <IncomingCallOverlay />
       <Navbar />
-      {/* clip: as animações de entrada (reveal-left/right) começam fora do ecrã e não devem alargar a página no telemóvel */}
       <main className="overflow-x-clip">
         {route.name === 'home' && <HomePage />}
         {route.name === 'services' && <ServicesPage />}

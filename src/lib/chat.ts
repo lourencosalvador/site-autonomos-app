@@ -29,7 +29,6 @@ export async function markRead(broadcastId: string): Promise<void> {
   await supabase.rpc('mark_messages_read', { p_broadcast: broadcastId });
 }
 
-/** Subscreve novas mensagens deste pedido em tempo real. */
 export function subscribeMessages(broadcastId: string, onInsert: (m: Message) => void): () => void {
   const channel = supabase
     .channel('msg:' + broadcastId + ':' + Math.random().toString(36).slice(2, 8))

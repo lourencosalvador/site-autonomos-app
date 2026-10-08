@@ -3,7 +3,6 @@ import { Loader2, Star, X } from 'lucide-react';
 import { TextArea } from './Field';
 import { rateProvider } from '../lib/hub';
 
-/** Modal para o cliente avaliar o prestador após concluir o serviço. */
 export function RatingModal({ open, broadcastId, providerName, onClose, onDone }: {
   open: boolean;
   broadcastId: string;

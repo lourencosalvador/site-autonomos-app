@@ -4,7 +4,6 @@ import { useAuth } from '../auth/AuthContext';
 import { useRoute, navigate } from '../router';
 import { type IncomingCall, subscribeIncomingCalls, notifyCallEvent } from '../lib/call';
 
-/** Aviso de "chamada a receber" para o utilizador autenticado, em qualquer página. */
 export function IncomingCallOverlay() {
   const { user } = useAuth();
   const route = useRoute();
@@ -18,7 +17,6 @@ export function IncomingCallOverlay() {
     });
   }, [user?.id]);
 
-  // Toca durante 45s e depois desiste (chamada não atendida).
   useEffect(() => {
     if (!call) return;
     const t = setTimeout(() => setCall(null), 45000);
@@ -26,7 +24,7 @@ export function IncomingCallOverlay() {
   }, [call]);
 
   if (!call || !user) return null;
-  // Se já está na própria página da chamada, não sobrepõe.
+
   if (route.name === 'account' && route.section === `chamada/${call.broadcastId}`) return null;
 
   const initials = (call.fromName || '?').trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase();

@@ -4,7 +4,6 @@ import { useRoute, useNavigate } from '../router';
 
 type Item = { label: string; icon: LucideIcon; section: string; path: string };
 
-/** Dock fixa em baixo ao centro, com navegação da área autenticada (adapta-se ao papel). */
 export function Dock() {
   const { user } = useAuth();
   const route = useRoute();

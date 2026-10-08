@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { Globe, Phone, PhoneCall, X } from 'lucide-react';
 import type { BroadcastPerson } from '../lib/broadcasts';
 
-/** Modal de chamada: chamada grátis pela internet (app) ou chamada normal (marcador do telemóvel). */
 export function CallModal({ open, onClose, person, onInternetCall }: {
   open: boolean;
   onClose: () => void;

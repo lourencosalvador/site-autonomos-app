@@ -15,13 +15,11 @@ export type Charge = {
   paid_at: string | null;
 };
 
-/** Formata um valor em centavos (minor) para "2.000 Kz". */
 export function formatKz(minor: number): string {
   const v = Math.round((minor ?? 0) / 100);
   return `${v.toLocaleString('pt-PT').replace(/,/g, '.')} Kz`;
 }
 
-/** Erros do pagamento → mensagens amigáveis. */
 export function payErrorMessage(code: string): string {
   switch (code) {
     case 'payments_unavailable': return 'Pagamentos ainda não configurados (AppyPay).';
@@ -36,8 +34,6 @@ export function payErrorMessage(code: string): string {
   }
 }
 
-/** Cria/retoma a cobrança do pedido. Devolve a cobrança (com referência, se REF). */
-/** Pagamento de TESTE: marca o pedido como pago sem gateway (temporário). */
 export async function payTestBroadcast(requestId: string): Promise<void> {
   const { error } = await supabase.rpc('pay_test_broadcast', { p_id: requestId });
   if (error) throw error;
@@ -55,7 +51,7 @@ export async function prepareBroadcastPayment(requestId: string, method: Payment
       const ctx = (error as { context?: Response }).context;
       const body = ctx ? await ctx.json() : null;
       if (body?.error) code = body.error;
-    } catch { /* mantém pay_failed */ }
+    } catch {}
     throw new Error(code);
   }
   if ((data as { error?: string })?.error) throw new Error((data as { error: string }).error);

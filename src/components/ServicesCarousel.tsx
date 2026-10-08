@@ -7,7 +7,7 @@ import { track } from '../lib/analytics';
 import { useNavigate } from '../router';
 import { useAuth } from '../auth/AuthContext';
 
-const CARD_W = 320; // px, base width incl. gap
+const CARD_W = 320;
 
 export function ServicesCarousel() {
   const trackRef = useRef<HTMLDivElement | null>(null);
@@ -46,7 +46,6 @@ export function ServicesCarousel() {
 
   return (
     <div className="relative">
-      {/* Arrows (desktop) */}
       <div className="mb-5 flex items-center justify-end gap-3">
         <button
           onClick={() => scrollBy(-1)}

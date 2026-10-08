@@ -3,7 +3,6 @@ import { Wallet, X } from 'lucide-react';
 
 const COLORS = ['#02E6FF', '#03475E', '#22c55e', '#f59e0b', '#ec4899', '#8b5cf6'];
 
-/** Modal de "Parabéns" com confetti, mostrado ao prestador ao concluir um serviço. */
 export function CelebrationModal({ open, onClose, onWallet }: { open: boolean; onClose: () => void; onWallet: () => void }) {
   const pieces = useMemo(
     () => Array.from({ length: 70 }, (_, i) => ({
@@ -21,18 +20,16 @@ export function CelebrationModal({ open, onClose, onWallet }: { open: boolean; o
 
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onClick={onClose}>
-      {/* Confetti */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         {pieces.map((p, i) => (
           <span key={i} className="confetti-piece" style={{
             left: `${p.left}%`,
             background: p.color,
-            // @ts-expect-error custom property
-            '--dx': `${p.dx}px`,
+            ['--dx']: `${p.dx}px`,
             animationDelay: `${p.delay}s`,
             animationDuration: `${p.dur}s`,
             transform: `rotate(${p.rot}deg)`,
-          }} />
+          } as React.CSSProperties} />
         ))}
       </div>
 

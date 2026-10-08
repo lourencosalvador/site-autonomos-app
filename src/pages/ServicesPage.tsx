@@ -8,7 +8,7 @@ import { useServices } from '../hooks/useServices';
 import { track } from '../lib/analytics';
 import { useAuth } from '../auth/AuthContext';
 
-/** Caminho para solicitar: logado → fluxo da conta; visitante → formulário público. Mantém a categoria. */
+
 function requestPath(loggedIn: boolean, category?: string) {
   const base = loggedIn ? '/conta/pedir' : '/solicitar-servico';
   return category ? `${base}?categoria=${encodeURIComponent(category)}` : base;
@@ -16,7 +16,7 @@ function requestPath(loggedIn: boolean, category?: string) {
 
 const POPULAR = ['Eletricidade', 'Canalização', 'Ar condicionado', 'Limpeza', 'Energia solar', 'Pintura'];
 
-/** Minúsculas e sem acentos, para "canalizacao" encontrar "Canalização". */
+
 function normalize(text: string) {
   return text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 }
@@ -46,7 +46,7 @@ export function ServicesPage() {
     return () => window.clearTimeout(t);
   }, [query]);
 
-  // Cards que voltam a aparecer depois de filtrar são nós novos: regista-os na animação de entrada.
+
   useEffect(() => {
     refreshReveal();
   }, [results]);
@@ -62,7 +62,6 @@ export function ServicesPage() {
 
       <section className="bg-cloud-50 pb-16">
         <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          {/* ===== Pesquisa ===== */}
           <div className="relative z-10 mx-auto -mt-8 max-w-3xl">
             <label htmlFor="pesquisa-servicos" className="sr-only">Pesquisar serviços</label>
             <div className="group flex items-center gap-3 rounded-full border border-cloud-200 bg-white py-2 pl-5 pr-2 shadow-card transition-all duration-300 focus-within:border-brand-cyan focus-within:shadow-cardHover">
@@ -113,7 +112,6 @@ export function ServicesPage() {
             </div>
           </div>
 
-          {/* ===== Resultados ===== */}
           {results.length > 0 ? (
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {results.map((s, i) => (

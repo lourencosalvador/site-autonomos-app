@@ -27,7 +27,6 @@ export function WalletPage() {
         <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl">Finanças</h1>
         <p className="mt-1 text-ink-500">A sua carteira, saldo e movimentos.</p>
 
-        {/* Cartão digital */}
         <div className="relative mt-5 overflow-hidden rounded-3xl bg-brand-dark p-6 text-white shadow-cardDark">
           <div className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-brand-cyan/20 blur-2xl" />
           <div className="absolute -bottom-12 -left-8 h-40 w-40 rounded-full bg-brand-cyan2/10 blur-2xl" />
@@ -50,13 +49,11 @@ export function WalletPage() {
           </div>
         </div>
 
-        {/* Stats */}
         <div className="mt-4 grid grid-cols-2 gap-3">
           <Stat icon={Clock} label="Retido (a receber)" value={loading ? '—' : formatKz(w?.pending_minor ?? 0)} hint="liberta ao concluir" />
           <Stat icon={ArrowDownLeft} label="Serviços concluídos" value={loading ? '—' : String(w?.jobs_done ?? 0)} hint="total" />
         </div>
 
-        {/* Movimentos */}
         <div className="mt-6">
           <h2 className="mb-3 font-display text-base font-bold text-ink-900">Movimentos</h2>
           {loading ? (

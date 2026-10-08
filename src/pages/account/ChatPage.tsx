@@ -68,7 +68,6 @@ export function ChatPage({ id }: { id: string }) {
   return (
     <section className="bg-cloud-50 pt-[4.75rem]">
       <div className="mx-auto flex h-[calc(100dvh-4.75rem)] max-w-2xl flex-col px-0 sm:px-5">
-        {/* Cabeçalho */}
         <div className="flex items-center gap-3 border-b border-cloud-200 bg-white px-4 py-3 sm:mt-3 sm:rounded-t-3xl">
           <button onClick={() => navigate(`/conta/pedido/${id}`)} className="rounded-full p-1.5 text-ink-500 hover:bg-cloud-100"><ArrowLeft size={20} /></button>
           <Avatar person={other} />
@@ -81,7 +80,6 @@ export function ChatPage({ id }: { id: string }) {
           </button>
         </div>
 
-        {/* Mensagens */}
         <div className="flex-1 space-y-2 overflow-y-auto bg-cloud-50 px-4 py-4">
           {loading ? (
             <div className="flex h-full items-center justify-center"><Loader2 className="size-6 animate-spin text-ink-300" /></div>
@@ -106,7 +104,6 @@ export function ChatPage({ id }: { id: string }) {
           <div ref={endRef} />
         </div>
 
-        {/* Caixa de texto */}
         <div className="border-t border-cloud-200 bg-white px-3 py-3 sm:mb-3 sm:rounded-b-3xl">
           <form onSubmit={(e) => { e.preventDefault(); void send(); }} className="flex items-center gap-2">
             <input

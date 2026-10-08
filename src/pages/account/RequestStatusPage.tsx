@@ -38,10 +38,8 @@ export function RequestStatusPage({ id }: { id: string }) {
 
   useEffect(() => { void refetch(); }, [refetch]);
 
-  // Tempo real: qualquer mudança nesta linha (aceite, cancelado…) → recarrega.
   useEffect(() => subscribeBroadcasts({ id }, () => { void refetch(); }), [id, refetch]);
 
-  // Enquanto está aberto, conta o tempo decorrido (não expira automaticamente — o apoio trata dos sem resposta).
   useEffect(() => {
     if (!b || b.status !== 'open') return;
     const start = new Date(b.created_at).getTime();
@@ -100,7 +98,6 @@ export function RequestStatusPage({ id }: { id: string }) {
         </button>
 
         <div className="overflow-hidden rounded-3xl border border-cloud-200 bg-white shadow-soft">
-          {/* Cabeçalho com a categoria */}
           <div className="border-b border-cloud-100 px-6 py-5">
             <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">Pedido de serviço</p>
             <h1 className="mt-0.5 font-display text-xl font-extrabold text-ink-900">{b.category}</h1>
@@ -193,8 +190,6 @@ export function RequestStatusPage({ id }: { id: string }) {
   );
 }
 
-/* ───────────────── Estados ───────────────── */
-
 const SEARCH_STEPS = [
   { s: 0,  t: 'Pedido enviado aos prestadores', e: '📨' },
   { s: 5,  t: 'A procurar prestadores perto de si', e: '🔍' },
@@ -210,7 +205,6 @@ function Searching({ elapsed, onCancel, busy }: { elapsed: number; onCancel: () 
   const ss = String(elapsed % 60).padStart(2, '0');
   return (
     <div className="flex flex-col items-center text-center">
-      {/* Orbe animado */}
       <div className="relative flex h-28 w-28 items-center justify-center">
         <span className="absolute inset-0 animate-ping rounded-full bg-brand-cyan/20" style={{ animationDuration: '1.8s' }} />
         <span className="absolute inset-2 animate-ping rounded-full bg-brand-cyan/15" style={{ animationDuration: '2.4s' }} />
@@ -220,12 +214,10 @@ function Searching({ elapsed, onCancel, busy }: { elapsed: number; onCancel: () 
         </div>
       </div>
 
-      {/* Mensagem a rodar */}
       <h2 className="mt-6 min-h-[2.6rem] max-w-xs font-display text-lg font-bold leading-snug text-ink-900">
         <span key={step.t} style={{ animation: 'msg-in 0.45s ease' }} className="inline-block">{step.t}</span>
       </h2>
 
-      {/* Barras de progresso "a trabalhar" */}
       <div className="mt-3 flex items-center gap-1.5">
         {[0, 1, 2].map((i) => (
           <span key={i} className="h-1.5 w-8 overflow-hidden rounded-full bg-cloud-200">
@@ -353,8 +345,6 @@ function Ended({ icon: Icon, tone, title, text, primary }: {
     </div>
   );
 }
-
-/* ───────────────── Blocos ───────────────── */
 
 function Meta({ b }: { b: Broadcast }) {
   const bits = [b.city, b.service_date, b.service_time].filter(Boolean);

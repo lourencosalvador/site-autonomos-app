@@ -59,7 +59,7 @@ export function CallPage({ id }: { id: string }) {
         try {
           await room.localParticipant.setMicrophoneEnabled(true);
         } catch {
-          setMicError(true); // sem microfone (bloqueado/sem permissão) — continua a ouvir
+          setMicError(true);
         }
         if (cancelled) { await room.disconnect(); return; }
         setRemoteJoined(room.remoteParticipants.size > 0);
@@ -74,7 +74,6 @@ export function CallPage({ id }: { id: string }) {
     return () => { cancelled = true; void room.disconnect(); };
   }, [id, user?.id]);
 
-  // Cronómetro quando o outro participante está presente.
   useEffect(() => {
     if (phase !== 'connected' || !remoteJoined) return;
     const t = setInterval(() => setElapsed((s) => s + 1), 1000);
@@ -90,7 +89,7 @@ export function CallPage({ id }: { id: string }) {
   };
   const hangUp = () => {
     hangingUp.current = true;
-    if (other?.id) void notifyCallEvent(other.id, 'cancel', { broadcastId: id }); // tira o toque se ainda não atendeu
+    if (other?.id) void notifyCallEvent(other.id, 'cancel', { broadcastId: id });
     void roomRef.current?.disconnect();
     navigate(`/conta/chat/${id}`);
   };

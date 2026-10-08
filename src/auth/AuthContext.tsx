@@ -39,7 +39,6 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/** Mensagens de erro do Supabase traduzidas para o utilizador. */
 export function authErrorMessage(raw: string): string {
   const m = raw.toLowerCase();
   if (m.includes('invalid login credentials')) return 'Email ou palavra-passe incorretos.';
@@ -52,7 +51,6 @@ export function authErrorMessage(raw: string): string {
   return 'Ocorreu um erro. Tente novamente.';
 }
 
-/** `work_area` preenchido indica um prestador (mesma regra da app mobile). */
 function profileToUser(id: string, email: string, meta: Record<string, unknown>, profile: ProfileRow | null): AuthUser {
   const metaName = (meta.full_name as string) || (meta.name as string) || '';
   const metaAvatar = (meta.avatar_url as string) || (meta.picture as string) || null;
@@ -94,11 +92,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .select('*')
       .eq('id', sbUser.id)
       .maybeSingle();
-    if (id !== seq.current) return; // uma mudança de sessão mais recente tomou a frente
+    if (id !== seq.current) return;
 
     let profile = (data as ProfileRow | null) ?? null;
     if (!error && !profile) {
-      // Primeira vez (ex.: conta criada via OAuth): cria a linha mínima.
       const meta = sbUser.user_metadata ?? {};
       await supabase.from('profiles').upsert(
         { id: sbUser.id, role: null, name: (meta.full_name as string) || (meta.name as string) || null, avatar_url: (meta.avatar_url as string) || null },
@@ -150,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         name: input.name.trim(),
         phone: input.phone ?? null,
         work_area: input.role === 'professional' ? input.workArea ?? null : null,
-        // Prestador entra "por aprovar"; o admin aprova para começar a receber pedidos.
+
         approval_status: input.role === 'professional' ? 'pending' : null,
       };
       let { error: upErr } = await supabase.from('profiles').upsert(full, { onConflict: 'id' });
@@ -164,7 +161,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         await supabase.from('profiles').upsert({ id: data.user.id, role: input.role, name: input.name.trim() }, { onConflict: 'id' });
       }
     }
-    // Sem sessão → o Supabase exige confirmação de email.
+
     return { needsConfirmation: !data.session };
   }, []);
 
@@ -172,9 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     try {
       await supabase.auth.signOut();
-    } catch {
-      // a sessão local já foi limpa
-    }
+    } catch {}
   }, []);
 
   const refresh = useCallback(async () => {

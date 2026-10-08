@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   ArrowRight, Bell, CheckCircle2, ClipboardList, Clock, Loader2, MapPin,
   Search, Star, Wallet, Wrench,
@@ -13,7 +13,7 @@ import { RatingModal } from '../../components/RatingModal';
 import { type ProviderReviews, providerReviews } from '../../lib/hub';
 import {
   type Broadcast, type BroadcastStatus,
-  acceptBroadcast, completeBroadcast, listOpenBroadcasts, myBroadcasts, providerMarkDone, secondsLeft, subscribeBroadcasts,
+  acceptBroadcast, completeBroadcast, listOpenBroadcasts, myBroadcasts, providerMarkDone, subscribeBroadcasts,
 } from '../../lib/broadcasts';
 
 const STATUS_LABEL: Record<BroadcastStatus, string> = {
@@ -76,8 +76,6 @@ export function AccountPage() {
   );
 }
 
-/* ───────────────── Cliente ───────────────── */
-
 function ClientHome({ navigate }: { navigate: (p: string) => void }) {
   return (
     <>
@@ -102,7 +100,6 @@ function ClientHome({ navigate }: { navigate: (p: string) => void }) {
   );
 }
 
-/** Pedidos ativos/recentes do cliente. */
 function MyRequests() {
   const navigate = useNavigate();
   const { error: toastError } = useToast();
@@ -176,8 +173,6 @@ function MyRequests() {
   );
 }
 
-/* ───────────────── Prestador ───────────────── */
-
 function ProviderHome({ approved }: { approved: boolean }) {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -201,14 +196,14 @@ function ProviderHome({ approved }: { approved: boolean }) {
   }, [approved]);
 
   useEffect(() => { void load(); }, [load]);
-  // Realtime para novos pedidos + refetch periódico (o RLS não empurra quando um pedido sai do estado aberto).
+
   useEffect(() => {
     if (!approved || !user?.workArea) return;
     const off = subscribeBroadcasts({ category: user.workArea }, () => { void load(); });
     const poll = setInterval(() => { void load(); }, 4000);
     return () => { off(); clearInterval(poll); };
   }, [approved, user?.workArea, load]);
-  // Tick do contador.
+
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
 
   const visible = (jobs ?? []).filter((j) => new Date(j.expires_at).getTime() - now > 0);
@@ -241,7 +236,6 @@ function ProviderHome({ approved }: { approved: boolean }) {
         <Stat icon={Wallet} label="Saldo" value="—" hint="em breve" />
       </div>
 
-      {/* Em curso */}
       {mine.length > 0 && (
         <div className="mt-6">
           <h3 className="mb-3 font-display text-base font-bold text-ink-900">Em curso</h3>
@@ -275,7 +269,6 @@ function ProviderHome({ approved }: { approved: boolean }) {
         </div>
       )}
 
-      {/* Pedidos disponíveis */}
       <div className="mt-6">
         <div className="mb-3 flex items-center justify-between">
           <h3 className="font-display text-base font-bold text-ink-900">Pedidos disponíveis</h3>
@@ -353,8 +346,6 @@ function ProviderHome({ approved }: { approved: boolean }) {
     </>
   );
 }
-
-/* ───────────────── Blocos ───────────────── */
 
 function StatusChip({ status }: { status: BroadcastStatus }) {
   return <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${STATUS_STYLE[status]}`}>{STATUS_LABEL[status]}</span>;

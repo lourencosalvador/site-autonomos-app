@@ -1,10 +1,6 @@
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from 'react';
 import { Check, ChevronsRight, Loader2 } from 'lucide-react';
 
-/**
- * Botão "deslizar para confirmar" (estilo iPhone). Arrasta o puxador até ao fim
- * para disparar `onConfirm`. Funciona com rato e toque (pointer events).
- */
 export function SlideToConfirm({
   label = 'Deslize para concluir',
   confirmingLabel = 'A concluir…',
@@ -25,7 +21,7 @@ export function SlideToConfirm({
   const [dragging, setDragging] = useState(false);
   const [done, setDone] = useState(false);
   const startX = useRef(0);
-  const knob = 52; // largura do puxador
+  const knob = 52;
 
   const maxX = () => (trackRef.current ? trackRef.current.clientWidth - knob - 8 : 0);
 
@@ -61,15 +57,12 @@ export function SlideToConfirm({
       ref={trackRef}
       className="relative h-14 w-full select-none overflow-hidden rounded-full border border-cloud-200 bg-cloud-50"
     >
-      {/* preenchimento */}
       <div className={`absolute inset-y-0 left-0 ${fillColor} opacity-20`} style={{ width: x + knob }} />
-      {/* texto */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center" style={{ opacity: 1 - pct }}>
         <span className="flex items-center gap-1.5 text-sm font-semibold text-ink-500">
           {busy ? <><Loader2 size={16} className="animate-spin" /> {confirmingLabel}</> : <>{label} <ChevronsRight size={16} className="animate-pulse" /></>}
         </span>
       </div>
-      {/* puxador */}
       <button
         type="button"
         onPointerDown={onDown}

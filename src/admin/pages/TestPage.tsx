@@ -153,8 +153,6 @@ export function TestPage() {
   );
 }
 
-/* ---------------- Prestadores (aprovação) ---------------- */
-
 function ProfessionalsCard() {
   const q = useAdminQuery(() => rpc<AdminPro[]>('admin_list_professionals', { p_limit: 200 }), [], 15_000);
   const [busy, setBusy] = useState<string | null>(null);

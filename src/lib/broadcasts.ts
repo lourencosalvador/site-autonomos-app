@@ -29,7 +29,7 @@ export type Broadcast = {
   completed_at: string | null;
   updated_at: string | null;
   seconds_left?: number;
-  // FlexPay
+
   price_minor?: number;
   payment_status?: 'unpaid' | 'paid';
   held_minor?: number | null;
@@ -48,7 +48,6 @@ export type NewBroadcast = {
   address?: string | null;
 };
 
-/** Segundos até expirar, calculado a partir de expires_at (não depende do relógio do servidor após o 1.º fetch). */
 export function secondsLeft(b: Pick<Broadcast, 'expires_at'>): number {
   const ms = new Date(b.expires_at).getTime() - Date.now();
   return Math.max(0, Math.floor(ms / 1000));
@@ -67,7 +66,6 @@ export async function createBroadcast(input: NewBroadcast): Promise<Broadcast> {
   return data as Broadcast;
 }
 
-/** Aceita um pedido. Devolve a linha se ficou com ele, ou `null` se já foi tomado/expirou. */
 export async function acceptBroadcast(id: string): Promise<Broadcast | null> {
   const { data, error } = await supabase.rpc('accept_broadcast', { p_id: id });
   if (error) throw error;
@@ -98,33 +96,24 @@ export async function completeBroadcast(id: string): Promise<Broadcast | null> {
   return (data as Broadcast | null) ?? null;
 }
 
-/** Passo 1 da conclusão: o prestador marca o serviço como concluído. */
 export async function providerMarkDone(id: string): Promise<Broadcast | null> {
   const { data, error } = await supabase.rpc('provider_mark_done', { p_id: id });
   if (error) throw error;
   return (data as Broadcast | null) ?? null;
 }
 
-/** Pedidos abertos da área do prestador (com dados do cliente e seconds_left). */
 export async function listOpenBroadcasts(): Promise<Broadcast[]> {
   const { data, error } = await supabase.rpc('list_open_broadcasts');
   if (error) throw error;
   return (data as Broadcast[] | null) ?? [];
 }
 
-/** Histórico de pedidos do próprio utilizador (cliente ou prestador). */
 export async function myBroadcasts(): Promise<Broadcast[]> {
   const { data, error } = await supabase.rpc('my_broadcasts');
   if (error) throw error;
   return (data as Broadcast[] | null) ?? [];
 }
 
-/**
- * Observa mudanças na tabela de pedidos e chama `onChange` quando algo muda.
- * Nota: por causa do RLS, um prestador deixa de "ver" um pedido assim que ele sai
- * do estado aberto — por isso o painel do prestador combina isto com um refetch
- * periódico. O cliente, que vê sempre a sua linha, recebe o aceite em tempo real.
- */
 export function subscribeBroadcasts(
   filter: { id?: string; category?: string },
   onChange: () => void,

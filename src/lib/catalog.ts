@@ -26,7 +26,6 @@ export async function deleteCatalogItem(id: string): Promise<void> {
   if (error) throw error;
 }
 
-/** Carrega uma imagem para o catálogo (bucket público site-media, pasta do próprio prestador). */
 export async function uploadCatalogImage(file: File): Promise<string> {
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Formato inválido (use JPG, PNG ou WebP).');
   if (file.size > 5 * 1024 * 1024) throw new Error('Imagem demasiado grande (máx. 5 MB).');
