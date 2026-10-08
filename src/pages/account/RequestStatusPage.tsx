@@ -101,7 +101,7 @@ export function RequestStatusPage({ id }: { id: string }) {
 
   return (
     <section className="bg-cloud-50 pb-28 pt-28 lg:pt-32">
-      <div className="mx-auto max-w-2xl px-5 lg:px-8">
+      <div className="mx-auto max-w-3xl px-5 lg:px-8">
         <button onClick={() => navigate('/conta')} className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-ink-500 transition-colors hover:text-ink-900">
           <ArrowLeft size={16} /> Painel
         </button>
@@ -131,6 +131,7 @@ export function RequestStatusPage({ id }: { id: string }) {
                 onCancel={doCancel}
                 onComplete={doComplete}
                 onProviderDone={doProviderDone}
+                onPaid={() => { void refetch(); }}
                 busy={busy}
                 onChat={() => navigate(`/conta/chat/${b.id}`)}
                 onCall={() => setCallOpen(true)}
@@ -225,9 +226,9 @@ function OpenForProvider() {
   );
 }
 
-function Accepted({ person, iAmClient, paid, providerDone, requestId, priceMinor, onCancel, onComplete, onProviderDone, onChat, onCall, busy }: {
+function Accepted({ person, iAmClient, paid, providerDone, requestId, priceMinor, onCancel, onComplete, onProviderDone, onPaid, onChat, onCall, busy }: {
   person: BroadcastPerson; iAmClient: boolean; paid: boolean; providerDone: boolean; requestId: string; priceMinor: number; busy: boolean;
-  onCancel: () => void; onComplete: () => void; onProviderDone: () => void; onChat: () => void; onCall: () => void;
+  onCancel: () => void; onComplete: () => void; onProviderDone: () => void; onPaid: () => void; onChat: () => void; onCall: () => void;
 }) {
   const [continued, setContinued] = useState(false);
   return (
@@ -261,7 +262,7 @@ function Accepted({ person, iAmClient, paid, providerDone, requestId, priceMinor
             </div>
           ) : (
             <>
-              <PaymentPanel requestId={requestId} priceMinor={priceMinor} />
+              <PaymentPanel requestId={requestId} priceMinor={priceMinor} onPaid={onPaid} />
               <CancelLink onCancel={onCancel} busy={busy} />
             </>
           )

@@ -1,13 +1,13 @@
 import { useState } from 'react';
-import { ArrowRight, Loader2, Lock, Receipt, ShieldCheck, Smartphone, X } from 'lucide-react';
+import { ArrowRight, FlaskConical, Loader2, Lock, Receipt, ShieldCheck, Smartphone, X } from 'lucide-react';
 import { Button } from '../../components/Button';
 import { TextInput } from '../../components/Field';
-import { type Charge, type PaymentMethod, formatKz, payErrorMessage, prepareBroadcastPayment } from '../../lib/payments';
+import { type Charge, type PaymentMethod, formatKz, payErrorMessage, prepareBroadcastPayment, payTestBroadcast } from '../../lib/payments';
 
 const FEE_RATE = 0.10;
 
 /** Recibo + pagamento FlexPay. O valor pago fica retido até o cliente confirmar a conclusão. */
-export function PaymentPanel({ requestId, priceMinor }: { requestId: string; priceMinor: number }) {
+export function PaymentPanel({ requestId, priceMinor, onPaid }: { requestId: string; priceMinor: number; onPaid?: () => void }) {
   const work = priceMinor;
   const fee = Math.round(work * FEE_RATE);
   const total = work + fee;
@@ -28,6 +28,20 @@ export function PaymentPanel({ requestId, priceMinor }: { requestId: string; pri
     try {
       const c = await prepareBroadcastPayment(requestId, m, m === 'GPO' ? phone.trim() : undefined);
       setCharge(c);
+    } catch (e) {
+      setError(payErrorMessage(e instanceof Error ? e.message : 'pay_failed'));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const payTest = async () => {
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await payTestBroadcast(requestId);
+      onPaid?.();
     } catch (e) {
       setError(payErrorMessage(e instanceof Error ? e.message : 'pay_failed'));
     } finally {
@@ -77,6 +91,12 @@ export function PaymentPanel({ requestId, priceMinor }: { requestId: string; pri
                   className="flex items-center gap-3 rounded-xl border border-cloud-200 p-3.5 text-left transition-all hover:-translate-y-0.5 hover:border-brand-cyan/50 hover:shadow-soft disabled:opacity-60">
                   <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-cyan/12 text-brand-dark"><Smartphone size={18} /></span>
                   <span className="text-sm font-semibold text-ink-900">Multicaixa Express</span>
+                </button>
+                <button onClick={payTest} disabled={busy}
+                  className="flex items-center gap-3 rounded-xl border border-dashed border-amber-300 bg-amber-50/50 p-3.5 text-left transition-all hover:bg-amber-50 disabled:opacity-60">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-700"><FlaskConical size={18} /></span>
+                  <span className="flex-1 text-sm font-semibold text-amber-800">Pagar (teste)</span>
+                  {busy && <Loader2 size={15} className="animate-spin text-amber-600" />}
                 </button>
               </div>
             </>

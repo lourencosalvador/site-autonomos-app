@@ -37,6 +37,12 @@ export function payErrorMessage(code: string): string {
 }
 
 /** Cria/retoma a cobrança do pedido. Devolve a cobrança (com referência, se REF). */
+/** Pagamento de TESTE: marca o pedido como pago sem gateway (temporário). */
+export async function payTestBroadcast(requestId: string): Promise<void> {
+  const { error } = await supabase.rpc('pay_test_broadcast', { p_id: requestId });
+  if (error) throw error;
+}
+
 export async function prepareBroadcastPayment(requestId: string, method: PaymentMethod, phone?: string): Promise<Charge> {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) throw new Error('unauthorized');
