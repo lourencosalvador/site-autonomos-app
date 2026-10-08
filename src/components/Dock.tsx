@@ -23,7 +23,7 @@ export function Dock() {
 
   return (
     <nav className="pointer-events-none fixed inset-x-0 bottom-0 z-50 flex justify-center px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-      <div className="pointer-events-auto flex items-center gap-1 rounded-full border border-cloud-200 bg-white/90 p-1.5 shadow-cardHover backdrop-blur-md">
+      <div className="pointer-events-auto flex items-center gap-0.5 rounded-2xl border border-cloud-200/70 bg-white/75 p-1 shadow-[0_10px_34px_-10px_rgba(3,71,94,0.28)] backdrop-blur-xl">
         {items.map((it) => {
           const active = current === it.section;
           const Icon = it.icon;
@@ -32,11 +32,13 @@ export function Dock() {
               key={it.path}
               onClick={() => navigate(it.path)}
               aria-current={active ? 'page' : undefined}
-              className={`flex min-w-[64px] flex-col items-center gap-0.5 rounded-full px-4 py-2 text-[11px] font-semibold transition-all duration-200 ${
-                active ? 'bg-brand-dark text-white shadow-soft' : 'text-ink-500 hover:text-ink-900'
+              className={`flex min-w-[56px] flex-col items-center gap-1 rounded-xl px-2.5 py-1.5 text-[10px] font-medium tracking-tight transition-colors duration-200 ${
+                active ? 'text-brand-dark' : 'text-ink-400 hover:text-ink-700'
               }`}
             >
-              <Icon size={19} />
+              <span className={`flex h-8 w-8 items-center justify-center rounded-xl transition-colors duration-200 ${active ? 'bg-brand-cyan/15' : 'bg-transparent'}`}>
+                <Icon size={18} strokeWidth={active ? 2.4 : 1.9} />
+              </span>
               {it.label}
             </button>
           );
