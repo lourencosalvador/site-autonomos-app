@@ -145,6 +145,23 @@ export function RequestStatusPage({ id }: { id: string }) {
               icon={CheckCircle2} tone="emerald" title="Serviço concluído"
               text="Este serviço foi marcado como concluído."
               primary={{ label: 'Voltar ao painel', to: '/conta' }} />}
+
+            {b.status === 'no_providers' && (
+              <div className="flex flex-col items-center py-4 text-center">
+                <div className="relative mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-amber-50 text-4xl">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-amber-200/40" style={{ animationDuration: '2s' }} />
+                  <span className="relative" style={{ animation: 'msg-in 0.5s ease' }}>🙏</span>
+                </div>
+                <h2 className="font-display text-lg font-bold text-ink-900">Sem prestadores disponíveis</h2>
+                <p className="mt-1 max-w-xs text-sm text-ink-500">
+                  De momento não temos prestadores disponíveis para este serviço. Para qualquer informação, fale com o nosso apoio ao cliente.
+                </p>
+                <div className="mt-6 flex flex-wrap justify-center gap-2">
+                  <Button to="/contato" variant="dark" size="md">Falar com o apoio</Button>
+                  <Button to="/conta/pedir" variant="outline-dark" size="md">Tentar outro pedido</Button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

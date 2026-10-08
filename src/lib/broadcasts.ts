@@ -1,6 +1,6 @@
 import { supabase } from './supabase';
 
-export type BroadcastStatus = 'open' | 'accepted' | 'expired' | 'cancelled' | 'completed';
+export type BroadcastStatus = 'open' | 'accepted' | 'expired' | 'cancelled' | 'completed' | 'no_providers';
 
 export type BroadcastPerson = {
   id: string;

@@ -1,21 +1,21 @@
 import { useState, type ReactNode } from 'react';
 import {
-  Activity, ClipboardList, FlaskConical, LayoutDashboard, LogOut, Menu, Settings, UserPlus, Users, Wallet, Wrench, ExternalLink,
+  Activity, ClipboardList, FlaskConical, LayoutDashboard, LifeBuoy, LogOut, Menu, Settings, UserPlus, Users, Wallet, Wrench, ExternalLink,
 } from 'lucide-react';
 import { Dialog, SheetContent, DialogTitle } from '../ui/dialog';
 import { cn, formatTime, initials } from '../lib/utils';
 import type { AdminSession } from '../lib/session';
 
-export type SectionId = '' | 'atividade' | 'pagamentos' | 'pedidos' | 'candidaturas' | 'utilizadores' | 'servicos' | 'teste' | 'definicoes';
+export type SectionId = '' | 'atividade' | 'pagamentos' | 'apoio' | 'pedidos' | 'candidaturas' | 'utilizadores' | 'servicos' | 'teste' | 'definicoes';
 
-type NavItem = { id: SectionId; label: string; icon: React.ComponentType<{ className?: string }>; count?: number };
+type NavItem = { id: SectionId; label: string; icon: React.ComponentType<{ className?: string }>; count?: number; danger?: boolean };
 
 export function Shell({
   section, session, counts, onLogout, children,
 }: {
   section: SectionId;
   session: AdminSession;
-  counts: { requests?: number; applications?: number; payments?: number };
+  counts: { requests?: number; applications?: number; payments?: number; support?: number };
   onLogout: () => void;
   children: ReactNode;
 }) {
@@ -28,6 +28,7 @@ export function Shell({
         { id: '', label: 'Visão geral', icon: LayoutDashboard },
         { id: 'atividade', label: 'Atividade', icon: Activity },
         { id: 'pagamentos', label: 'Pagamentos', icon: Wallet, count: counts.payments },
+        { id: 'apoio', label: 'Apoio ao cliente', icon: LifeBuoy, count: counts.support, danger: true },
       ],
     },
     {
@@ -77,7 +78,10 @@ export function Shell({
                       <Icon className={cn('size-4', active ? 'text-zinc-950' : 'text-zinc-400 group-hover:text-zinc-600')} />
                       <span className="flex-1 truncate">{item.label}</span>
                       {!!item.count && (
-                        <span className="min-w-5 rounded bg-zinc-950 px-1.5 text-center text-[11px] font-medium leading-5 text-white tabular-nums">
+                        <span className={cn(
+                          'min-w-5 rounded px-1.5 text-center text-[11px] font-medium leading-5 text-white tabular-nums',
+                          item.danger ? 'bg-red-500' : 'bg-zinc-950',
+                        )}>
                           {item.count > 99 ? '99+' : item.count}
                         </span>
                       )}

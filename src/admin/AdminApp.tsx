@@ -14,8 +14,9 @@ import { ServicesAdminPage } from './pages/ServicesAdminPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { PaymentsPage } from './pages/PaymentsPage';
 import { TestPage } from './pages/TestPage';
+import { SupportPage } from './pages/SupportPage';
 
-const SECTIONS: SectionId[] = ['', 'atividade', 'pagamentos', 'pedidos', 'candidaturas', 'utilizadores', 'servicos', 'teste', 'definicoes'];
+const SECTIONS: SectionId[] = ['', 'atividade', 'pagamentos', 'apoio', 'pedidos', 'candidaturas', 'utilizadores', 'servicos', 'teste', 'definicoes'];
 
 export default function AdminApp({ section }: { section: string }) {
   const [session, setSession] = useState<AdminSession | null>(getSession);
@@ -78,6 +79,7 @@ function Dashboard({ section, session, onLogout }: { section: SectionId; session
     [],
     60_000,
   );
+  const supportCount = useAdminQuery(() => rpc<number>('admin_support_count').catch(() => 0), [], 30_000);
 
   return (
     <Shell
@@ -88,11 +90,13 @@ function Dashboard({ section, session, onLogout }: { section: SectionId; session
         requests: counts.data?.site_requests.open,
         applications: counts.data?.applications?.pending,
         payments: payCounts.data?.withdrawals_pending,
+        support: supportCount.data ?? undefined,
       }}
     >
       {section === '' && <OverviewPage />}
       {section === 'atividade' && <ActivityPage />}
       {section === 'pagamentos' && <PaymentsPage onChange={payCounts.reload} />}
+      {section === 'apoio' && <SupportPage onChange={supportCount.reload} />}
       {section === 'pedidos' && <RequestsPage onChange={counts.reload} />}
       {section === 'candidaturas' && <ApplicationsPage onChange={counts.reload} />}
       {section === 'utilizadores' && <UsersPage />}

@@ -6,11 +6,11 @@ import { navigate } from '../../router';
 import { type Broadcast, type BroadcastStatus, myBroadcasts, subscribeBroadcasts } from '../../lib/broadcasts';
 
 const LABEL: Record<BroadcastStatus, string> = {
-  open: 'À procura', accepted: 'Em curso', expired: 'Sem resposta', cancelled: 'Cancelado', completed: 'Concluído',
+  open: 'À procura', accepted: 'Em curso', expired: 'Sem resposta', cancelled: 'Cancelado', completed: 'Concluído', no_providers: 'Sem prestadores',
 };
 const STYLE: Record<BroadcastStatus, string> = {
   open: 'bg-brand-cyan/15 text-brand-dark', accepted: 'bg-emerald-50 text-emerald-700',
-  expired: 'bg-amber-50 text-amber-700', cancelled: 'bg-cloud-100 text-ink-500', completed: 'bg-emerald-50 text-emerald-700',
+  expired: 'bg-amber-50 text-amber-700', cancelled: 'bg-cloud-100 text-ink-500', completed: 'bg-emerald-50 text-emerald-700', no_providers: 'bg-amber-50 text-amber-700',
 };
 
 export function ServicesHub() {
