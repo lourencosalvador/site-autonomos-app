@@ -41,3 +41,15 @@ export async function rateProvider(broadcastId: string, rating: number, comment?
   const { error } = await supabase.rpc('rate_provider', { p_broadcast: broadcastId, p_rating: rating, p_comment: comment ?? null });
   if (error) throw error;
 }
+
+export type ProviderReviews = {
+  average: number;
+  count: number;
+  items: { rating: number; comment: string | null; created_at: string; client_name: string | null }[];
+};
+
+export async function providerReviews(): Promise<ProviderReviews> {
+  const { data, error } = await supabase.rpc('provider_reviews');
+  if (error) throw error;
+  return data as ProviderReviews;
+}

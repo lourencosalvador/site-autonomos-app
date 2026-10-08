@@ -10,6 +10,7 @@ import { useNavigate } from '../../router';
 import { SlideToConfirm } from '../../components/SlideToConfirm';
 import { CelebrationModal } from '../../components/CelebrationModal';
 import { RatingModal } from '../../components/RatingModal';
+import { type ProviderReviews, providerReviews } from '../../lib/hub';
 import {
   type Broadcast, type BroadcastStatus,
   acceptBroadcast, completeBroadcast, listOpenBroadcasts, myBroadcasts, providerMarkDone, secondsLeft, subscribeBroadcasts,
@@ -187,6 +188,8 @@ function ProviderHome({ approved }: { approved: boolean }) {
   const [accepting, setAccepting] = useState<string | null>(null);
   const [doneBusy, setDoneBusy] = useState<string | null>(null);
   const [celebrate, setCelebrate] = useState(false);
+  const [reviews, setReviews] = useState<ProviderReviews | null>(null);
+  useEffect(() => { if (approved) providerReviews().then(setReviews).catch(() => {}); }, [approved]);
 
   const load = useCallback(async () => {
     if (!approved) { setJobs([]); return; }
@@ -234,7 +237,7 @@ function ProviderHome({ approved }: { approved: boolean }) {
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Stat icon={Bell} label="Pedidos disponíveis" value={approved ? String(visible.length) : '—'} hint={approved ? 'na sua área' : 'aguarda aprovação'} />
         <Stat icon={Clock} label="Em curso" value={approved ? String(mine.length) : '—'} hint="aceites por si" />
-        <Stat icon={Star} label="Avaliação" value="—" hint="sem avaliações" />
+        <Stat icon={Star} label="Avaliação" value={reviews?.count ? `${reviews.average}★` : '—'} hint={reviews?.count ? `${reviews.count} avaliaç${reviews.count === 1 ? 'ão' : 'ões'}` : 'sem avaliações'} />
         <Stat icon={Wallet} label="Saldo" value="—" hint="em breve" />
       </div>
 
@@ -319,6 +322,27 @@ function ProviderHome({ approved }: { approved: boolean }) {
           </div>
         )}
       </div>
+
+      {reviews && reviews.count > 0 && (
+        <div className="mt-6">
+          <h3 className="mb-3 font-display text-base font-bold text-ink-900">Avaliações ({reviews.count})</h3>
+          <div className="grid gap-3">
+            {reviews.items.slice(0, 5).map((r, i) => (
+              <div key={i} className="rounded-2xl border border-cloud-200 bg-white p-4 shadow-soft">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="truncate font-semibold text-ink-900">{r.client_name || 'Cliente'}</p>
+                  <span className="flex shrink-0 gap-0.5">
+                    {Array.from({ length: 5 }).map((_, s) => (
+                      <Star key={s} size={14} className={s < r.rating ? 'fill-amber-400 text-amber-400' : 'text-cloud-300'} />
+                    ))}
+                  </span>
+                </div>
+                {r.comment && <p className="mt-1 text-sm leading-relaxed text-ink-600">{r.comment}</p>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <Tile icon={Wrench} title="O meu catálogo" desc="Mostre os seus trabalhos e preços." onClick={() => navigate('/conta/catalogo')} />
