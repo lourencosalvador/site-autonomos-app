@@ -22,6 +22,7 @@ import { CallPage } from './pages/account/CallPage';
 import { ServicesHub } from './pages/account/ServicesHub';
 import { WalletPage } from './pages/account/WalletPage';
 import { SettingsPage } from './pages/account/SettingsPage';
+import { CatalogPage } from './pages/account/CatalogPage';
 import { IncomingCallOverlay } from './components/IncomingCallOverlay';
 import { Dock } from './components/Dock';
 
@@ -88,6 +89,8 @@ function App() {
       content = <WalletPage />;
     } else if (section === 'definicoes') {
       content = <SettingsPage />;
+    } else if (section === 'catalogo') {
+      content = <CatalogPage />;
     } else {
       content = <AccountPage />;
     }
