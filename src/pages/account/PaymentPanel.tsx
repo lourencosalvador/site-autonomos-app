@@ -36,12 +36,13 @@ export function PaymentPanel({ requestId, priceMinor }: { requestId: string; pri
   };
 
   return (
-    <div className="mt-5 grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+    <div className="mt-5 overflow-hidden rounded-3xl border border-cloud-200 bg-white p-3 shadow-soft">
+     <div className="grid items-stretch gap-3 md:grid-cols-[1.05fr_1fr]">
       {/* Recibo (esquerda) */}
       <Receipt_ work={work} fee={fee} total={total} />
 
       {/* Ação (direita) */}
-      <div className="flex flex-col justify-center rounded-2xl border border-cloud-200 bg-white p-5">
+      <div className="flex flex-col justify-center rounded-2xl bg-cloud-50/50 p-5">
         {charge ? (
           charge.method === 'REF' && charge.reference?.number ? (
             <div>
@@ -93,12 +94,13 @@ export function PaymentPanel({ requestId, priceMinor }: { requestId: string; pri
           )
         ) : (
           <>
-            <p className="flex items-center gap-2 text-sm text-ink-600"><ShieldCheck size={18} className="shrink-0 text-emerald-500" /> Pagamento seguro e retido até o serviço ser concluído.</p>
-            <Button onClick={() => setEscrowOpen(true)} size="lg" className="mt-4 w-full">Pagar {formatKz(total)} <ArrowRight size={18} /></Button>
+            <p className="flex items-center gap-2 text-sm leading-relaxed text-ink-600"><ShieldCheck size={18} className="shrink-0 text-emerald-500" /> Pagamento seguro, retido até o serviço ser concluído.</p>
+            <Button onClick={() => setEscrowOpen(true)} size="md" className="mt-4 w-full">Pagar {formatKz(total)} <ArrowRight size={16} /></Button>
           </>
         )}
         {error && <p className="mt-2 text-sm font-medium text-red-500">{error}</p>}
       </div>
+     </div>
 
       {/* Modal de escrow */}
       {escrowOpen && (
@@ -144,7 +146,7 @@ function Receipt_({ work, fee, total }: { work: number; fee: number; total: numb
           <Line label="Total do trabalho" value={formatKz(work)} />
           <Line label="Taxa de serviço (10%)" value={formatKz(fee)} />
         </dl>
-        <div className="mt-3 flex items-center justify-between border-t border-dashed border-cloud-300 pt-3">
+        <div className="mt-3 flex items-center justify-between gap-4 border-t border-dashed border-cloud-300 pt-3">
           <span className="text-sm font-semibold text-ink-700">Total a pagar</span>
           <span className="font-display text-xl font-extrabold text-ink-900">{formatKz(total)}</span>
         </div>

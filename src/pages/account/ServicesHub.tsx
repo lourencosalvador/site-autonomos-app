@@ -35,7 +35,7 @@ export function ServicesHub() {
         <p className="mt-1 text-ink-500">{isPro ? 'Os seus serviços em curso e já prestados.' : 'Os seus pedidos em curso e o histórico.'}</p>
 
         {!isPro && (
-          <Button to="/conta/pedir" size="lg" className="mt-5">Solicitar serviço <ArrowRight size={18} /></Button>
+          <Button to="/conta/pedir" size="md" className="mt-5">Solicitar serviço <ArrowRight size={16} /></Button>
         )}
 
         <Group title="Em curso" empty="Nada em curso.">

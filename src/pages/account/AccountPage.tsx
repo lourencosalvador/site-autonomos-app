@@ -85,8 +85,8 @@ function ClientHome({ navigate }: { navigate: (p: string) => void }) {
           <h2 className="font-display text-2xl font-extrabold leading-tight sm:text-3xl">Precisa de um profissional?</h2>
           <p className="mt-2 text-white/70">Diga-nos o que precisa e ligamos ao profissional certo, perto de si.</p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Button to="/conta/pedir" size="lg">Solicitar serviço <ArrowRight size={18} /></Button>
-            <Button to="/services" variant="outline-light" size="lg">Ver serviços</Button>
+            <Button to="/conta/pedir" size="md">Solicitar serviço <ArrowRight size={16} /></Button>
+            <Button to="/services" variant="outline-light" size="md">Ver serviços</Button>
           </div>
         </div>
       </div>
