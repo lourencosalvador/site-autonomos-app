@@ -38,7 +38,7 @@ export function Footer() {
           <div>
             <Logo light />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-white/65">
-              A maior rede de profissionais independentes de Angola. Simples, rápido e de confiança.
+              Ligamos clientes a profissionais independentes de confiança, em Angola. Simples, rápido e seguro.
             </p>
             <div className="mt-5 flex gap-3">
               {[

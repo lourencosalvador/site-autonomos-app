@@ -9,7 +9,7 @@ export function AboutPage() {
       <PageHero
         icon={Users}
         eyebrow="Sobre nós"
-        title={<>Construímos a maior rede de <span className="text-gradient-cyan">profissionais de África.</span></>}
+        title={<>Estamos a construir a rede de <span className="text-gradient-cyan">profissionais de confiança de Angola.</span></>}
         subtitle="A AUTONOMOUS nasceu em Angola para resolver um problema simples: encontrar um profissional de confiança não deveria ser difícil."
       />
 
@@ -76,7 +76,7 @@ export function AboutPage() {
               </div>
               <h2 className="mt-5 font-display text-2xl font-extrabold text-ink-900">Visão</h2>
               <p className="mt-3 text-base leading-relaxed text-ink-500">
-                Ser a maior plataforma de África a ligar clientes e profissionais independentes.
+                Ligar clientes e profissionais independentes de forma simples, rápida e segura — e tornar-nos uma referência de confiança em Angola.
               </p>
             </div>
           </div>

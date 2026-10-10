@@ -26,7 +26,7 @@ export function AuthShell({ title, subtitle, children, footer }: {
           </button>
           <div>
             <h2 className="font-display text-3xl font-extrabold leading-tight text-white xl:text-4xl">
-              A maior rede de profissionais de Angola.
+              Profissionais de confiança para qualquer serviço, em Angola.
             </h2>
             <p className="mt-4 max-w-sm text-base leading-relaxed text-white/70">
               Entre para pedir um serviço em minutos ou para receber novos clientes perto de si.
@@ -45,7 +45,7 @@ export function AuthShell({ title, subtitle, children, footer }: {
                 <div className="flex items-center gap-0.5 text-brand-cyan">
                   {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={13} className="fill-current" />)}
                 </div>
-                <p className="text-xs text-white/60">+500 clientes satisfeitos</p>
+                <p className="text-xs text-white/60">Profissionais verificados e de confiança</p>
               </div>
             </div>
           </div>

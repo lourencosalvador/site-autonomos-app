@@ -84,7 +84,7 @@ export function Hero() {
       <div className="relative z-20 mx-auto max-w-4xl text-center">
         <span className="animate-fadeUp inline-flex items-center gap-2 rounded-full border border-ink-900/10 bg-white/80 px-4 py-2 text-xs font-semibold text-ink-700 shadow-soft backdrop-blur">
           <MapPin size={14} className="text-brand-cyan" />
-          A maior rede de profissionais de Angola
+          Profissionais de confiança para qualquer serviço
         </span>
 
         <h1 className="animate-fadeUp mt-7 font-display text-[2rem] font-extrabold leading-[1.08] tracking-tight text-ink-900 [animation-delay:0.1s] sm:text-5xl sm:leading-[1.06] lg:text-6xl">
@@ -115,7 +115,7 @@ export function Hero() {
             <div className="flex items-center gap-1 text-brand-cyan">
               {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={13} className="fill-current" />)}
             </div>
-            <p className="text-xs font-medium text-ink-500">+500 clientes satisfeitos</p>
+            <p className="text-xs font-medium text-ink-500">Profissionais verificados e de confiança</p>
           </div>
         </div>
       </div>

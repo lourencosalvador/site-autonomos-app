@@ -15,7 +15,7 @@ const BENEFITS = [
   { icon: TrendingUp, title: 'Receba novos clientes', desc: 'Aumente a sua carteira sem precisar de procurar.' },
   { icon: Wallet, title: 'Aumente sua renda', desc: 'Defina a sua disponibilidade e cresça os seus ganhos.' },
   { icon: Clock, title: 'Trabalhe quando quiser', desc: 'Flexibilidade total. Aceita só o que lhe convém.' },
-  { icon: Eye, title: 'Ganhe visibilidade', desc: 'Faça parte da maior rede de profissionais de Angola.' },
+  { icon: Eye, title: 'Ganhe visibilidade', desc: 'Faça parte da nova rede de profissionais de confiança de Angola.' },
 ];
 
 type Form = {
@@ -232,7 +232,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       <PageHero
         icon={TrendingUp}
         eyebrow="Junte-se à rede"
-        title={<>Faça parte da maior rede de <span className="text-gradient-cyan">profissionais de Angola.</span></>}
+        title={<>Faça parte da nova rede de <span className="text-gradient-cyan">profissionais de Angola.</span></>}
         subtitle="Receba novos clientes, aumente a sua renda e trabalhe com flexibilidade."
       />
 
