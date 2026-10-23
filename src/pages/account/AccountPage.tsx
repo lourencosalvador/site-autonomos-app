@@ -256,9 +256,9 @@ function ProviderHome() {
 
           <Card className="p-5 sm:p-6">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-cloud-100 text-brand-dark"><Images size={20} /></div>
-            <h2 className="mt-4 text-lg font-semibold tracking-tight text-ink-900">O seu catálogo</h2>
+            <h2 className="mt-4 text-lg font-semibold tracking-tight text-ink-900">O seu portfólio</h2>
             <p className="mt-1 text-[15px] text-ink-500">Fotos dos seus trabalhos ajudam os clientes a confiar em si.</p>
-            <Btn variant="outline" className="mt-4 w-full" to="/conta/catalogo">Gerir catálogo</Btn>
+            <Btn variant="outline" className="mt-4 w-full" to="/conta/perfil?tab=portfolio">Gerir portfólio</Btn>
           </Card>
         </div>
       </div>

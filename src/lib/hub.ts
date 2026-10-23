@@ -46,7 +46,7 @@ export async function rateProvider(broadcastId: string, rating: number, comment?
 export type ProviderReviews = {
   average: number;
   count: number;
-  items: { rating: number; comment: string | null; created_at: string; client_name: string | null }[];
+  items: { rating: number; comment: string | null; created_at: string; client_name: string | null; client_avatar_url?: string | null }[];
 };
 
 export async function providerReviews(): Promise<ProviderReviews> {

@@ -3,7 +3,7 @@ import { Plus } from 'lucide-react';
 import { SectionHeading } from './SectionHeading';
 import { Button } from './Button';
 
-const FAQS: { q: string; a: string }[] = [
+export const FAQS: { q: string; a: string }[] = [
   {
     q: 'O que é a AUTONOMOS?',
     a: 'A AUTONOMOS é uma plataforma que conecta pessoas que precisam de um serviço a profissionais qualificados de forma rápida, simples e segura. Basta solicitar o serviço e encontrar o profissional ideal para o seu problema.',
@@ -14,19 +14,19 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: 'Como faço para solicitar um serviço?',
-    a: 'Basta criar uma conta, escolher a categoria desejada, escolher o profissional mais qualificado para solucionar o seu problema, descrever o problema e enviar a solicitação.',
+    a: 'Basta criar uma conta, escolher a categoria, descrever o que precisa e enviar o pedido. O pedido chega aos profissionais verificados da área e o primeiro a aceitar envia-lhe um orçamento.',
   },
   {
     q: 'Preciso pagar para utilizar a plataforma?',
-    a: 'Criar uma conta e solicitar serviços é gratuito. O cliente paga apenas a taxa de solicitação e pelo serviço contratado, conforme o valor acordado com o prestador.',
+    a: 'Criar uma conta e pedir serviços é gratuito. Só paga quando aceitar o orçamento: o valor do serviço mais uma taxa de serviço de 10%.',
   },
   {
     q: 'Como é definido o preço do serviço?',
-    a: 'O valor é definido pelo profissional com base no tipo de serviço, na complexidade do trabalho e nos materiais necessários — mas tudo isso é apresentado na plataforma de forma transparente.',
+    a: 'O profissional envia um orçamento com base no tipo de serviço, na complexidade e nos materiais. Em alguns casos o valor é dado depois de ver o trabalho no local. Só avança se aceitar o valor.',
   },
   {
-    q: 'Existe taxa de deslocação?',
-    a: 'Sim. Alguns serviços podem incluir uma taxa de deslocação, especialmente quando o profissional precisa percorrer uma distância significativa. O valor é informado antes da confirmação do serviço.',
+    q: 'O meu pagamento fica seguro?',
+    a: 'Sim. O valor fica retido pela AUTONOMOUS e só é libertado ao profissional quando confirmar que o serviço foi concluído.',
   },
   {
     q: 'Como sei que o profissional é confiável?',

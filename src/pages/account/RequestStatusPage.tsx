@@ -466,6 +466,9 @@ function PersonCard({ person, iAmClient, onChat, onCall }: { person: BroadcastPe
         <Btn onClick={onChat} size="md"><MessageSquare size={18} /> Conversar</Btn>
         <Btn onClick={onCall} size="md" variant="outline"><Phone size={18} /> Ligar</Btn>
       </div>
+      {iAmClient && (
+        <Btn variant="ghost" size="md" className="mt-2 w-full" to={`/conta/prestador/${person.id}`}>Ver perfil e portfólio</Btn>
+      )}
     </Card>
   );
 }

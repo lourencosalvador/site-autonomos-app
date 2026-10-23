@@ -5,7 +5,7 @@ export type CatalogItem = {
   image_url: string;
   caption: string | null;
   highlight_title: string | null;
-  post_type: string;
+  post_type?: string;
   created_at: string;
 };
 
@@ -15,8 +15,14 @@ export async function myCatalog(): Promise<CatalogItem[]> {
   return (data as CatalogItem[] | null) ?? [];
 }
 
-export async function addCatalogItem(imageUrl: string, caption?: string): Promise<CatalogItem> {
-  const { data, error } = await supabase.rpc('add_catalog_item', { p_image_url: imageUrl, p_caption: caption ?? null });
+export async function addCatalogItem(imageUrl: string, caption?: string, album?: string): Promise<CatalogItem> {
+  const { data, error } = await supabase.rpc('add_catalog_item', { p_image_url: imageUrl, p_caption: caption ?? null, p_highlight: album ?? null });
+  if (error) throw error;
+  return data as CatalogItem;
+}
+
+export async function updateCatalogItem(id: string, caption: string | null, album: string | null): Promise<CatalogItem> {
+  const { data, error } = await supabase.rpc('update_catalog_item', { p_id: id, p_caption: caption, p_highlight: album });
   if (error) throw error;
   return data as CatalogItem;
 }
@@ -26,15 +32,17 @@ export async function deleteCatalogItem(id: string): Promise<void> {
   if (error) throw error;
 }
 
-export async function uploadCatalogImage(file: File): Promise<string> {
+export async function uploadSiteImage(folder: 'catalog' | 'avatars', file: File): Promise<string> {
   if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) throw new Error('Formato inválido (use JPG, PNG ou WebP).');
   if (file.size > 5 * 1024 * 1024) throw new Error('Imagem demasiado grande (máx. 5 MB).');
   const { data: { session } } = await supabase.auth.getSession();
   const uid = session?.user?.id;
   if (!uid) throw new Error('Sessão expirada.');
   const ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
-  const path = `catalog/${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
+  const path = `${folder}/${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`;
   const { error } = await supabase.storage.from('site-media').upload(path, file, { contentType: file.type, upsert: false, cacheControl: '31536000' });
   if (error) throw new Error('Não foi possível carregar a imagem.');
   return supabase.storage.from('site-media').getPublicUrl(path).data.publicUrl;
 }
+
+export const uploadCatalogImage = (file: File) => uploadSiteImage('catalog', file);

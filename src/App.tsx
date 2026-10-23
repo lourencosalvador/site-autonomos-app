@@ -21,8 +21,8 @@ import { ChatPage } from './pages/account/ChatPage';
 import { CallPage } from './pages/account/CallPage';
 import { ServicesHub } from './pages/account/ServicesHub';
 import { WalletPage } from './pages/account/WalletPage';
-import { SettingsPage } from './pages/account/SettingsPage';
-import { CatalogPage } from './pages/account/CatalogPage';
+import { ProfilePage } from './pages/account/ProfilePage';
+import { ProviderProfilePage } from './pages/account/ProviderProfilePage';
 import { IncomingCallOverlay } from './components/IncomingCallOverlay';
 import { AppShell } from './components/app/AppShell';
 
@@ -69,7 +69,10 @@ function App() {
 
   if (route.name === 'account') {
     if (loading) return <Loading />;
-    if (!user) { navigate('/entrar?next=/conta'); return <Loading />; }
+    if (!user) {
+      navigate('/entrar?next=' + encodeURIComponent(route.section ? `/conta/${route.section}` : '/conta'));
+      return <Loading />;
+    }
     const section = route.section;
 
     if (section.startsWith('chamada/')) {
@@ -87,10 +90,13 @@ function App() {
       content = <ServicesHub />;
     } else if (section === 'financas') {
       content = <WalletPage />;
-    } else if (section === 'definicoes') {
-      content = <SettingsPage />;
+    } else if (section === 'perfil' || section === 'definicoes') {
+      content = <ProfilePage key={window.location.hash} />;
     } else if (section === 'catalogo') {
-      content = <CatalogPage />;
+      navigate('/conta/perfil?tab=portfolio');
+      content = <Loading />;
+    } else if (section.startsWith('prestador/')) {
+      content = <ProviderProfilePage id={section.slice('prestador/'.length)} />;
     } else {
       content = <AccountPage />;
     }
