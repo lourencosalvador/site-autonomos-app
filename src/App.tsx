@@ -59,7 +59,11 @@ function App() {
 
   if (route.name === 'login' || route.name === 'register') {
     if (loading) return <Loading />;
-    if (user) { navigate('/conta'); return <Loading />; }
+    if (user) {
+      const next = hashParam('next');
+      navigate(next && next.startsWith('/conta') ? next : '/conta');
+      return <Loading />;
+    }
     return route.name === 'login' ? <LoginPage /> : <RegisterPage />;
   }
 
