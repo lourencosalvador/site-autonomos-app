@@ -24,7 +24,7 @@ import { WalletPage } from './pages/account/WalletPage';
 import { SettingsPage } from './pages/account/SettingsPage';
 import { CatalogPage } from './pages/account/CatalogPage';
 import { IncomingCallOverlay } from './components/IncomingCallOverlay';
-import { Dock } from './components/Dock';
+import { AppShell } from './components/app/AppShell';
 
 const AdminApp = lazy(() => import('./admin/AdminApp'));
 
@@ -90,14 +90,11 @@ function App() {
     } else {
       content = <AccountPage />;
     }
-    const isChat = section.startsWith('chat/');
     return (
-      <div className="min-h-screen bg-white">
+      <>
         <IncomingCallOverlay />
-        <Navbar />
-        <main className="overflow-x-clip">{content}</main>
-        {!isChat && <Dock />}
-      </div>
+        <AppShell immersive={section.startsWith('chat/')}>{content}</AppShell>
+      </>
     );
   }
 

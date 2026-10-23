@@ -1,166 +1,132 @@
-import { useCallback, useEffect, useState } from 'react';
-import { ArrowLeft, ArrowRight, Ban, CheckCircle2, Clock, Loader2, MessageSquare, Phone, UserX, XCircle } from 'lucide-react';
-import { Button } from '../../components/Button';
+import { useCallback, useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { Ban, Check, CheckCircle2, Clock, MapPinned, MessageSquare, Phone, SearchX, ShieldCheck, Star, UserX } from 'lucide-react';
 import { useToast } from '../../components/Toast';
 import { CallModal } from '../../components/CallModal';
 import { CelebrationModal } from '../../components/CelebrationModal';
 import { RatingModal } from '../../components/RatingModal';
 import { SlideToConfirm } from '../../components/SlideToConfirm';
+import { TextArea } from '../../components/Field';
 import { PaymentPanel } from './PaymentPanel';
 import { useAuth } from '../../auth/AuthContext';
 import { navigate } from '../../router';
 import {
   type Broadcast, type BroadcastPerson,
-  getBroadcast, cancelBroadcast, completeBroadcast, providerMarkDone,
+  acceptBroadcast, cancelBroadcast, completeBroadcast, getBroadcast, providerMarkDone, quoteOnsite, respondQuote, sendQuote,
   subscribeBroadcasts,
 } from '../../lib/broadcasts';
+import { type Stage, stageLabel, stageOf } from '../../lib/requestStage';
+import { formatKz } from '../../lib/payments';
 import { notifyIncomingCall } from '../../lib/call';
+import { Avatar, Badge, Btn, Card, DetailRow, EmptyState, Notice, PageHeader, PageLoader, cx, formatDate, timeAgo } from '../../components/app/ui';
+
+const FEE_RATE = 0.1;
+
+function errMessage(e: unknown): string {
+  const m = e instanceof Error ? e.message : '';
+  if (m.includes('INVALID_AMOUNT')) return 'Indique um valor válido (mínimo 100 Kz).';
+  if (m.includes('QUOTE_CLOSED')) return 'Este orçamento já não pode ser alterado.';
+  if (m.includes('NOT_APPROVED')) return 'O seu perfil ainda não foi aprovado.';
+  return 'Tente novamente dentro de instantes.';
+}
 
 export function RequestStatusPage({ id }: { id: string }) {
   const { user } = useAuth();
   const { success, error: toastError } = useToast();
   const [b, setB] = useState<Broadcast | null>(null);
   const [loading, setLoading] = useState(true);
-  const [elapsed, setElapsed] = useState(0);
   const [busy, setBusy] = useState(false);
   const [callOpen, setCallOpen] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
   const [rateOpen, setRateOpen] = useState(false);
 
   const refetch = useCallback(async () => {
-    try {
-      const row = await getBroadcast(id);
-      setB(row);
-    } finally {
-      setLoading(false);
-    }
+    try { setB(await getBroadcast(id)); } catch {} finally { setLoading(false); }
   }, [id]);
 
   useEffect(() => { void refetch(); }, [refetch]);
-
   useEffect(() => subscribeBroadcasts({ id }, () => { void refetch(); }), [id, refetch]);
-
   useEffect(() => {
-    if (!b || b.status !== 'open') return;
-    const start = new Date(b.created_at).getTime();
-    const tick = () => setElapsed(Math.max(0, Math.floor((Date.now() - start) / 1000)));
-    tick();
-    const t = setInterval(tick, 1000);
+    if (!b || b.status !== 'accepted') return;
+    const t = setInterval(() => { void refetch(); }, 8000);
     return () => clearInterval(t);
-  }, [b]);
+  }, [b, refetch]);
 
-  if (loading) {
-    return <Centered><Loader2 className="size-7 animate-spin text-ink-300" /></Centered>;
-  }
-  if (!b) {
+  if (loading) return <PageLoader />;
+  if (!b || !user) {
     return (
-      <Centered>
-        <div className="text-center">
-          <UserX className="mx-auto mb-3 size-10 text-ink-300" />
-          <p className="font-display text-lg font-bold text-ink-900">Pedido não encontrado</p>
-          <p className="mt-1 text-sm text-ink-500">Pode já não estar disponível.</p>
-          <Button to="/conta" variant="dark" size="md" className="mt-5">Voltar ao painel</Button>
-        </div>
-      </Centered>
+      <Card>
+        <EmptyState icon={SearchX} title="Pedido não encontrado" description="Este pedido pode já não estar disponível." action={<Btn variant="outline" to="/conta">Voltar ao início</Btn>} />
+      </Card>
     );
   }
 
-  const iAmClient = user?.id === b.client_id;
+  const iAmClient = user.id === b.client_id;
+  const iAmProvider = user.id === b.provider_id;
   const other = iAmClient ? b.provider : b.client;
+  const stage = stageOf(b);
+  const label = stageLabel(b, !iAmClient);
 
-  const doCancel = async () => {
+  const run = async (fn: () => Promise<unknown>, after?: () => void, okMsg?: string) => {
     if (busy) return;
     setBusy(true);
-    try { await cancelBroadcast(b.id); await refetch(); success('Pedido cancelado'); }
-    catch (e) { toastError('Não foi possível cancelar', e instanceof Error ? e.message : undefined); }
+    try { await fn(); await refetch(); if (okMsg) success(okMsg); after?.(); }
+    catch (e) { toastError('Não foi possível concluir', errMessage(e)); }
     finally { setBusy(false); }
   };
-  const doComplete = async () => {
-    if (busy) return;
-    setBusy(true);
-    try { await completeBroadcast(b.id); await refetch(); setRateOpen(true); }
-    catch (e) { toastError('Não foi possível concluir', e instanceof Error ? e.message : undefined); }
-    finally { setBusy(false); }
+
+  const actions = {
+    cancel: () => run(() => cancelBroadcast(b.id), undefined, 'Pedido cancelado'),
+    accept: () => run(async () => { if (!(await acceptBroadcast(b.id))) throw new Error('TAKEN'); }, undefined, 'Pedido aceite'),
+    sendQuote: (minor: number, note: string) => run(() => sendQuote(b.id, minor, note), undefined, 'Orçamento enviado ao cliente'),
+    onsite: () => run(() => quoteOnsite(b.id), undefined, 'Marcado: orçamento no local'),
+    respond: (accept: boolean) => run(() => respondQuote(b.id, accept), undefined, accept ? 'Orçamento aceite' : 'Orçamento recusado'),
+    providerDone: () => run(() => providerMarkDone(b.id), () => setCelebrate(true)),
+    complete: () => run(() => completeBroadcast(b.id), () => setRateOpen(true)),
+    refresh: () => { void refetch(); },
   };
-  const doProviderDone = async () => {
-    if (busy) return;
-    setBusy(true);
-    try { await providerMarkDone(b.id); await refetch(); setCelebrate(true); }
-    catch (e) { toastError('Não foi possível concluir', e instanceof Error ? e.message : undefined); }
-    finally { setBusy(false); }
-  };
+
+  const contactOpen = !!other && (b.status === 'accepted' || b.status === 'completed');
 
   return (
-    <section className="bg-cloud-50 pb-28 pt-28 lg:pt-32">
-      <div className="mx-auto max-w-3xl px-5 lg:px-8">
-        <button onClick={() => navigate('/conta')} className="mb-5 inline-flex items-center gap-1.5 text-sm font-semibold text-ink-500 transition-colors hover:text-ink-900">
-          <ArrowLeft size={16} /> Painel
-        </button>
+    <>
+      <PageHeader
+        back={{ label: 'Serviços', to: '/conta/servicos' }}
+        title={b.category}
+        description={`Pedido feito ${timeAgo(b.created_at)}`}
+        actions={<Badge tone={label.tone} className="px-3 py-1 text-sm">{label.label}</Badge>}
+      />
 
-        <div className="overflow-hidden rounded-3xl border border-cloud-200 bg-white shadow-soft">
-          <div className="border-b border-cloud-100 px-6 py-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">Pedido de serviço</p>
-            <h1 className="mt-0.5 font-display text-xl font-extrabold text-ink-900">{b.category}</h1>
-            <p className="mt-1 text-sm leading-relaxed text-ink-600">{b.description}</p>
-            <Meta b={b} />
-          </div>
+      <Progress stage={stage} />
 
-          <div className="px-6 py-7">
-            {b.status === 'open' && (iAmClient
-              ? <Searching elapsed={elapsed} onCancel={doCancel} busy={busy} />
-              : <OpenForProvider />)}
-
-            {b.status === 'accepted' && other && (
-              <Accepted
-                person={other}
-                iAmClient={iAmClient}
-                paid={b.payment_status !== 'unpaid'}
-                providerDone={!!b.provider_done_at}
-                requestId={b.id}
-                priceMinor={b.price_minor ?? 200000}
-                onCancel={doCancel}
-                onComplete={doComplete}
-                onProviderDone={doProviderDone}
-                onPaid={() => { void refetch(); }}
-                busy={busy}
-                onChat={() => navigate(`/conta/chat/${b.id}`)}
-                onCall={() => setCallOpen(true)}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="space-y-6 lg:col-span-2">
+          <Card className="p-5 sm:p-7">
+            {iAmClient ? (
+              <ClientPanel b={b} stage={stage} busy={busy} actions={actions} onRate={() => setRateOpen(true)} />
+            ) : iAmProvider ? (
+              <ProviderPanel b={b} stage={stage} busy={busy} actions={actions} />
+            ) : (
+              <Status
+                icon={Clock}
+                title="Pedido disponível"
+                text="Aceite este pedido antes de outro profissional para falar com o cliente."
+                action={stage === 'searching' ? <Btn onClick={actions.accept} loading={busy}>Aceitar pedido</Btn> : undefined}
               />
             )}
-
-            {b.status === 'expired' && <Ended
-              icon={UserX} tone="amber" title="Sem profissional disponível"
-              text="Nenhum profissional da área aceitou o pedido a tempo. Pode tentar novamente."
-              primary={{ label: 'Tentar novamente', to: '/conta/pedir' }} />}
-
-            {b.status === 'cancelled' && <Ended
-              icon={Ban} tone="ink" title="Pedido cancelado"
-              text={iAmClient ? 'Cancelou este pedido.' : 'O cliente cancelou este pedido.'}
-              primary={iAmClient ? { label: 'Novo pedido', to: '/conta/pedir' } : { label: 'Voltar ao painel', to: '/conta' }} />}
-
-            {b.status === 'completed' && <Ended
-              icon={CheckCircle2} tone="emerald" title="Serviço concluído"
-              text="Este serviço foi marcado como concluído."
-              primary={{ label: 'Voltar ao painel', to: '/conta' }} />}
-
-            {b.status === 'no_providers' && (
-              <div className="flex flex-col items-center py-4 text-center">
-                <div className="relative mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-amber-50 text-4xl">
-                  <span className="absolute inset-0 animate-ping rounded-full bg-amber-200/40" style={{ animationDuration: '2s' }} />
-                  <span className="relative" style={{ animation: 'msg-in 0.5s ease' }}>🙏</span>
-                </div>
-                <h2 className="font-display text-lg font-bold text-ink-900">Sem prestadores disponíveis</h2>
-                <p className="mt-1 max-w-xs text-sm text-ink-500">
-                  De momento não temos prestadores disponíveis para este serviço. Para qualquer informação, fale com o nosso apoio ao cliente.
-                </p>
-                <div className="mt-6 flex flex-wrap justify-center gap-2">
-                  <Button to="/conta/pedir" variant="dark" size="md">Tentar outro pedido</Button>
-                  <Button to="/conta" variant="outline-dark" size="md">Voltar ao painel</Button>
-                </div>
-              </div>
-            )}
-          </div>
+          </Card>
         </div>
+
+        <aside className="space-y-6">
+          {contactOpen && other && (
+            <PersonCard
+              person={other}
+              iAmClient={iAmClient}
+              onChat={() => navigate(`/conta/chat/${b.id}`)}
+              onCall={() => setCallOpen(true)}
+            />
+          )}
+          <DetailsCard b={b} />
+        </aside>
       </div>
 
       <CallModal
@@ -169,202 +135,353 @@ export function RequestStatusPage({ id }: { id: string }) {
         person={other}
         onInternetCall={() => {
           setCallOpen(false);
-          if (other?.id && user) void notifyIncomingCall(other.id, { broadcastId: b.id, fromId: user.id, fromName: user.name, fromAvatar: user.avatarUrl });
+          if (other?.id) void notifyIncomingCall(other.id, { broadcastId: b.id, fromId: user.id, fromName: user.name, fromAvatar: user.avatarUrl });
           navigate(`/conta/chamada/${b.id}`);
         }}
       />
-
-      <CelebrationModal
-        open={celebrate}
-        onClose={() => setCelebrate(false)}
-        onWallet={() => { setCelebrate(false); navigate('/conta/financas'); }}
-      />
-
-      <RatingModal
-        open={rateOpen}
-        broadcastId={b.id}
-        providerName={other?.name || 'o prestador'}
-        onClose={() => setRateOpen(false)}
-      />
-    </section>
+      <CelebrationModal open={celebrate} onClose={() => setCelebrate(false)} onWallet={() => { setCelebrate(false); navigate('/conta/financas'); }} />
+      <RatingModal open={rateOpen} broadcastId={b.id} providerName={other?.name || 'o profissional'} onClose={() => setRateOpen(false)} />
+    </>
   );
 }
 
-const SEARCH_STEPS = [
-  { s: 0,  t: 'Pedido enviado aos prestadores', e: '📨' },
-  { s: 5,  t: 'A procurar prestadores perto de si', e: '🔍' },
-  { s: 12, t: 'Estamos a tratar disso, aguenta aí 💪', e: '🛠️' },
-  { s: 22, t: 'Quase lá — a contactar mais prestadores', e: '⏳' },
-  { s: 35, t: 'Continuamos à procura do melhor para si', e: '✨' },
-  { s: 55, t: 'A alargar a procura para te atender', e: '📡' },
-];
+type Actions = {
+  cancel: () => void;
+  accept: () => void;
+  sendQuote: (minor: number, note: string) => void;
+  onsite: () => void;
+  respond: (accept: boolean) => void;
+  providerDone: () => void;
+  complete: () => void;
+  refresh: () => void;
+};
 
-function Searching({ elapsed, onCancel, busy }: { elapsed: number; onCancel: () => void; busy: boolean }) {
-  const step = [...SEARCH_STEPS].reverse().find((x) => elapsed >= x.s) ?? SEARCH_STEPS[0];
+const STEPS = ['Pedido', 'Profissional', 'Orçamento', 'Pagamento', 'Serviço', 'Concluído'];
+const STEP_INDEX: Partial<Record<Stage, number>> = {
+  searching: 1, quote_pending: 2, quote_sent: 2, quote_rejected: 2, awaiting_payment: 3, in_progress: 4, awaiting_confirmation: 5, completed: 6,
+};
+
+function Progress({ stage }: { stage: Stage }) {
+  const current = STEP_INDEX[stage];
+  if (current === undefined) return null;
+  return (
+    <div className="mb-6">
+      <div className="flex items-center justify-between text-sm font-medium text-ink-500 sm:hidden">
+        <span>Passo {Math.min(current + 1, STEPS.length)} de {STEPS.length}</span>
+        <span className="text-ink-900">{STEPS[Math.min(current, STEPS.length - 1)]}</span>
+      </div>
+      <ol className="mt-2 grid grid-cols-6 gap-1.5 sm:mt-0 sm:gap-3">
+        {STEPS.map((s, i) => {
+          const done = i < current;
+          const now = i === current;
+          return (
+            <li key={s} className="min-w-0">
+              <div className={cx('h-1.5 rounded-full', done ? 'bg-brand-dark' : now ? 'bg-brand-cyan2' : 'bg-cloud-300')} />
+              <p className={cx('mt-2 hidden truncate text-sm sm:block', done ? 'text-ink-700' : now ? 'font-semibold text-ink-900' : 'text-ink-400')}>
+                {done && <Check size={14} className="-mt-0.5 mr-1 inline" />}{s}
+              </p>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
+  );
+}
+
+function Status({ icon: Icon, tone = 'neutral', title, text, action, children }: {
+  icon: typeof Clock; tone?: 'neutral' | 'success' | 'warning' | 'danger'; title: string; text?: ReactNode; action?: ReactNode; children?: ReactNode;
+}) {
+  const ring = {
+    neutral: 'bg-cloud-100 text-ink-500',
+    success: 'bg-emerald-50 text-emerald-600',
+    warning: 'bg-amber-50 text-amber-600',
+    danger: 'bg-red-50 text-red-600',
+  }[tone];
+  return (
+    <div>
+      <div className={cx('flex h-12 w-12 items-center justify-center rounded-xl', ring)}><Icon size={22} /></div>
+      <h2 className="mt-4 text-xl font-semibold tracking-tight text-ink-900">{title}</h2>
+      {text && <p className="mt-1.5 max-w-xl text-base leading-relaxed text-ink-500">{text}</p>}
+      {children}
+      {action && <div className="mt-6 flex flex-wrap gap-3">{action}</div>}
+    </div>
+  );
+}
+
+function CancelButton({ onCancel, busy }: { onCancel: () => void; busy: boolean }) {
+  const [confirm, setConfirm] = useState(false);
+  if (!confirm) {
+    return <Btn variant="ghost" onClick={() => setConfirm(true)} disabled={busy} className="text-ink-500">Cancelar pedido</Btn>;
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <span className="text-[15px] text-ink-500">Cancelar este pedido?</span>
+      <Btn variant="danger" size="md" onClick={onCancel} loading={busy}>Sim, cancelar</Btn>
+      <Btn variant="ghost" size="md" onClick={() => setConfirm(false)}>Não</Btn>
+    </div>
+  );
+}
+
+function ClientPanel({ b, stage, busy, actions, onRate }: { b: Broadcast; stage: Stage; busy: boolean; actions: Actions; onRate: () => void }) {
+  const name = b.provider?.name || 'O profissional';
+  switch (stage) {
+    case 'searching':
+      return <Searching createdAt={b.created_at} category={b.category} cancel={<CancelButton onCancel={actions.cancel} busy={busy} />} />;
+    case 'quote_pending':
+      return (
+        <Status icon={Clock} title="A aguardar o orçamento" action={<CancelButton onCancel={actions.cancel} busy={busy} />}
+          text={<>{name} aceitou o seu pedido e vai enviar-lhe o orçamento. Entretanto, pode conversar para combinar os detalhes.</>} />
+      );
+    case 'quote_rejected':
+      return (
+        <Status icon={Clock} title="Recusou o orçamento" action={<CancelButton onCancel={actions.cancel} busy={busy} />}
+          text={<>{name} pode enviar-lhe um novo valor. Se preferir não continuar, pode cancelar o pedido.</>} />
+      );
+    case 'quote_sent':
+      return <QuoteReview b={b} busy={busy} onRespond={actions.respond} />;
+    case 'awaiting_payment':
+      return (
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight text-ink-900">Pagamento</h2>
+          <p className="mt-1.5 text-base text-ink-500">Aceitou o orçamento. Faça o pagamento para o profissional avançar com o serviço.</p>
+          <PaymentPanel requestId={b.id} priceMinor={b.price_minor ?? 0} onPaid={actions.refresh} />
+          <div className="mt-4"><CancelButton onCancel={actions.cancel} busy={busy} /></div>
+        </div>
+      );
+    case 'in_progress':
+      return (
+        <Status icon={ShieldCheck} tone="success" title="Pagamento retido em segurança"
+          text={<>O valor de <strong className="text-ink-900">{formatKz(b.held_minor ?? 0)}</strong> só é libertado ao profissional quando confirmar que o serviço foi concluído.</>} />
+      );
+    case 'awaiting_confirmation':
+      return (
+        <Status icon={CheckCircle2} tone="success" title="O serviço foi concluído"
+          text={<>{name} marcou o serviço como concluído. Confirme para libertar o pagamento.</>}>
+          <div className="mt-6 max-w-md"><SlideToConfirm label="Deslize para confirmar" confirmingLabel="A confirmar…" tone="emerald" busy={busy} onConfirm={actions.complete} /></div>
+        </Status>
+      );
+    case 'completed':
+      return (
+        <Status icon={CheckCircle2} tone="success" title="Serviço concluído" text="Obrigado por usar a AUTONOMOUS."
+          action={<><Btn onClick={onRate}><Star size={18} /> Avaliar profissional</Btn><Btn variant="outline" to="/conta/pedir">Novo pedido</Btn></>} />
+      );
+    case 'cancelled':
+      return <Status icon={Ban} title="Pedido cancelado" text="Este pedido foi cancelado." action={<Btn variant="outline" to="/conta/pedir">Novo pedido</Btn>} />;
+    case 'no_providers':
+      return (
+        <Status icon={UserX} tone="warning" title="Sem profissionais disponíveis"
+          text="De momento não temos profissionais disponíveis para este serviço. Para mais informações, fale com o nosso apoio ao cliente."
+          action={<Btn variant="outline" to="/conta/pedir">Fazer outro pedido</Btn>} />
+      );
+    default:
+      return <Status icon={UserX} title="Sem resposta" text="Nenhum profissional aceitou este pedido." action={<Btn variant="outline" to="/conta/pedir">Tentar novamente</Btn>} />;
+  }
+}
+
+function Searching({ createdAt, category, cancel }: { createdAt: string; category: string; cancel: ReactNode }) {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    const start = new Date(createdAt).getTime();
+    const tick = () => setElapsed(Math.max(0, Math.floor((Date.now() - start) / 1000)));
+    tick();
+    const t = setInterval(tick, 1000);
+    return () => clearInterval(t);
+  }, [createdAt]);
   const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
   const ss = String(elapsed % 60).padStart(2, '0');
   return (
-    <div className="flex flex-col items-center text-center">
-      <div className="relative flex h-28 w-28 items-center justify-center">
-        <span className="absolute inset-0 animate-ping rounded-full bg-brand-cyan/20" style={{ animationDuration: '1.8s' }} />
-        <span className="absolute inset-2 animate-ping rounded-full bg-brand-cyan/15" style={{ animationDuration: '2.4s' }} />
-        <span className="absolute inset-0 rounded-full border-2 border-brand-cyan/30 border-t-brand-cyan" style={{ animation: 'spin 1.1s linear infinite' }} />
-        <div className="relative flex h-20 w-20 items-center justify-center rounded-full bg-brand-dark text-3xl shadow-cardDark">
-          <span key={step.e} style={{ animation: 'msg-in 0.4s ease' }}>{step.e}</span>
-        </div>
+    <div className="flex flex-col items-center py-6 text-center">
+      <div className="relative flex h-20 w-20 items-center justify-center">
+        <span className="absolute inset-0 rounded-full border-[3px] border-cloud-200" />
+        <span className="absolute inset-0 animate-spin rounded-full border-[3px] border-transparent border-t-brand-dark" style={{ animationDuration: '1.2s' }} />
+        <span className="text-[15px] font-semibold tabular-nums text-ink-900">{mm}:{ss}</span>
       </div>
-
-      <h2 className="mt-6 min-h-[2.6rem] max-w-xs font-display text-lg font-bold leading-snug text-ink-900">
-        <span key={step.t} style={{ animation: 'msg-in 0.45s ease' }} className="inline-block">{step.t}</span>
-      </h2>
-
-      <div className="mt-3 flex items-center gap-1.5">
-        {[0, 1, 2].map((i) => (
-          <span key={i} className="h-1.5 w-8 overflow-hidden rounded-full bg-cloud-200">
-            <span className="block h-full w-full rounded-full bg-brand-cyan" style={{ animation: `pulse 1.2s ease-in-out ${i * 0.2}s infinite` }} />
-          </span>
-        ))}
-      </div>
-
-      <p className="mt-4 text-sm font-medium tabular-nums text-ink-400">À espera há {mm}:{ss}</p>
-
-      <button onClick={onCancel} disabled={busy}
-        className="mt-5 inline-flex items-center gap-1.5 rounded-full border border-cloud-200 px-4 py-2 text-sm font-semibold text-ink-600 transition-colors hover:border-red-200 hover:text-red-600 disabled:opacity-50">
-        {busy ? <Loader2 size={15} className="animate-spin" /> : <XCircle size={15} />} Cancelar pedido
-      </button>
+      <h2 className="mt-6 text-xl font-semibold tracking-tight text-ink-900">À procura de um profissional</h2>
+      <p className="mt-1.5 max-w-md text-base leading-relaxed text-ink-500">
+        Enviámos o seu pedido aos profissionais verificados de {category}. Avisamos assim que alguém aceitar.
+      </p>
+      <div className="mt-6">{cancel}</div>
     </div>
   );
 }
 
-function OpenForProvider() {
-  return (
-    <div className="flex flex-col items-center py-4 text-center">
-      <Clock className="mb-2 size-8 text-ink-300" />
-      <p className="font-display text-base font-bold text-ink-900">Este pedido ainda está aberto</p>
-      <p className="mt-1 text-sm text-ink-500">Volte ao painel para o aceitar antes de outro profissional.</p>
-      <Button to="/conta" variant="dark" size="md" className="mt-5">Ver pedidos disponíveis</Button>
-    </div>
-  );
-}
-
-function Accepted({ person, iAmClient, paid, providerDone, requestId, priceMinor, onCancel, onComplete, onProviderDone, onPaid, onChat, onCall, busy }: {
-  person: BroadcastPerson; iAmClient: boolean; paid: boolean; providerDone: boolean; requestId: string; priceMinor: number; busy: boolean;
-  onCancel: () => void; onComplete: () => void; onProviderDone: () => void; onPaid: () => void; onChat: () => void; onCall: () => void;
-}) {
-  const [continued, setContinued] = useState(false);
+function QuoteReview({ b, busy, onRespond }: { b: Broadcast; busy: boolean; onRespond: (accept: boolean) => void }) {
+  const [rejecting, setRejecting] = useState(false);
+  const work = b.quote_minor ?? 0;
+  const fee = Math.round(work * FEE_RATE);
   return (
     <div>
-      <div className="mb-5 flex items-center justify-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
-        <CheckCircle2 size={16} /> {iAmClient ? 'Profissional encontrado!' : 'Aceitou este pedido'}
+      <h2 className="text-xl font-semibold tracking-tight text-ink-900">Orçamento recebido</h2>
+      <p className="mt-1.5 text-base text-ink-500">{b.provider?.name || 'O profissional'} enviou o valor do serviço. Reveja e decida.</p>
+
+      <div className="mt-6 rounded-2xl border border-line bg-cloud-50 p-5 sm:p-6">
+        <p className="text-sm font-medium text-ink-500">Valor do serviço</p>
+        <p className="mt-1 font-display text-4xl font-semibold tracking-tight text-ink-900">{formatKz(work)}</p>
+        {b.quote_note && <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed text-ink-700">{b.quote_note}</p>}
+        <dl className="mt-5 divide-y divide-line border-t border-line">
+          <DetailRow label="Serviço">{formatKz(work)}</DetailRow>
+          <DetailRow label="Taxa de serviço (10%)">{formatKz(fee)}</DetailRow>
+          <div className="flex items-center justify-between gap-4 pt-3">
+            <dt className="text-base font-semibold text-ink-900">Total a pagar</dt>
+            <dd className="text-lg font-semibold text-ink-900">{formatKz(work + fee)}</dd>
+          </div>
+        </dl>
       </div>
 
-      <div className="flex items-center gap-4 rounded-2xl border border-cloud-200 bg-cloud-50 p-4">
-        <Avatar person={person} />
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-lg font-bold text-ink-900">{person.name || '—'}</p>
-          <p className="text-sm text-ink-500">
-            {iAmClient ? (person.specialty || person.work_area || 'Profissional') : 'Cliente'}
-          </p>
-          {person.phone && <p className="mt-0.5 text-sm font-medium text-ink-700">{person.phone}</p>}
+      {rejecting ? (
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <span className="text-[15px] text-ink-500">Recusar este orçamento?</span>
+          <Btn variant="danger" onClick={() => onRespond(false)} loading={busy}>Sim, recusar</Btn>
+          <Btn variant="ghost" onClick={() => setRejecting(false)}>Voltar</Btn>
+        </div>
+      ) : (
+        <div className="mt-6 grid gap-3 sm:flex">
+          <Btn onClick={() => onRespond(true)} loading={busy} className="sm:min-w-[200px]"><Check size={18} /> Aceitar orçamento</Btn>
+          <Btn variant="outline" onClick={() => setRejecting(true)} disabled={busy}>Recusar</Btn>
+        </div>
+      )}
+      <p className="mt-4 text-sm text-ink-400">Depois de aceitar, paga com segurança: o valor fica retido até confirmar que o serviço foi feito.</p>
+    </div>
+  );
+}
+
+function ProviderPanel({ b, stage, busy, actions }: { b: Broadcast; stage: Stage; busy: boolean; actions: Actions }) {
+  const [editing, setEditing] = useState(false);
+  const client = b.client?.name || 'O cliente';
+  switch (stage) {
+    case 'quote_pending':
+    case 'quote_rejected':
+      return (
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight text-ink-900">Enviar orçamento</h2>
+          <p className="mt-1.5 text-base text-ink-500">Indique o valor do serviço. {client} vai rever e aceitar antes de pagar.</p>
+          {b.quote_status === 'onsite' && (
+            <Notice tone="info" title="Orçamento no local" className="mt-5">Depois de avaliar o trabalho no local, envie aqui o valor.</Notice>
+          )}
+          {stage === 'quote_rejected' && (
+            <Notice tone="warning" title="Orçamento recusado" className="mt-5">
+              {client} recusou o orçamento de {formatKz(b.quote_minor ?? 0)}. Pode enviar um novo valor.
+            </Notice>
+          )}
+          <QuoteForm busy={busy} onSubmit={actions.sendQuote} />
+          {b.quote_status === 'pending' && (
+            <div className="mt-6 flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-[15px] font-semibold text-ink-900">Precisa de ver o trabalho primeiro?</p>
+                <p className="text-sm text-ink-500">Marque orçamento no local e envie o valor depois da visita.</p>
+              </div>
+              <Btn variant="outline" onClick={actions.onsite} disabled={busy}><MapPinned size={18} /> Orçamento no local</Btn>
+            </div>
+          )}
+        </div>
+      );
+    case 'quote_sent':
+      return editing ? (
+        <div>
+          <h2 className="text-xl font-semibold tracking-tight text-ink-900">Alterar orçamento</h2>
+          <QuoteForm busy={busy} initial={b.quote_minor ?? undefined} initialNote={b.quote_note ?? ''} onSubmit={(m, n) => { actions.sendQuote(m, n); setEditing(false); }} />
+          <Btn variant="ghost" className="mt-3" onClick={() => setEditing(false)}>Cancelar</Btn>
+        </div>
+      ) : (
+        <Status icon={Clock} title="Orçamento enviado"
+          text={<>Enviou um orçamento de <strong className="text-ink-900">{formatKz(b.quote_minor ?? 0)}</strong>. A aguardar a resposta de {client}.</>}
+          action={<Btn variant="outline" onClick={() => setEditing(true)}>Alterar valor</Btn>} />
+      );
+    case 'awaiting_payment':
+      return <Status icon={Clock} title="Orçamento aceite" text={<>{client} aceitou {formatKz(b.price_minor ?? 0)}. A aguardar o pagamento.</>} />;
+    case 'in_progress':
+      return (
+        <Status icon={ShieldCheck} tone="success" title="Pagamento confirmado"
+          text="O valor está retido em segurança. Quando terminar o serviço, deslize para marcar como concluído.">
+          <div className="mt-6 max-w-md"><SlideToConfirm label="Deslize quando terminar" confirmingLabel="A marcar…" tone="emerald" busy={busy} onConfirm={actions.providerDone} /></div>
+        </Status>
+      );
+    case 'awaiting_confirmation':
+      return <Status icon={CheckCircle2} tone="success" title="Concluído do seu lado" text={<>A aguardar que {client} confirme. Depois disso, o valor fica disponível na sua carteira.</>} />;
+    case 'completed':
+      return <Status icon={CheckCircle2} tone="success" title="Serviço concluído" text={<>{formatKz(b.price_minor ?? 0)} adicionados à sua carteira.</>} action={<Btn variant="outline" to="/conta/financas">Ver finanças</Btn>} />;
+    case 'cancelled':
+      return <Status icon={Ban} title="Pedido cancelado" text="O cliente cancelou este pedido." action={<Btn variant="outline" to="/conta">Voltar ao início</Btn>} />;
+    default:
+      return <Status icon={Ban} title="Pedido fechado" action={<Btn variant="outline" to="/conta">Voltar ao início</Btn>} />;
+  }
+}
+
+function QuoteForm({ busy, onSubmit, initial, initialNote = '' }: { busy: boolean; onSubmit: (minor: number, note: string) => void; initial?: number; initialNote?: string }) {
+  const [value, setValue] = useState(initial ? String(Math.round(initial / 100)) : '');
+  const [note, setNote] = useState(initialNote);
+  const [error, setError] = useState<string | null>(null);
+  const kz = Number(value.replace(/\D/g, '')) || 0;
+  const display = kz ? kz.toLocaleString('pt-PT').replace(/,/g, '.') : '';
+
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    if (kz < 100) { setError('Indique um valor de pelo menos 100 Kz.'); return; }
+    onSubmit(kz * 100, note.trim());
+  };
+
+  return (
+    <form onSubmit={submit} className="mt-6 space-y-4">
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="quote" className="text-[15px] font-medium text-ink-900">Valor do serviço</label>
+        <div className={cx('flex h-14 items-center rounded-xl border bg-white px-4 focus-within:ring-4 focus-within:ring-brand-cyan/15', error ? 'border-red-400' : 'border-line focus-within:border-brand-cyan2')}>
+          <input
+            id="quote"
+            inputMode="numeric"
+            value={display}
+            onChange={(e) => { setValue(e.target.value.replace(/\D/g, '').slice(0, 9)); setError(null); }}
+            placeholder="0"
+            className="min-w-0 flex-1 bg-transparent font-display text-2xl font-semibold text-ink-900 placeholder:text-ink-300 focus:outline-none"
+          />
+          <span className="text-lg font-semibold text-ink-400">Kz</span>
+        </div>
+        {error ? <p className="text-sm font-medium text-red-600">{error}</p> : kz > 0 && (
+          <p className="text-sm text-ink-500">Recebe {formatKz(kz * 100)}. O cliente paga {formatKz(Math.round(kz * 100 * (1 + FEE_RATE)))} (inclui 10% de taxa de serviço).</p>
+        )}
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="note" className="text-[15px] font-medium text-ink-900">O que inclui <span className="font-normal text-ink-400">(opcional)</span></label>
+        <TextArea id="note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ex.: mão de obra e material, garantia de 3 meses." className="min-h-[96px]" />
+      </div>
+      <Btn type="submit" loading={busy} className="w-full sm:w-auto sm:min-w-[200px]">Enviar orçamento</Btn>
+    </form>
+  );
+}
+
+function PersonCard({ person, iAmClient, onChat, onCall }: { person: BroadcastPerson; iAmClient: boolean; onChat: () => void; onCall: () => void }) {
+  const subtitle = iAmClient
+    ? person.company_name || person.specialty || (person.work_areas?.length ? person.work_areas.join(' · ') : person.work_area) || 'Profissional'
+    : 'Cliente';
+  return (
+    <Card className="p-5 sm:p-6">
+      <p className="text-sm font-medium text-ink-500">{iAmClient ? 'O seu profissional' : 'Cliente'}</p>
+      <div className="mt-3 flex items-center gap-3">
+        <Avatar name={person.name} src={person.avatar_url} size="lg" />
+        <div className="min-w-0">
+          <p className="truncate text-lg font-semibold text-ink-900">{person.name || '—'}</p>
+          <p className="truncate text-[15px] text-ink-500">{subtitle}</p>
         </div>
       </div>
-
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <Button onClick={onChat} variant="dark" size="md"><MessageSquare size={17} /> Conversar</Button>
-        <Button onClick={onCall} variant="outline-dark" size="md"><Phone size={17} /> Ligar</Button>
+      <div className="mt-5 grid grid-cols-2 gap-2">
+        <Btn onClick={onChat} size="md"><MessageSquare size={18} /> Conversar</Btn>
+        <Btn onClick={onCall} size="md" variant="outline"><Phone size={18} /> Ligar</Btn>
       </div>
-
-      {iAmClient ? (
-        !paid ? (
-          !continued ? (
-            <div className="mt-5 grid grid-cols-2 gap-3">
-              <Button onClick={onCancel} variant="outline-dark" size="md">Cancelar</Button>
-              <Button onClick={() => setContinued(true)} size="md">Continuar <ArrowRight size={16} /></Button>
-            </div>
-          ) : (
-            <>
-              <PaymentPanel requestId={requestId} priceMinor={priceMinor} onPaid={onPaid} />
-              <CancelLink onCancel={onCancel} busy={busy} />
-            </>
-          )
-        ) : providerDone ? (
-          <div className="mt-5">
-            <p className="mb-2 text-center text-sm text-ink-500">O prestador marcou o serviço como concluído. Confirme para libertar o pagamento.</p>
-            <SlideToConfirm label="Confirmar conclusão" confirmingLabel="A confirmar…" tone="emerald" busy={busy} onConfirm={onComplete} />
-            <CancelLink onCancel={onCancel} busy={busy} />
-          </div>
-        ) : (
-          <>
-            <p className="mt-5 flex items-center justify-center gap-1.5 rounded-2xl bg-cloud-50 px-4 py-3 text-center text-sm text-ink-500">
-              <Clock size={15} className="text-ink-400" /> Pago. A aguardar que o prestador conclua o serviço.
-            </p>
-            <CancelLink onCancel={onCancel} busy={busy} />
-          </>
-        )
-      ) : (
-        !paid ? (
-          <p className="mt-5 flex items-center justify-center gap-1.5 rounded-2xl bg-cloud-50 px-4 py-3 text-center text-sm text-ink-500">
-            <Clock size={15} className="text-ink-400" /> A aguardar o pagamento do cliente.
-          </p>
-        ) : providerDone ? (
-          <p className="mt-5 flex items-center justify-center gap-1.5 rounded-2xl bg-emerald-50 px-4 py-3 text-center text-sm text-emerald-700">
-            <CheckCircle2 size={15} /> Concluído do seu lado. A aguardar a confirmação do cliente.
-          </p>
-        ) : (
-          <div className="mt-5">
-            <SlideToConfirm label="Serviço concluído" confirmingLabel="A marcar…" tone="emerald" busy={busy} onConfirm={onProviderDone} />
-          </div>
-        )
-      )}
-    </div>
+    </Card>
   );
 }
 
-function CancelLink({ onCancel, busy }: { onCancel: () => void; busy: boolean }) {
+function DetailsCard({ b }: { b: Broadcast }) {
+  const place = [b.address, b.city].filter(Boolean).join(', ');
   return (
-    <div className="mt-3 text-center">
-      <button onClick={onCancel} disabled={busy} className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink-400 hover:text-red-600 disabled:opacity-50">
-        <XCircle size={14} /> Cancelar pedido
-      </button>
-    </div>
-  );
-}
-
-function Ended({ icon: Icon, tone, title, text, primary }: {
-  icon: typeof UserX; tone: 'amber' | 'emerald' | 'ink'; title: string; text: string;
-  primary: { label: string; to: string };
-}) {
-  const ring = tone === 'amber' ? 'bg-amber-50 text-amber-500'
-    : tone === 'emerald' ? 'bg-emerald-50 text-emerald-500' : 'bg-cloud-100 text-ink-400';
-  return (
-    <div className="flex flex-col items-center py-4 text-center">
-      <div className={`flex h-16 w-16 items-center justify-center rounded-full ${ring}`}><Icon size={30} /></div>
-      <h2 className="mt-4 font-display text-lg font-bold text-ink-900">{title}</h2>
-      <p className="mt-1 max-w-xs text-sm text-ink-500">{text}</p>
-      <Button to={primary.to} variant="dark" size="md" className="mt-6">{primary.label}</Button>
-    </div>
-  );
-}
-
-function Meta({ b }: { b: Broadcast }) {
-  const bits = [b.city, b.service_date, b.service_time].filter(Boolean);
-  if (bits.length === 0) return null;
-  return <p className="mt-2 text-xs font-medium text-ink-400">{bits.join(' · ')}</p>;
-}
-
-function Avatar({ person }: { person: BroadcastPerson }) {
-  const initials = (person.name || '?').trim().split(/\s+/).slice(0, 2).map((p) => p[0]).join('').toUpperCase();
-  return (
-    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand-dark text-lg font-bold text-white">
-      {person.avatar_url ? <img src={person.avatar_url} alt="" className="h-full w-full object-cover" /> : initials}
-    </div>
-  );
-}
-
-function Centered({ children }: { children: React.ReactNode }) {
-  return (
-    <section className="bg-cloud-50 pb-28 pt-28 lg:pt-32">
-      <div className="mx-auto flex min-h-[40vh] max-w-xl items-center justify-center px-5">{children}</div>
-    </section>
+    <Card className="p-5 sm:p-6">
+      <h2 className="text-lg font-semibold tracking-tight text-ink-900">Detalhes</h2>
+      <p className="mt-3 whitespace-pre-line text-[15px] leading-relaxed text-ink-700">{b.description}</p>
+      <dl className="mt-4 divide-y divide-line border-t border-line">
+        <DetailRow label="Categoria">{b.category}</DetailRow>
+        {b.service_date && <DetailRow label="Data">{formatDate(b.service_date)}{b.service_time ? `, ${b.service_time}` : ''}</DetailRow>}
+        {place && <DetailRow label="Local">{place}</DetailRow>}
+        {b.quote_status === 'accepted' && !!b.price_minor && <DetailRow label="Valor acordado">{formatKz(b.price_minor)}</DetailRow>}
+      </dl>
+    </Card>
   );
 }

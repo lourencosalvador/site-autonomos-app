@@ -11,20 +11,20 @@ type BaseProps = {
 export function Field({ label, name, required, error, children }: BaseProps) {
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={name} className="text-sm font-semibold text-brand-dark">
-        {label} {required && <span className="text-brand-cyan2">*</span>}
+      <label htmlFor={name} className="text-[15px] font-medium text-ink-900">
+        {label} {required && <span className="text-ink-400">*</span>}
       </label>
       {children}
-      {error && <p className="text-xs font-medium text-red-500">{error}</p>}
+      {error && <p className="text-sm font-medium text-red-600">{error}</p>}
     </div>
   );
 }
 
 const inputBase =
-  'w-full rounded-xl border bg-white px-4 py-3 text-sm text-brand-dark placeholder:text-ink-700/40 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-brand-cyan/50';
+  'w-full rounded-xl border bg-white px-4 py-3 text-base text-ink-900 placeholder:text-ink-400/70 transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-brand-cyan/15 disabled:bg-cloud-100 disabled:text-ink-500';
 
 export function inputCls(hasError?: boolean) {
-  return `${inputBase} ${hasError ? 'border-red-400' : 'border-brand-dark/15 focus:border-brand-cyan'}`;
+  return `${inputBase} ${hasError ? 'border-red-400' : 'border-line focus:border-brand-cyan2'}`;
 }
 
 export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement> & { hasError?: boolean }) {

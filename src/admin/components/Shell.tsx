@@ -1,12 +1,12 @@
 import { useState, type ReactNode } from 'react';
 import {
-  Activity, ClipboardList, FlaskConical, LayoutDashboard, LifeBuoy, LogOut, Menu, Settings, UserPlus, Users, Wallet, Wrench, ExternalLink,
+  Activity, BadgeCheck, ClipboardCheck, ClipboardList, FlaskConical, LayoutDashboard, LifeBuoy, LogOut, Menu, Settings, UserPlus, Users, Wallet, Wrench, ExternalLink,
 } from 'lucide-react';
 import { Dialog, SheetContent, DialogTitle } from '../ui/dialog';
 import { cn, formatTime, initials } from '../lib/utils';
 import type { AdminSession } from '../lib/session';
 
-export type SectionId = '' | 'atividade' | 'pagamentos' | 'apoio' | 'pedidos' | 'candidaturas' | 'utilizadores' | 'servicos' | 'teste' | 'definicoes';
+export type SectionId = '' | 'atividade' | 'pagamentos' | 'apoio' | 'pedidos-app' | 'prestadores' | 'pedidos' | 'candidaturas' | 'utilizadores' | 'servicos' | 'teste' | 'definicoes';
 
 type NavItem = { id: SectionId; label: string; icon: React.ComponentType<{ className?: string }>; count?: number; danger?: boolean };
 
@@ -15,7 +15,7 @@ export function Shell({
 }: {
   section: SectionId;
   session: AdminSession;
-  counts: { requests?: number; applications?: number; payments?: number; support?: number };
+  counts: { requests?: number; applications?: number; payments?: number; support?: number; appRequests?: number; professionals?: number };
   onLogout: () => void;
   children: ReactNode;
 }) {
@@ -32,9 +32,16 @@ export function Shell({
       ],
     },
     {
+      label: 'App',
+      items: [
+        { id: 'pedidos-app', label: 'Pedidos da app', icon: ClipboardCheck, count: counts.appRequests, danger: true },
+        { id: 'prestadores', label: 'Prestadores', icon: BadgeCheck, count: counts.professionals },
+      ],
+    },
+    {
       label: 'Gestão',
       items: [
-        { id: 'pedidos', label: 'Pedidos do site', icon: ClipboardList, count: counts.requests },
+        { id: 'pedidos', label: 'Formulário do site', icon: ClipboardList, count: counts.requests },
         { id: 'candidaturas', label: 'Candidaturas', icon: UserPlus, count: counts.applications },
         { id: 'utilizadores', label: 'Utilizadores', icon: Users },
         { id: 'servicos', label: 'Serviços', icon: Wrench },

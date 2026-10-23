@@ -12,6 +12,8 @@ export type AuthUser = {
   avatarUrl: string | null;
   phone: string | null;
   workArea: string | null;
+  workAreas: string[];
+  companyName: string | null;
   bio: string | null;
   specialty: string | null;
   province: string | null;
@@ -24,7 +26,8 @@ type SignUpInput = {
   password: string;
   role: Role;
   phone?: string | null;
-  workArea?: string | null;
+  workAreas?: string[];
+  companyName?: string | null;
 };
 
 type AuthContextValue = {
@@ -55,6 +58,7 @@ function profileToUser(id: string, email: string, meta: Record<string, unknown>,
   const metaName = (meta.full_name as string) || (meta.name as string) || '';
   const metaAvatar = (meta.avatar_url as string) || (meta.picture as string) || null;
   const workArea = (profile?.work_area ?? null) || null;
+  const workAreas = profile?.work_areas?.length ? profile.work_areas : workArea ? [workArea] : [];
   let role: Role | null = profile?.role ?? null;
   if (!role && workArea) role = 'professional';
   return {
@@ -65,11 +69,44 @@ function profileToUser(id: string, email: string, meta: Record<string, unknown>,
     avatarUrl: profile?.avatar_url || metaAvatar,
     phone: profile?.phone ?? null,
     workArea,
+    workAreas,
+    companyName: profile?.company_name ?? null,
     bio: profile?.bio ?? null,
     specialty: profile?.specialty ?? null,
     province: profile?.province ?? null,
     approvalStatus: profile?.approval_status ?? null,
   };
+}
+
+function signupProfile(id: string, meta: Record<string, unknown>): Record<string, unknown> {
+  const role = meta.role === 'professional' ? 'professional' : meta.role === 'client' ? 'client' : null;
+  const areas = Array.isArray(meta.work_areas) ? (meta.work_areas as string[]).filter(Boolean).slice(0, 3) : [];
+  const row: Record<string, unknown> = {
+    id,
+    role,
+    name: (meta.full_name as string) || (meta.name as string) || null,
+  };
+  if (meta.avatar_url) row.avatar_url = meta.avatar_url;
+  if (meta.phone) row.phone = meta.phone;
+  if (role === 'professional') {
+    row.work_area = areas[0] ?? null;
+    row.work_areas = areas;
+    row.company_name = (meta.company_name as string) || null;
+    row.approval_status = 'pending';
+  }
+  return row;
+}
+
+async function writeProfile(row: Record<string, unknown>, insertOnly: boolean) {
+  const full = { ...row };
+  const write = () => supabase.from('profiles').upsert(full, { onConflict: 'id', ignoreDuplicates: insertOnly });
+  let { error } = await write();
+  for (let i = 0; i < 4 && error; i++) {
+    const col = /could not find the '(\w+)' column/i.exec(error.message)?.[1];
+    if (!col || !(col in full)) break;
+    delete full[col];
+    ({ error } = await write());
+  }
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -95,13 +132,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (id !== seq.current) return;
 
     let profile = (data as ProfileRow | null) ?? null;
-    if (!error && !profile) {
-      const meta = sbUser.user_metadata ?? {};
-      await supabase.from('profiles').upsert(
-        { id: sbUser.id, role: null, name: (meta.full_name as string) || (meta.name as string) || null, avatar_url: (meta.avatar_url as string) || null },
-        { onConflict: 'id' },
-      );
-      profile = { id: sbUser.id, role: null, name: null, phone: null, avatar_url: null };
+    const meta = sbUser.user_metadata ?? {};
+    const metaRole = meta.role === 'professional' || meta.role === 'client';
+    if (!error && (!profile || (!profile.role && !profile.work_area && metaRole))) {
+      const fromMeta = signupProfile(sbUser.id, meta);
+      await writeProfile(fromMeta, !profile);
+      const again = await supabase.from('profiles').select('*').eq('id', sbUser.id).maybeSingle();
+      if (id !== seq.current) return;
+      profile = (again.data as ProfileRow | null) ?? (fromMeta as unknown as ProfileRow);
     }
     setUser(profileToUser(sbUser.id, sbUser.email ?? '', sbUser.user_metadata ?? {}, profile));
     setLoading(false);
@@ -132,38 +170,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = useCallback(async (input: SignUpInput) => {
     const email = input.email.trim();
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password: input.password,
-      options: { data: { full_name: input.name.trim() } },
-    });
+    const isPro = input.role === 'professional';
+    const meta = {
+      full_name: input.name.trim(),
+      role: input.role,
+      phone: input.phone ?? null,
+      work_areas: isPro ? (input.workAreas ?? []).slice(0, 3) : [],
+      company_name: isPro ? input.companyName?.trim() || null : null,
+    };
+    const { data, error } = await supabase.auth.signUp({ email, password: input.password, options: { data: meta } });
     if (error) throw new Error(authErrorMessage(error.message));
 
-    if (data.user) {
-      // Grava o perfil com o papel. Remove colunas que a BD ainda não tenha, sem falhar.
-      const full: Record<string, unknown> = {
-        id: data.user.id,
-        role: input.role,
-        name: input.name.trim(),
-        phone: input.phone ?? null,
-        work_area: input.role === 'professional' ? input.workArea ?? null : null,
-
-        approval_status: input.role === 'professional' ? 'pending' : null,
-      };
-      let { error: upErr } = await supabase.from('profiles').upsert(full, { onConflict: 'id' });
-      for (let i = 0; i < 4 && upErr; i++) {
-        const col = /could not find the '(\w+)' column/i.exec(upErr.message)?.[1];
-        if (!col || !(col in full)) break;
-        delete full[col];
-        ({ error: upErr } = await supabase.from('profiles').upsert(full, { onConflict: 'id' }));
-      }
-      if (upErr) {
-        await supabase.from('profiles').upsert({ id: data.user.id, role: input.role, name: input.name.trim() }, { onConflict: 'id' });
-      }
+    if (data.user && data.session) {
+      await writeProfile(signupProfile(data.user.id, meta), false);
+      await applySession(data.session);
     }
 
     return { needsConfirmation: !data.session };
-  }, []);
+  }, [applySession]);
 
   const signOut = useCallback(async () => {
     setUser(null);

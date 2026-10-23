@@ -27,6 +27,7 @@ export function payErrorMessage(code: string): string {
     case 'invalid_phone': return 'Número inválido. Use 9XXXXXXXX.';
     case 'already_paid': return 'Este serviço já está pago.';
     case 'charge_in_progress': return 'Já há um pagamento em curso. Aguarde um momento.';
+    case 'quote_not_accepted': return 'Aceite o orçamento antes de pagar.';
     case 'request_closed': return 'Este pedido já não aceita pagamento.';
     case 'forbidden': return 'Sem permissão para pagar este pedido.';
     case 'unauthorized': return 'Sessão expirada. Entre novamente.';

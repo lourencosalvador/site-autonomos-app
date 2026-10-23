@@ -37,6 +37,8 @@ export type ProfileRow = {
   phone: string | null;
   avatar_url: string | null;
   work_area?: string | null;
+  work_areas?: string[] | null;
+  company_name?: string | null;
   bio?: string | null;
   specialty?: string | null;
   province?: string | null;

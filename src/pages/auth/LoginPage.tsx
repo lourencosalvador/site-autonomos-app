@@ -1,8 +1,8 @@
 import { useState, type FormEvent } from 'react';
-import { ArrowRight, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { AuthShell } from './AuthShell';
 import { Field, TextInput } from '../../components/Field';
-import { Button } from '../../components/Button';
+import { Btn } from '../../components/app/ui';
 import { useToast } from '../../components/Toast';
 import { useAuth, authErrorMessage } from '../../auth/AuthContext';
 import { supabase } from '../../lib/supabase';
@@ -57,7 +57,7 @@ export function LoginPage() {
       subtitle="Entre na sua conta para continuar."
       footer={<>Ainda não tem conta? <button onClick={() => navigate('/criar-conta')} className="font-semibold text-brand-dark underline-offset-4 hover:underline">Criar conta</button></>}
     >
-      <form onSubmit={onSubmit} className="space-y-4" noValidate>
+      <form onSubmit={onSubmit} className="space-y-5" noValidate>
         <Field label="Email" name="email" required>
           <TextInput id="email" type="email" autoComplete="email" value={email} hasError={!!error}
             onChange={(e) => { setEmail(e.target.value); setError(null); }} placeholder="o.seu@email.com" autoFocus />
@@ -81,9 +81,9 @@ export function LoginPage() {
 
         {error && <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
 
-        <Button type="submit" size="lg" disabled={busy} className="w-full">
-          {busy ? <><Loader2 size={18} className="animate-spin" /> A entrar…</> : <>Entrar <ArrowRight size={18} /></>}
-        </Button>
+        <Btn type="submit" loading={busy} className="w-full">
+          {busy ? 'A entrar…' : <>Entrar <ArrowRight size={18} /></>}
+        </Btn>
       </form>
     </AuthShell>
   );

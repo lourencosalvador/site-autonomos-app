@@ -8,8 +8,12 @@ export type BroadcastPerson = {
   avatar_url: string | null;
   phone: string | null;
   work_area?: string | null;
+  work_areas?: string[] | null;
   specialty?: string | null;
+  company_name?: string | null;
 };
+
+export type QuoteStatus = 'pending' | 'onsite' | 'sent' | 'accepted' | 'rejected';
 
 export type Broadcast = {
   id: string;
@@ -35,6 +39,10 @@ export type Broadcast = {
   held_minor?: number | null;
   provider_done_at?: string | null;
   escrow_released?: boolean;
+  quote_status?: QuoteStatus;
+  quote_minor?: number | null;
+  quote_note?: string | null;
+  quote_sent_at?: string | null;
   client?: BroadcastPerson | null;
   provider?: BroadcastPerson | null;
 };
@@ -102,6 +110,24 @@ export async function providerMarkDone(id: string): Promise<Broadcast | null> {
   return (data as Broadcast | null) ?? null;
 }
 
+export async function sendQuote(id: string, amountMinor: number, note?: string): Promise<Broadcast> {
+  const { data, error } = await supabase.rpc('provider_send_quote', { p_id: id, p_amount_minor: amountMinor, p_note: note ?? null });
+  if (error) throw error;
+  return data as Broadcast;
+}
+
+export async function quoteOnsite(id: string): Promise<Broadcast> {
+  const { data, error } = await supabase.rpc('provider_quote_onsite', { p_id: id });
+  if (error) throw error;
+  return data as Broadcast;
+}
+
+export async function respondQuote(id: string, accept: boolean): Promise<Broadcast> {
+  const { data, error } = await supabase.rpc('client_respond_quote', { p_id: id, p_accept: accept });
+  if (error) throw error;
+  return data as Broadcast;
+}
+
 export async function listOpenBroadcasts(): Promise<Broadcast[]> {
   const { data, error } = await supabase.rpc('list_open_broadcasts');
   if (error) throw error;
@@ -114,15 +140,9 @@ export async function myBroadcasts(): Promise<Broadcast[]> {
   return (data as Broadcast[] | null) ?? [];
 }
 
-export function subscribeBroadcasts(
-  filter: { id?: string; category?: string },
-  onChange: () => void,
-): () => void {
-  const parts = ['sb'];
-  if (filter.id) parts.push(filter.id);
-  if (filter.category) parts.push(filter.category);
+export function subscribeBroadcasts(filter: { id?: string }, onChange: () => void): () => void {
   const channel = supabase
-    .channel(parts.join(':') + ':' + Math.random().toString(36).slice(2, 8))
+    .channel(['sb', filter.id ?? 'all', Math.random().toString(36).slice(2, 8)].join(':'))
     .on(
       'postgres_changes',
       {
@@ -130,7 +150,6 @@ export function subscribeBroadcasts(
         schema: 'public',
         table: 'service_broadcasts',
         ...(filter.id ? { filter: `id=eq.${filter.id}` } : {}),
-        ...(filter.category && !filter.id ? { filter: `category=eq.${filter.category}` } : {}),
       },
       () => onChange(),
     )

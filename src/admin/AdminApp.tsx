@@ -15,8 +15,10 @@ import { SettingsPage } from './pages/SettingsPage';
 import { PaymentsPage } from './pages/PaymentsPage';
 import { TestPage } from './pages/TestPage';
 import { SupportPage } from './pages/SupportPage';
+import { AppRequestsPage } from './pages/AppRequestsPage';
+import { ProfessionalsPage } from './pages/ProfessionalsPage';
 
-const SECTIONS: SectionId[] = ['', 'atividade', 'pagamentos', 'apoio', 'pedidos', 'candidaturas', 'utilizadores', 'servicos', 'teste', 'definicoes'];
+const SECTIONS: SectionId[] = ['', 'atividade', 'pagamentos', 'apoio', 'pedidos-app', 'prestadores', 'pedidos', 'candidaturas', 'utilizadores', 'servicos', 'teste', 'definicoes'];
 
 export default function AdminApp({ section }: { section: string }) {
   const [session, setSession] = useState<AdminSession | null>(getSession);
@@ -80,6 +82,8 @@ function Dashboard({ section, session, onLogout }: { section: SectionId; session
     60_000,
   );
   const supportCount = useAdminQuery(() => rpc<number>('admin_support_count').catch(() => 0), [], 30_000);
+  const appCount = useAdminQuery(() => rpc<number>('admin_app_requests_count').catch(() => 0), [], 30_000);
+  const proCount = useAdminQuery(() => rpc<number>('admin_professionals_pending').catch(() => 0), [], 60_000);
 
   return (
     <Shell
@@ -91,12 +95,16 @@ function Dashboard({ section, session, onLogout }: { section: SectionId; session
         applications: counts.data?.applications?.pending,
         payments: payCounts.data?.withdrawals_pending,
         support: supportCount.data ?? undefined,
+        appRequests: appCount.data ?? undefined,
+        professionals: proCount.data ?? undefined,
       }}
     >
       {section === '' && <OverviewPage />}
       {section === 'atividade' && <ActivityPage />}
       {section === 'pagamentos' && <PaymentsPage onChange={payCounts.reload} />}
       {section === 'apoio' && <SupportPage onChange={supportCount.reload} />}
+      {section === 'pedidos-app' && <AppRequestsPage onChange={appCount.reload} />}
+      {section === 'prestadores' && <ProfessionalsPage onChange={proCount.reload} />}
       {section === 'pedidos' && <RequestsPage onChange={counts.reload} />}
       {section === 'candidaturas' && <ApplicationsPage onChange={counts.reload} />}
       {section === 'utilizadores' && <UsersPage />}

@@ -23,13 +23,14 @@ export async function providerWallet(): Promise<Wallet> {
 }
 
 export async function updateMyProfile(input: {
-  name: string; phone?: string | null; workArea?: string | null;
-  specialty?: string | null; bio?: string | null; province?: string | null;
+  name: string; phone?: string | null; workAreas?: string[] | null;
+  specialty?: string | null; bio?: string | null; province?: string | null; companyName?: string | null;
 }): Promise<void> {
   const { error } = await supabase.rpc('update_my_profile', {
     p_name: input.name,
     p_phone: input.phone ?? null,
-    p_work_area: input.workArea ?? null,
+    p_work_areas: input.workAreas ?? null,
+    p_company_name: input.companyName ?? null,
     p_specialty: input.specialty ?? null,
     p_bio: input.bio ?? null,
     p_province: input.province ?? null,
