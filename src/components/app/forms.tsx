@@ -33,9 +33,7 @@ export function PhoneInput({ id, value, onChange, hasError, autoFocus }: {
   return (
     <div className={cx('flex h-[50px] items-center overflow-hidden rounded-xl border bg-white transition-colors focus-within:ring-4 focus-within:ring-brand-cyan/15',
       hasError ? 'border-red-400' : 'border-line focus-within:border-brand-cyan2')}>
-      <span className="flex h-full items-center gap-1.5 border-r border-line bg-cloud-50 px-3.5 text-base font-medium text-ink-700">
-        <span aria-hidden>🇦🇴</span> +244
-      </span>
+      <span className="flex h-full items-center border-r border-line bg-cloud-50 px-3.5 text-base font-medium text-ink-700">+244</span>
       <input
         id={id}
         type="tel"
