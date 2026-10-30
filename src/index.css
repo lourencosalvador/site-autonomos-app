@@ -368,3 +368,21 @@ body {
   .ui-width { transition: none; }
   .wallet-aurora::before, .wallet-aurora::after, .wallet-sheen::before { animation: none !important; }
 }
+
+/* ============================================================
+   RECIBO — bordas onduladas em cima e em baixo
+   ============================================================ */
+.receipt-shadow {
+  filter: drop-shadow(0 1px 0 rgba(10, 31, 42, 0.08)) drop-shadow(0 10px 24px rgba(3, 71, 94, 0.08));
+}
+.receipt-edges {
+  --wave: 9px;
+  background: #fff;
+  -webkit-mask:
+    radial-gradient(var(--wave) at 50% 0, #0000 97%, #000) 50% 0 / calc(var(--wave) * 2.2) 51% repeat-x,
+    radial-gradient(var(--wave) at 50% 100%, #0000 97%, #000) 50% 100% / calc(var(--wave) * 2.2) 51% repeat-x;
+  mask:
+    radial-gradient(var(--wave) at 50% 0, #0000 97%, #000) 50% 0 / calc(var(--wave) * 2.2) 51% repeat-x,
+    radial-gradient(var(--wave) at 50% 100%, #0000 97%, #000) 50% 100% / calc(var(--wave) * 2.2) 51% repeat-x;
+}
+.receipt-rule { border-top: 2px dashed #DCE9F1; }
