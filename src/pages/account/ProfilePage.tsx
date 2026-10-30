@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import {
   Bell, Briefcase, Building2, ChevronDown, ChevronLeft, Clock, FileText, HelpCircle, KeyRound, Landmark, LogOut, Mail, MapPin, Pencil,
   PencilLine, ShieldCheck, Smartphone, Sparkles, Tags, UserRound, type LucideIcon,
@@ -9,7 +9,6 @@ import { TextArea, TextInput } from '../../components/Field';
 import { FAQS } from '../../components/FaqSection';
 import { useCategories } from '../../hooks/useServices';
 import { type ProfileInput, profileErrorMessage, providerReviews, updateMyProfile, type ProviderReviews } from '../../lib/hub';
-import { type CatalogItem, addCatalogItem, deleteCatalogItem, myCatalog, updateCatalogItem, uploadCatalogImage } from '../../lib/catalog';
 import { changeAvatar, changePassword, saveIdDocument, uploadIdDocument } from '../../lib/profile';
 import { formatIban, isValidAoPhone, isValidIban } from '../../lib/phone';
 import { hashParam, navigate } from '../../router';
@@ -18,7 +17,8 @@ import { CompanyPicker, FilePick, PasswordInput, PhoneInput, ProvinceSelect } fr
 import { ProfessionalForm } from '../../components/app/ProfessionalForm';
 import { FeeExplainer } from '../../components/app/FeeExplainer';
 import { useInbox } from '../../components/app/Inbox';
-import { HeaderIconButton, Portfolio, ProfileHeader, ProfileTabs, ReviewsView, StarsButton } from '../../components/app/profile';
+import { HeaderIconButton, ProfileHeader, ProfileTabs, ReviewsView, StarsButton } from '../../components/app/profile';
+import { ComingSoon } from '../../components/app/ComingSoon';
 import { Badge, Btn, Card, Notice, Spinner, cx } from '../../components/app/ui';
 
 type Tab = 'info' | 'portfolio' | 'reviews';
@@ -55,17 +55,12 @@ export function ProfilePage() {
   const [tab, setTab] = useState<Tab>(isPro && initialTab === 'portfolio' ? 'portfolio' : isPro && initialTab === 'avaliacoes' ? 'reviews' : 'info');
   const [panel, setPanel] = useState<Panel | null>(initialPanel);
   const [uploading, setUploading] = useState(false);
-  const [items, setItems] = useState<CatalogItem[] | null>(null);
   const [reviews, setReviews] = useState<ProviderReviews | null>(null);
 
-  const loadCatalog = useCallback(async () => {
-    try { setItems(await myCatalog()); } catch { setItems((v) => v ?? []); }
-  }, []);
   useEffect(() => {
     if (!isPro) return;
-    void loadCatalog();
     providerReviews().then(setReviews).catch(() => setReviews({ average: 0, count: 0, items: [] }));
-  }, [isPro, loadCatalog]);
+  }, [isPro]);
 
   if (!user) return null;
 
@@ -126,26 +121,11 @@ export function ProfilePage() {
       </div>
 
       {tab === 'portfolio' && isPro && (
-        items === null ? <div className="flex justify-center py-12"><Spinner /></div> : (
-          <Portfolio
-            items={items}
-            editable
-            onUpload={async (file, caption, album) => {
-              const url = await uploadCatalogImage(file);
-              await addCatalogItem(url, caption, album);
-              await loadCatalog();
-              success('Foto publicada');
-            }}
-            onUpdate={async (id, caption, album) => {
-              try { await updateCatalogItem(id, caption, album); await loadCatalog(); success('Foto atualizada'); }
-              catch (e) { toastError('Não foi possível guardar', e instanceof Error ? e.message : undefined); }
-            }}
-            onDelete={async (id) => {
-              try { await deleteCatalogItem(id); await loadCatalog(); success('Foto apagada'); }
-              catch (e) { toastError('Não foi possível apagar', e instanceof Error ? e.message : undefined); }
-            }}
-          />
-        )
+        <ComingSoon
+          title="O portfólio está quase pronto"
+          description="Em breve vai poder publicar fotos dos seus trabalhos e organizá-las em álbuns para os clientes verem. Entretanto, mantenha o seu perfil completo."
+          action={<Btn variant="outline" onClick={() => { setTab('info'); setPanel('pessoais'); }}>Completar o meu perfil</Btn>}
+        />
       )}
 
       {tab === 'reviews' && isPro && (

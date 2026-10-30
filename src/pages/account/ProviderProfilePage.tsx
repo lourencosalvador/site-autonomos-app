@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { ChevronLeft, SearchX } from 'lucide-react';
 import { type PublicProfile, providerPublicProfile } from '../../lib/profile';
 import { navigate } from '../../router';
-import { Portfolio, ProfileHeader, ProfileTabs, ReviewsView, StarsButton } from '../../components/app/profile';
+import { ProfileHeader, ProfileTabs, ReviewsView, StarsButton } from '../../components/app/profile';
+import { ComingSoon } from '../../components/app/ComingSoon';
 import { Btn, Card, DetailRow, EmptyState, PageLoader } from '../../components/app/ui';
 
 type Tab = 'info' | 'portfolio' | 'reviews';
@@ -10,7 +11,7 @@ type Tab = 'info' | 'portfolio' | 'reviews';
 export function ProviderProfilePage({ id }: { id: string }) {
   const [p, setP] = useState<PublicProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<Tab>('portfolio');
+  const [tab, setTab] = useState<Tab>('info');
 
   useEffect(() => {
     let active = true;
@@ -45,11 +46,17 @@ export function ProviderProfilePage({ id }: { id: string }) {
         <StarsButton average={p.rating.average} count={p.rating.count} onClick={() => setTab('reviews')} />
       </div>
 
-      {tab === 'portfolio' && <Portfolio items={p.portfolio} />}
+      {tab === 'portfolio' && (
+        <ComingSoon
+          title="Portfólio em breve"
+          description="Estamos a preparar o espaço onde os profissionais mostram os seus trabalhos. Por agora, veja as informações e as avaliações deste profissional."
+          action={<Btn variant="outline" onClick={() => setTab('info')}>Ver informações</Btn>}
+        />
+      )}
 
       {tab === 'reviews' && (
         <div>
-          <button onClick={() => setTab('portfolio')} className="mb-4 inline-flex items-center gap-1 text-[15px] font-medium text-ink-500 hover:text-ink-900">
+          <button onClick={() => setTab('info')} className="mb-4 inline-flex items-center gap-1 text-[15px] font-medium text-ink-500 hover:text-ink-900">
             <ChevronLeft size={18} /> Voltar ao perfil
           </button>
           <h2 className="mb-4 text-xl font-semibold tracking-tight text-ink-900">Avaliações</h2>

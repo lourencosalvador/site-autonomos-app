@@ -86,7 +86,7 @@ function ClientForm() {
     try {
       const { needsConfirmation } = await signUp({ role: 'client', name: f.name, email: f.email, phone: f.phone || null, password: f.password });
       if (needsConfirmation) { success('Conta criada', 'Confirme o seu email para poder entrar.'); navigate(withNext('/entrar')); }
-      else navigate(nextPath());
+
     } catch (err) {
       setFormError(err instanceof Error ? err.message : 'Não foi possível criar a conta.');
       setBusy(false);

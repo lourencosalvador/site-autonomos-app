@@ -9,7 +9,6 @@ import { useAuth, authErrorMessage } from '../../auth/AuthContext';
 import { supabase } from '../../lib/supabase';
 import { isValidAoPhone } from '../../lib/phone';
 import { hashParam, navigate } from '../../router';
-import { nextPath } from './RegisterPage';
 
 export function LoginPage() {
   const { signIn } = useAuth();
@@ -32,7 +31,6 @@ export function LoginPage() {
     setBusy(true);
     try {
       await signIn(identifier, password);
-      navigate(nextPath());
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Não foi possível entrar.');
     } finally {

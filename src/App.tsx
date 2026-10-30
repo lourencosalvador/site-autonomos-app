@@ -60,8 +60,11 @@ function App() {
   if (route.name === 'login' || route.name === 'register') {
     if (loading) return <Loading />;
     if (user) {
-      const next = hashParam('next');
-      navigate(next && next.startsWith('/conta') ? next : '/conta');
+      const current = window.location.hash.replace(/^#/, '');
+      if (current.startsWith('/entrar') || current.startsWith('/criar-conta')) {
+        const next = hashParam('next');
+        navigate(next && next.startsWith('/conta') ? next : '/conta');
+      }
       return <Loading />;
     }
     return route.name === 'login' ? <LoginPage /> : <RegisterPage />;
@@ -70,7 +73,8 @@ function App() {
   if (route.name === 'account') {
     if (loading) return <Loading />;
     if (!user) {
-      navigate('/entrar?next=' + encodeURIComponent(window.location.hash.replace(/^#/, '') || '/conta'));
+      const current = window.location.hash.replace(/^#/, '');
+      if (current.startsWith('/conta')) navigate('/entrar?next=' + encodeURIComponent(current));
       return <Loading />;
     }
     const section = route.section;
@@ -108,9 +112,11 @@ function App() {
   }
 
   if (!loading && !user && route.name === 'request') {
-    const cat = hashParam('categoria');
-    const target = '/conta/pedir' + (cat ? `?categoria=${encodeURIComponent(cat)}` : '');
-    navigate('/entrar?next=' + encodeURIComponent(target));
+    if (window.location.hash.replace(/^#/, '').startsWith('/solicitar-servico')) {
+      const cat = hashParam('categoria');
+      const target = '/conta/pedir' + (cat ? `?categoria=${encodeURIComponent(cat)}` : '');
+      navigate('/entrar?next=' + encodeURIComponent(target));
+    }
     return <Loading />;
   }
 
