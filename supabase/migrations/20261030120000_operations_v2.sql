@@ -599,7 +599,7 @@ begin
 end $$;
 
 -- ───────────────────────────── 7. Avaliações ───────────────────────────
-create table if not exists public.client_reviews (
+create table if not exists public.broadcast_client_reviews (
   id           uuid primary key default gen_random_uuid(),
   broadcast_id uuid not null unique references public.service_broadcasts(id) on delete cascade,
   provider_id  uuid not null references public.profiles(id) on delete cascade,
@@ -608,11 +608,11 @@ create table if not exists public.client_reviews (
   comment      text,
   created_at   timestamptz not null default now()
 );
-alter table public.client_reviews enable row level security;
-drop policy if exists cr_participant_select on public.client_reviews;
-create policy cr_participant_select on public.client_reviews for select to authenticated
+alter table public.broadcast_client_reviews enable row level security;
+drop policy if exists bcr_participant_select on public.broadcast_client_reviews;
+create policy bcr_participant_select on public.broadcast_client_reviews for select to authenticated
   using (provider_id = auth.uid() or client_id = auth.uid());
-grant select on public.client_reviews to authenticated;
+grant select on public.broadcast_client_reviews to authenticated;
 
 create or replace function public.rate_provider(p_broadcast uuid, p_rating int, p_comment text default null)
 returns void
@@ -642,8 +642,8 @@ begin
   if b.id is null then raise exception 'NOT_FOUND'; end if;
   if b.provider_id is distinct from v_uid then raise exception 'FORBIDDEN'; end if;
   if b.status <> 'completed' and b.client_confirmed_at is null then raise exception 'NOT_COMPLETED'; end if;
-  if exists (select 1 from public.client_reviews where broadcast_id = p_broadcast) then raise exception 'ALREADY_RATED'; end if;
-  insert into public.client_reviews (broadcast_id, provider_id, client_id, rating, comment)
+  if exists (select 1 from public.broadcast_client_reviews where broadcast_id = p_broadcast) then raise exception 'ALREADY_RATED'; end if;
+  insert into public.broadcast_client_reviews (broadcast_id, provider_id, client_id, rating, comment)
   values (p_broadcast, v_uid, b.client_id, p_rating, nullif(trim(coalesce(p_comment, '')), ''));
 end $$;
 
@@ -827,7 +827,7 @@ begin
          || jsonb_build_object(
               'seconds_left', greatest(0, floor(extract(epoch from (b.expires_at - now())))::int),
               'client_rated', exists (select 1 from public.broadcast_reviews r where r.broadcast_id = b.id),
-              'provider_rated', exists (select 1 from public.client_reviews r where r.broadcast_id = b.id),
+              'provider_rated', exists (select 1 from public.broadcast_client_reviews r where r.broadcast_id = b.id),
               'client', (select jsonb_build_object('id',c.id,'name',c.name,'avatar_url',c.avatar_url,
                                                    'phone', case when b.provider_id = auth.uid() or b.client_id = auth.uid() then c.phone end)
                          from public.profiles c where c.id = b.client_id),
