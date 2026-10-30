@@ -155,7 +155,7 @@ function ProviderHome() {
   useEffect(() => {
     if (!approved) return;
     providerReviews().then(setReviews).catch(() => {});
-    providerWallet().then((w) => setBalance(Number(w.due_minor) || 0)).catch(() => {});
+    providerWallet().then((w) => setBalance(Number(w.available_minor) || 0)).catch(() => {});
   }, [approved]);
 
   if (!user) return null;
@@ -196,7 +196,7 @@ function ProviderHome() {
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <Stat label="Disponíveis" value={jobs?.length ?? '—'} hint="nas suas áreas" icon={Bell} />
           <Stat label="Em curso" value={current.length} hint="aceites por si" icon={ClipboardList} />
-          <Stat label="A receber" value={balance === null ? '—' : formatKz(balance)} hint="pagamentos confirmados" icon={Wallet} />
+          <Stat label="Saldo" value={balance === null ? '—' : formatKz(balance)} hint="disponível para sacar" icon={Wallet} />
           <Stat label="Avaliação" value={reviews?.count ? reviews.average.toFixed(1) : '—'} hint={reviews?.count ? `${reviews.count} avaliaç${reviews.count === 1 ? 'ão' : 'ões'}` : 'sem avaliações'} icon={Star} />
         </div>
       )}

@@ -1,25 +1,24 @@
 import { useMemo, useState } from 'react';
-import { Building2, Check, ClipboardCheck, ExternalLink, FileText, Landmark, MapPin, MessageCircle, Phone, PhoneCall, RefreshCw, X } from 'lucide-react';
+import { Building2, Check, ClipboardCheck, ExternalLink, FileText, MapPin, MessageCircle, Phone, PhoneCall, RefreshCw, X } from 'lucide-react';
 import { PageHeader } from '../components/Shell';
 import { SearchInput } from '../components/SearchInput';
 import { DetailRow } from '../components/blocks';
 import { Badge, Card, Skeleton } from '../ui/card';
 import { Button, buttonClass } from '../ui/button';
-import { Input, Label, Textarea } from '../ui/input';
+import { Label, Textarea } from '../ui/input';
 import { Dialog, DialogDescription, DialogTitle, SheetContent } from '../ui/dialog';
 import { EmptyState, ErrorBanner, Segmented, Table, TBody, TD, TH, THead, TR } from '../ui/misc';
 import { rpc, useAdminQuery } from '../lib/api';
 import { useAction } from '../lib/useAction';
 import { formatDate, formatDateTime, phoneDigits, timeAgo } from '../lib/utils';
 import { formatKz } from '../../lib/payments';
-import { formatIban } from '../../lib/phone';
 
 type Person = { id: string; name: string | null; phone: string | null; email: string | null };
-type Provider = Person & { company_name: string | null; iban: string | null; iban_holder: string | null; work_areas: string[] | null };
+type Provider = Person & { company_name: string | null; work_areas: string[] | null };
 
 type Stage =
   | 'searching' | 'unanswered' | 'visit_requested' | 'visit_scheduled' | 'quote_pending' | 'quote_sent' | 'quote_rejected'
-  | 'in_progress' | 'awaiting_confirmation' | 'awaiting_payment' | 'payment_review' | 'payout_pending'
+  | 'in_progress' | 'awaiting_confirmation' | 'awaiting_payment' | 'payment_review'
   | 'completed' | 'cancelled' | 'no_providers' | 'expired';
 
 export type AppRequest = {
@@ -57,9 +56,6 @@ export type AppRequest = {
   proof_submitted_at: string | null;
   payment_rejected_reason: string | null;
   paid_at: string | null;
-  payout_status: string;
-  payout_at: string | null;
-  payout_reference: string | null;
   provider_done_at: string | null;
   client_confirmed_at: string | null;
   created_at: string;
@@ -83,7 +79,6 @@ const STAGE: Record<Stage, { label: string; tone: 'neutral' | 'brand' | 'success
   awaiting_confirmation: { label: 'A aguardar confirmação do cliente', tone: 'brand' },
   awaiting_payment: { label: 'A aguardar pagamento', tone: 'warning' },
   payment_review: { label: 'Comprovativo por confirmar', tone: 'danger' },
-  payout_pending: { label: 'Transferir ao profissional', tone: 'warning' },
   completed: { label: 'Concluído', tone: 'success' },
   cancelled: { label: 'Cancelado', tone: 'neutral' },
   no_providers: { label: 'Sem prestadores', tone: 'neutral' },
@@ -96,7 +91,7 @@ export function needsCall(r: AppRequest) {
   return r.stage === 'visit_requested' && Date.now() - new Date(r.accepted_at ?? r.created_at).getTime() > 24 * 3600e3;
 }
 
-type Filter = 'payments' | 'payouts' | 'quote' | 'active' | 'call' | 'all';
+type Filter = 'payments' | 'quote' | 'active' | 'call' | 'all';
 const QUOTE_STAGES: Stage[] = ['visit_requested', 'visit_scheduled', 'quote_pending', 'quote_sent', 'quote_rejected'];
 const ACTIVE_STAGES: Stage[] = ['in_progress', 'awaiting_confirmation', 'awaiting_payment'];
 
@@ -117,7 +112,6 @@ export function AppRequestsPage({ onChange }: { onChange?: () => void }) {
 
   const groups = useMemo(() => ({
     payments: rows.filter((r) => r.stage === 'payment_review'),
-    payouts: rows.filter((r) => r.stage === 'payout_pending'),
     quote: rows.filter((r) => QUOTE_STAGES.includes(r.stage)),
     active: rows.filter((r) => ACTIVE_STAGES.includes(r.stage)),
     call: rows.filter(needsCall),
@@ -137,25 +131,15 @@ export function AppRequestsPage({ onChange }: { onChange?: () => void }) {
     <>
       <PageHeader
         title="Pedidos da app"
-        description="Todos os pedidos da app web: visita, orçamento, serviço, pagamento por transferência e transferência ao profissional."
+        description="Todos os pedidos da app web: visita, orçamento, serviço, pagamento por transferência. O líquido entra no saldo do profissional, que pede o saque em «Saques»."
         actions={<Button variant="outline" size="sm" onClick={reload} disabled={q.loading}><RefreshCw className={q.loading ? 'animate-spin' : ''} /> Atualizar</Button>}
       />
 
-      {(groups.payments.length > 0 || groups.payouts.length > 0) && (
-        <div className="mb-4 grid gap-3 sm:grid-cols-2">
-          {groups.payments.length > 0 && (
-            <button onClick={() => setFilter('payments')} className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-left text-[13px] text-red-900">
-              <FileText className="mt-0.5 size-4 shrink-0" />
-              <span><b>{groups.payments.length} comprovativo(s) por confirmar.</b> Verifique a transferência no banco e confirme ou rejeite.</span>
-            </button>
-          )}
-          {groups.payouts.length > 0 && (
-            <button onClick={() => setFilter('payouts')} className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-left text-[13px] text-amber-900">
-              <Landmark className="mt-0.5 size-4 shrink-0" />
-              <span><b>{groups.payouts.length} transferência(s) a fazer</b> para profissionais. Transfira o líquido e marque como feita.</span>
-            </button>
-          )}
-        </div>
+      {groups.payments.length > 0 && (
+        <button onClick={() => setFilter('payments')} className="mb-4 flex w-full items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-left text-[13px] text-red-900">
+          <FileText className="mt-0.5 size-4 shrink-0" />
+          <span><b>{groups.payments.length} comprovativo(s) por confirmar.</b> Verifique a transferência no banco e confirme ou rejeite. Ao confirmar, o líquido entra no saldo do profissional.</span>
+        </button>
       )}
 
       <Card>
@@ -165,7 +149,6 @@ export function AppRequestsPage({ onChange }: { onChange?: () => void }) {
             onChange={setFilter}
             options={[
               { value: 'payments', label: 'Comprovativos', count: groups.payments.length },
-              { value: 'payouts', label: 'Transferências', count: groups.payouts.length },
               { value: 'quote', label: 'Visita / orçamento', count: groups.quote.length },
               { value: 'active', label: 'Em curso', count: groups.active.length },
               { value: 'call', label: 'Ligar ao cliente', count: groups.call.length },
@@ -252,14 +235,13 @@ function RequestSheet({ request, onClose, onChanged }: { request: AppRequest | n
   const run = useAction();
   const [note, setNote] = useState('');
   const [reason, setReason] = useState('');
-  const [payoutRef, setPayoutRef] = useState('');
   const [rejecting, setRejecting] = useState(false);
   const [busy, setBusy] = useState(false);
   const r = request;
 
   const act = async (fn: () => Promise<unknown>, msg: string) => {
     setBusy(true);
-    try { await run(fn, msg); onChanged(); setNote(''); setReason(''); setPayoutRef(''); setRejecting(false); } catch {} finally { setBusy(false); }
+    try { await run(fn, msg); onChanged(); setNote(''); setReason(''); setRejecting(false); } catch {} finally { setBusy(false); }
   };
 
   return (
@@ -300,27 +282,10 @@ function RequestSheet({ request, onClose, onChanged }: { request: AppRequest | n
                     </div>
                   ) : (
                     <div className="mt-3 flex gap-2">
-                      <Button size="sm" disabled={busy} onClick={() => act(() => rpc('admin_confirm_payment', { p_id: r.id }), 'Pagamento confirmado.')}><Check /> Confirmar recebido</Button>
+                      <Button size="sm" disabled={busy} onClick={() => act(() => rpc('admin_confirm_payment', { p_id: r.id }), 'Pagamento confirmado. Valor creditado ao profissional.')}><Check /> Confirmar recebido</Button>
                       <Button size="sm" variant="outline" disabled={busy} onClick={() => setRejecting(true)}><X className="text-red-500" /> Rejeitar</Button>
                     </div>
                   )}
-                </section>
-              )}
-
-              {r.stage === 'payout_pending' && (
-                <section className="rounded-lg border border-amber-200 bg-amber-50/60 p-4">
-                  <p className="text-sm font-semibold text-zinc-900">Transferir ao profissional</p>
-                  <dl className="mt-2 divide-y divide-amber-100">
-                    <DetailRow label="Valor líquido">{formatKz(r.provider_net_minor ?? r.price_minor)}</DetailRow>
-                    <DetailRow label="IBAN">{r.provider?.iban ? formatIban(r.provider.iban) : <span className="text-red-600">Não indicado — contacte o profissional</span>}</DetailRow>
-                    <DetailRow label="Titular">{r.provider?.iban_holder ?? r.provider?.name ?? '—'}</DetailRow>
-                  </dl>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-[1fr_auto]">
-                    <Input value={payoutRef} onChange={(e) => setPayoutRef(e.target.value)} placeholder="Referência da transferência (opcional)" />
-                    <Button size="sm" className="h-9" disabled={busy} onClick={() => act(() => rpc('admin_mark_payout', { p_id: r.id, p_reference: payoutRef || null }), 'Transferência registada.')}>
-                      <Check /> Marcar como transferido
-                    </Button>
-                  </div>
                 </section>
               )}
 
@@ -335,7 +300,7 @@ function RequestSheet({ request, onClose, onChanged }: { request: AppRequest | n
                     <DetailRow label="Líquido ao profissional">{formatKz(r.provider_net_minor ?? r.price_minor)}</DetailRow>
                     <DetailRow label="Receita AUTONOMOUS">{formatKz((r.client_fee_minor ?? 0) + (r.provider_fee_minor ?? 0))}</DetailRow>
                     <DetailRow label="Pagamento">{r.payment_status === 'paid' ? `Confirmado ${formatDateTime(r.paid_at)}` : r.payment_status === 'submitted' ? 'Comprovativo enviado' : r.payment_status === 'rejected' ? `Rejeitado: ${r.payment_rejected_reason ?? ''}` : 'Por pagar'}</DetailRow>
-                    <DetailRow label="Transferência">{r.payout_status === 'paid' ? `Feita ${formatDateTime(r.payout_at)}${r.payout_reference ? ` · ${r.payout_reference}` : ''}` : 'Pendente'}</DetailRow>
+                    <DetailRow label="Carteira do profissional">{r.payment_status === 'paid' ? 'Líquido creditado no saldo' : 'Ainda não creditado'}</DetailRow>
                   </dl>
                 ) : (
                   <dl className="divide-y divide-zinc-100">

@@ -63,7 +63,7 @@ const PROVIDER: Record<Stage, Label> = {
 export function stageLabel(b: Broadcast, asProvider: boolean): Label {
   const s = stageOf(b);
   if (!asProvider && s === 'completed' && b.status === 'completed') return CLIENT.completed;
-  if (asProvider && s === 'completed') return { label: b.payout_status === 'paid' ? 'Transferido' : 'Pago · a receber', tone: 'success' };
+  if (asProvider && s === 'completed') return { label: 'Pago · no saldo', tone: 'success' };
   if (!asProvider && s === 'awaiting_payment' && b.payment_status === 'rejected') return { label: 'Reenvie o comprovativo', tone: 'danger', action: true };
   return (asProvider ? PROVIDER : CLIENT)[s];
 }

@@ -104,12 +104,6 @@ export function ProfilePage() {
         }
       />
 
-      {isPro && user.approvalStatus === 'approved' && !user.iban && (
-        <Notice tone="warning" title="Indique o seu IBAN" className="mt-5" action={<Btn size="md" variant="outline" onClick={() => { setTab('info'); setPanel('banco'); }}>Adicionar IBAN</Btn>}>
-          Precisamos do seu IBAN para transferir o valor dos serviços concluídos.
-        </Notice>
-      )}
-
       <div className="my-5 flex flex-col items-center gap-2 sm:my-6 sm:flex-row sm:justify-between">
         {isPro ? (
           <ProfileTabs value={tab === 'reviews' ? 'info' : tab} onChange={(v) => setTab(v)} tabs={[{ value: 'info', label: 'Informações' }, { value: 'portfolio', label: 'Portfólio' }]} />
@@ -347,7 +341,7 @@ function BankPanel({ user }: { user: AuthUser }) {
   const [holder, setHolder] = useState(user.ibanHolder ?? user.name);
   return (
     <div>
-      <PanelTitle title="Dados bancários" description="A AUTONOMOUS transfere para esta conta o valor dos serviços concluídos (já com a comissão descontada)." />
+      <PanelTitle title="Dados bancários" description="Conta para onde transferimos os seus saques. Também a pode indicar no momento de sacar, na carteira." />
       <FieldCard icon={Landmark} label="IBAN" value={user.iban ? <span className="font-medium tracking-wide text-ink-900">{formatIban(user.iban)}</span> : null}
         placeholder="Adicione o seu IBAN" hint={user.ibanHolder ? `Titular: ${user.ibanHolder}` : undefined}
         renderEdit={() => (

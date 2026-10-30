@@ -74,8 +74,6 @@ export type Broadcast = {
   proof_reference?: string | null;
   proof_submitted_at?: string | null;
   payment_rejected_reason?: string | null;
-  payout_status?: 'pending' | 'paid';
-  payout_at?: string | null;
   client_rated?: boolean;
   provider_rated?: boolean;
   unread?: number;

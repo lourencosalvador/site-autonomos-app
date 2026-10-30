@@ -7,7 +7,7 @@ import { track } from '../lib/analytics';
 
 const BENEFITS = [
   { icon: TrendingUp, title: 'Receba novos clientes', desc: 'Os pedidos das suas áreas chegam até si, sem ter de procurar.' },
-  { icon: Wallet, title: 'Pagamento garantido', desc: 'O cliente paga à AUTONOMOUS e nós transferimos o valor para a sua conta.' },
+  { icon: Wallet, title: 'Pagamento garantido', desc: 'O cliente paga à AUTONOMOUS, o valor entra no seu saldo e saca quando quiser.' },
   { icon: Clock, title: 'Trabalhe quando quiser', desc: 'Aceita apenas os pedidos que lhe convêm.' },
   { icon: Eye, title: 'Ganhe visibilidade', desc: 'Perfil com portfólio e avaliações dos clientes.' },
 ];

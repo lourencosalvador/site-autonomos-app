@@ -671,9 +671,9 @@ function ProviderPanel({ b, stage, busy, actions, fees }: { b: Broadcast; stage:
       );
     case 'completed':
       return (
-        <Status icon={CheckCircle2} tone="success" title={b.payout_status === 'paid' ? 'Valor transferido' : 'Pagamento confirmado'}
-          text={b.payout_status === 'paid' ? `Transferimos ${formatKz(b.provider_net_minor ?? 0)} para a sua conta.` : `Vamos transferir ${formatKz(b.provider_net_minor ?? 0)} para o IBAN do seu perfil.`}
-          action={<Btn variant="outline" to="/conta/financas">Ver finanças</Btn>}>
+        <Status icon={CheckCircle2} tone="success" title="Pagamento confirmado"
+          text={`${formatKz(b.provider_net_minor ?? 0)} foram adicionados ao seu saldo. Pode sacar quando quiser na carteira.`}
+          action={<Btn variant="outline" to="/conta/financas">Ir para a carteira</Btn>}>
           <AmountSummary b={b} audience="provider" className="mt-5" />
         </Status>
       );

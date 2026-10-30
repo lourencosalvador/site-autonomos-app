@@ -1,38 +1,73 @@
 import { supabase } from './supabase';
 import { formatAoPhone } from './phone';
 
-export type MovementState = 'transferred' | 'due' | 'awaiting_payment';
+export type WithdrawalStatus = 'pending' | 'paid' | 'rejected' | 'cancelled';
 
-export type Movement = {
+export type Withdrawal = {
   id: string;
-  category: string;
-  gross_minor: number;
-  fee_minor: number;
+  provider_id: string;
   amount_minor: number;
-  state: MovementState;
-  kind: 'available' | 'pending';
-  at: string;
-  payout_at: string | null;
-  payout_reference: string | null;
-  client_name: string | null;
+  iban: string;
+  iban_holder: string;
+  status: WithdrawalStatus;
+  reference: string | null;
+  rejected_reason: string | null;
+  created_at: string;
+  processed_at: string | null;
 };
 
+/** Extrato: serviços (crédito do líquido) e saques (débito). */
+export type Movement =
+  | { id: string; type: 'service'; label: string; gross_minor: number; fee_minor: number; amount_minor: number;
+      state: 'credited' | 'awaiting_payment'; at: string | null; client_name: string | null }
+  | { id: string; type: 'withdrawal'; label: string; amount_minor: number; state: WithdrawalStatus; at: string | null;
+      reference: string | null; rejected_reason: string | null; iban: string | null };
+
 export type Wallet = {
-  transferred_minor: number;
-  due_minor: number;
+  available_minor: number;
+  credited_minor: number;
+  pending_withdrawal_minor: number;
+  withdrawn_minor: number;
   upcoming_minor: number;
   gross_minor: number;
   fees_minor: number;
   jobs_done: number;
-  available_minor: number;
-  pending_minor: number;
+  pending_withdrawal: Withdrawal | null;
   movements: Movement[];
 };
+
+/** Valor mínimo de um saque (100 Kz). */
+export const MIN_WITHDRAWAL_MINOR = 10000;
 
 export async function providerWallet(): Promise<Wallet> {
   const { data, error } = await supabase.rpc('provider_wallet');
   if (error) throw error;
   return data as Wallet;
+}
+
+export async function requestWithdrawal(amountMinor: number, iban: string, holder: string): Promise<Withdrawal> {
+  const { data, error } = await supabase.rpc('request_broadcast_withdrawal', {
+    p_amount_minor: amountMinor, p_iban: iban, p_iban_holder: holder,
+  });
+  if (error) throw error;
+  return data as Withdrawal;
+}
+
+export async function cancelWithdrawal(id: string): Promise<void> {
+  const { error } = await supabase.rpc('cancel_broadcast_withdrawal', { p_id: id });
+  if (error) throw error;
+}
+
+export function withdrawalErrorMessage(e: unknown): string {
+  const m = e instanceof Error ? e.message : String(e ?? '');
+  if (m.includes('INSUFFICIENT_BALANCE')) return 'O valor é superior ao seu saldo disponível.';
+  if (m.includes('WITHDRAWAL_PENDING')) return 'Já tem um saque em processamento. Aguarde a transferência.';
+  if (m.includes('INVALID_IBAN')) return 'IBAN inválido. Deve ter 21 dígitos (AO06 opcional).';
+  if (m.includes('HOLDER_REQUIRED')) return 'Indique o titular da conta.';
+  if (m.includes('INVALID_AMOUNT')) return 'O valor mínimo de saque é 100 Kz.';
+  if (m.includes('NOT_APPROVED')) return 'A carteira fica ativa depois da aprovação do perfil.';
+  if (m.includes('WITHDRAWAL_CLOSED')) return 'Este saque já foi processado.';
+  return 'Tente novamente dentro de instantes.';
 }
 
 export type ProfileInput = {

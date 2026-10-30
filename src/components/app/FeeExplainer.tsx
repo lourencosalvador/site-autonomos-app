@@ -39,7 +39,7 @@ export function FeeExplainer({ audience, className }: { audience: 'client' | 'pr
         )}
       </dl>
       <p className="mt-3 text-sm leading-relaxed text-ink-400">
-        O cliente paga depois de o serviço estar concluído, por transferência para a AUTONOMOUS. O valor do profissional é transferido para o IBAN indicado no perfil.
+        O cliente paga depois de o serviço estar concluído, por transferência para a AUTONOMOUS. O valor do profissional entra no saldo da carteira e pode ser sacado para a conta bancária a qualquer momento.
       </p>
     </div>
   );

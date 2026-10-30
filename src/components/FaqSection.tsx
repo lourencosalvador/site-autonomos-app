@@ -30,7 +30,7 @@ export const FAQS: { q: string; a: string }[] = [
   },
   {
     q: 'Quanto cobra a AUTONOMOUS aos profissionais?',
-    a: 'Uma comissão de 10% sobre o valor do serviço. O restante é transferido para o IBAN indicado no perfil, depois de confirmarmos o pagamento do cliente.',
+    a: 'Uma comissão de 10% sobre o valor do serviço. Depois de confirmarmos o pagamento do cliente, o restante entra no saldo da sua carteira e pode sacá-lo para a sua conta bancária quando quiser.',
   },
   {
     q: 'Como sei que o profissional é confiável?',

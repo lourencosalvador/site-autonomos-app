@@ -18,8 +18,9 @@ import { SupportPage } from './pages/SupportPage';
 import { AppRequestsPage } from './pages/AppRequestsPage';
 import { ProfessionalsPage } from './pages/ProfessionalsPage';
 import { CompaniesPage } from './pages/CompaniesPage';
+import { SaquesPage } from './pages/SaquesPage';
 
-const SECTIONS: SectionId[] = ['', 'atividade', 'pagamentos', 'apoio', 'pedidos-app', 'prestadores', 'empresas', 'pedidos', 'candidaturas', 'utilizadores', 'servicos', 'teste', 'definicoes'];
+const SECTIONS: SectionId[] = ['', 'atividade', 'pagamentos', 'apoio', 'pedidos-app', 'saques', 'prestadores', 'empresas', 'pedidos', 'candidaturas', 'utilizadores', 'servicos', 'teste', 'definicoes'];
 
 export default function AdminApp({ section }: { section: string }) {
   const [session, setSession] = useState<AdminSession | null>(getSession);
@@ -84,6 +85,7 @@ function Dashboard({ section, session, onLogout }: { section: SectionId; session
   );
   const supportCount = useAdminQuery(() => rpc<number>('admin_support_count').catch(() => 0), [], 30_000);
   const appCount = useAdminQuery(() => rpc<number>('admin_app_requests_count').catch(() => 0), [], 30_000);
+  const saquesCount = useAdminQuery(() => rpc<number>('admin_broadcast_withdrawals_count').catch(() => 0), [], 30_000);
   const proCount = useAdminQuery(() => rpc<number>('admin_professionals_pending').catch(() => 0), [], 60_000);
 
   return (
@@ -97,6 +99,7 @@ function Dashboard({ section, session, onLogout }: { section: SectionId; session
         payments: payCounts.data?.withdrawals_pending,
         support: supportCount.data ?? undefined,
         appRequests: appCount.data ?? undefined,
+        saques: saquesCount.data ?? undefined,
         professionals: proCount.data ?? undefined,
       }}
     >
@@ -105,6 +108,7 @@ function Dashboard({ section, session, onLogout }: { section: SectionId; session
       {section === 'pagamentos' && <PaymentsPage onChange={payCounts.reload} />}
       {section === 'apoio' && <SupportPage onChange={supportCount.reload} />}
       {section === 'pedidos-app' && <AppRequestsPage onChange={appCount.reload} />}
+      {section === 'saques' && <SaquesPage onChange={saquesCount.reload} />}
       {section === 'prestadores' && <ProfessionalsPage onChange={proCount.reload} />}
       {section === 'empresas' && <CompaniesPage />}
       {section === 'pedidos' && <RequestsPage onChange={counts.reload} />}
