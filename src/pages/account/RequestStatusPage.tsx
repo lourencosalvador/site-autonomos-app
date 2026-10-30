@@ -125,7 +125,7 @@ export function RequestStatusPage({ id }: { id: string }) {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
-          <Card className="p-5 sm:p-7">
+          <Card key={stage} className="ui-fade-up p-5 sm:p-7">
             {iAmClient ? (
               <ClientPanel b={b} stage={stage} busy={busy} actions={actions} fees={fees} />
             ) : iAmProvider ? (

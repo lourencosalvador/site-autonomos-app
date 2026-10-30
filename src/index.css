@@ -275,3 +275,96 @@ body {
 
 /* Mensagem a entrar (card de espera) */
 @keyframes msg-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ============================================================
+   APP — transições suaves
+   ============================================================ */
+@keyframes ui-fade-up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes ui-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes ui-pop { from { opacity: 0; transform: translateY(10px) scale(0.985); } to { opacity: 1; transform: none; } }
+
+.ui-fade-up { animation: ui-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.ui-fade { animation: ui-fade 0.25s ease both; }
+.ui-pop { animation: ui-pop 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.ui-stagger > * { animation: ui-fade-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.ui-stagger > *:nth-child(2) { animation-delay: 0.05s; }
+.ui-stagger > *:nth-child(3) { animation-delay: 0.1s; }
+.ui-stagger > *:nth-child(4) { animation-delay: 0.15s; }
+.ui-stagger > *:nth-child(n + 5) { animation-delay: 0.2s; }
+
+.ui-width { transition: max-width 0.55s cubic-bezier(0.22, 1, 0.36, 1), width 0.55s cubic-bezier(0.22, 1, 0.36, 1); }
+
+/* ============================================================
+   CARTEIRA — fundo animado do cartão
+   ============================================================ */
+.wallet-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(135deg, #03475E 0%, #023A4D 55%, #062B3A 100%);
+}
+.wallet-card > .wallet-aurora,
+.wallet-card > .wallet-grid,
+.wallet-card > .wallet-sheen { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+
+.wallet-aurora::before,
+.wallet-aurora::after {
+  content: '';
+  position: absolute;
+  width: 70%;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  filter: blur(48px);
+  opacity: 0.55;
+}
+.wallet-aurora::before {
+  top: -35%;
+  right: -20%;
+  background: radial-gradient(circle, rgba(2, 230, 255, 0.55) 0%, rgba(2, 230, 255, 0) 70%);
+  animation: wallet-drift-a 16s ease-in-out infinite alternate;
+}
+.wallet-aurora::after {
+  bottom: -45%;
+  left: -25%;
+  background: radial-gradient(circle, rgba(10, 200, 224, 0.4) 0%, rgba(10, 200, 224, 0) 70%);
+  animation: wallet-drift-b 20s ease-in-out infinite alternate;
+}
+@keyframes wallet-drift-a {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(-22%, 18%) scale(1.15); }
+}
+@keyframes wallet-drift-b {
+  0% { transform: translate(0, 0) scale(1.05); }
+  100% { transform: translate(24%, -14%) scale(0.95); }
+}
+
+.wallet-grid {
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse at 85% 0%, #000 0%, transparent 70%);
+  mask-image: radial-gradient(ellipse at 85% 0%, #000 0%, transparent 70%);
+}
+
+.wallet-sheen::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  bottom: -50%;
+  width: 35%;
+  left: 0;
+  background: linear-gradient(100deg, transparent 0%, rgba(255, 255, 255, 0.09) 50%, transparent 100%);
+  transform: translateX(-160%) rotate(12deg);
+  animation: wallet-sheen 8s cubic-bezier(0.45, 0, 0.2, 1) infinite;
+}
+@keyframes wallet-sheen {
+  0%, 62% { transform: translateX(-160%) rotate(12deg); }
+  100% { transform: translateX(420%) rotate(12deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ui-fade-up, .ui-fade, .ui-pop, .ui-stagger > * { animation: none !important; }
+  .ui-width { transition: none; }
+  .wallet-aurora::before, .wallet-aurora::after, .wallet-sheen::before { animation: none !important; }
+}

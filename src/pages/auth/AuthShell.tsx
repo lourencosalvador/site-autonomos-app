@@ -17,7 +17,7 @@ export function AuthShell({ title, subtitle, children, footer, wide }: {
   return (
     <div className="flex min-h-[100dvh] bg-white">
       {/* Painel de marca */}
-      <aside className={(wide ? "lg:w-[36%] " : "lg:w-[44%] ") + "relative hidden shrink-0 overflow-hidden bg-brand-dark lg:sticky lg:top-0 lg:block lg:h-[100dvh]"}>
+      <aside className={(wide ? "lg:w-[36%] " : "lg:w-[44%] ") + "ui-width relative hidden shrink-0 overflow-hidden bg-brand-dark lg:sticky lg:top-0 lg:block lg:h-[100dvh]"}>
         <div className="absolute inset-0 bg-grid-dark opacity-30" />
         <div className="absolute -left-24 top-24 h-80 w-80 animate-blob rounded-full bg-brand-cyan/25 blur-3xl" />
         <div className="absolute -right-16 bottom-10 h-80 w-80 animate-blob rounded-full bg-lilac-300/30 blur-3xl [animation-delay:3s]" />
@@ -66,13 +66,15 @@ export function AuthShell({ title, subtitle, children, footer, wide }: {
         </div>
 
         <div className="flex flex-1 items-center justify-center py-8">
-          <div className={wide ? "w-full max-w-[40rem]" : "w-full max-w-[26rem]"}>
+          <div className={"ui-width w-full " + (wide ? "max-w-[40rem]" : "max-w-[26rem]")}>
             <button onClick={() => navigate('/')} className="mb-8 hidden items-center gap-1.5 text-sm text-ink-400 transition-colors hover:text-ink-900 lg:inline-flex">
               <ArrowLeft size={15} /> Voltar ao site
             </button>
-            <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl">{title}</h1>
-            <p className="mt-2 text-[15px] leading-relaxed text-ink-500">{subtitle}</p>
-            <div className="mt-7">{children}</div>
+            <div key={title} className="ui-fade-up">
+              <h1 className="font-display text-2xl font-extrabold tracking-tight text-ink-900 sm:text-3xl">{title}</h1>
+              <p className="mt-2 text-[15px] leading-relaxed text-ink-500">{subtitle}</p>
+              <div className="mt-7">{children}</div>
+            </div>
             {footer && <div className="mt-6 text-center text-sm text-ink-500">{footer}</div>}
           </div>
         </div>

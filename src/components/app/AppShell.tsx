@@ -136,7 +136,7 @@ export function AppShell({ children, immersive = false }: { children: ReactNode;
 
       <main className={cx('md:pl-[248px]', !immersive && 'pb-32 md:pb-0')}>
         {immersive ? children : (
-          <div className="mx-auto w-full max-w-[1120px] px-4 py-6 sm:px-6 md:py-10 lg:px-10">{children}</div>
+          <div key={section} className="ui-fade-up mx-auto w-full max-w-[1120px] px-4 py-6 sm:px-6 md:py-10 lg:px-10">{children}</div>
         )}
       </main>
 

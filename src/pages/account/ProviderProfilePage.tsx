@@ -46,6 +46,7 @@ export function ProviderProfilePage({ id }: { id: string }) {
         <StarsButton average={p.rating.average} count={p.rating.count} onClick={() => setTab('reviews')} />
       </div>
 
+      <div key={tab} className="ui-fade-up">
       {tab === 'portfolio' && (
         <ComingSoon
           title="Portfólio em breve"
@@ -86,6 +87,7 @@ export function ProviderProfilePage({ id }: { id: string }) {
           </Card>
         </div>
       )}
+      </div>
     </>
   );
 }

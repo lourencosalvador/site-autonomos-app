@@ -55,7 +55,10 @@ export function WalletPage() {
       )}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="rounded-2xl bg-brand-dark p-6 text-white sm:p-7">
+        <div className="wallet-card rounded-2xl p-6 text-white sm:p-7">
+          <div className="wallet-aurora" aria-hidden />
+          <div className="wallet-grid" aria-hidden />
+          <div className="wallet-sheen" aria-hidden />
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-white/60">A receber</span>
             <WalletIcon size={20} className="text-brand-cyan" />

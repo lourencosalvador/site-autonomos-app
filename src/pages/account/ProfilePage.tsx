@@ -120,6 +120,7 @@ export function ProfilePage() {
         </div>
       </div>
 
+      <div key={tab} className="ui-fade-up">
       {tab === 'portfolio' && isPro && (
         <ComingSoon
           title="O portfólio está quase pronto"
@@ -162,10 +163,13 @@ export function ProfilePage() {
             <button onClick={() => setPanel(null)} className="mb-4 inline-flex items-center gap-1 text-[15px] font-medium text-ink-500 hover:text-ink-900 md:hidden">
               <ChevronLeft size={18} /> Informações
             </button>
-            <PanelView panel={panel ?? 'pessoais'} user={user} />
+            <div key={panel ?? 'pessoais'} className="ui-fade-up">
+              <PanelView panel={panel ?? 'pessoais'} user={user} />
+            </div>
           </section>
         </div>
       )}
+      </div>
     </>
   );
 }

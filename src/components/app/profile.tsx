@@ -159,8 +159,8 @@ export function Modal({ open, onClose, children, className, dark }: { open: bool
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div className={cx('fixed inset-0 z-[70] flex items-end justify-center sm:items-center sm:p-4', dark ? 'bg-ink-950/85' : 'bg-ink-950/45')} onClick={onClose}>
-      <div className={cx('max-h-[92dvh] w-full overflow-y-auto', dark ? '' : 'rounded-t-3xl bg-white sm:rounded-2xl', className)} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+    <div className={cx('ui-fade fixed inset-0 z-[70] flex items-end justify-center sm:items-center sm:p-4', dark ? 'bg-ink-950/85' : 'bg-ink-950/45')} onClick={onClose}>
+      <div className={cx('ui-pop max-h-[92dvh] w-full overflow-y-auto', dark ? '' : 'rounded-t-3xl bg-white sm:rounded-2xl', className)} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
         {children}
       </div>
     </div>

@@ -56,7 +56,7 @@ export function ServicesHub() {
             action={!isPro && tab === 'active' ? <Btn to="/conta/pedir"><Plus size={18} /> Novo pedido</Btn> : undefined}
           />
         ) : (
-          <div className="divide-y divide-line">
+          <div key={tab} className="ui-fade divide-y divide-line">
             {list.map((r) => <RequestRow key={r.id} r={r} asProvider={isPro} />)}
           </div>
         )}
