@@ -39,6 +39,11 @@ export type ProfileRow = {
   work_area?: string | null;
   work_areas?: string[] | null;
   company_name?: string | null;
+  company_id?: string | null;
+  iban?: string | null;
+  iban_holder?: string | null;
+  experience_years?: number | null;
+  id_document_url?: string | null;
   bio?: string | null;
   specialty?: string | null;
   province?: string | null;

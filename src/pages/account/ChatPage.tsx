@@ -8,10 +8,12 @@ import { type Broadcast, type BroadcastPerson, getBroadcast } from '../../lib/br
 import { type Message, listMessages, sendMessage, markRead, subscribeMessages } from '../../lib/chat';
 import { notifyIncomingCall } from '../../lib/call';
 import { Avatar } from '../../components/app/ui';
+import { useInbox } from '../../components/app/Inbox';
 
 export function ChatPage({ id }: { id: string }) {
   const { user } = useAuth();
   const { error: toastError } = useToast();
+  const { refresh: refreshInbox } = useInbox();
   const [broadcast, setBroadcast] = useState<Broadcast | null>(null);
   const [msgs, setMsgs] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,19 +34,19 @@ export function ChatPage({ id }: { id: string }) {
         if (!active) return;
         setBroadcast(b);
         setMsgs(list);
-        void markRead(id);
+        void markRead(id).then(refreshInbox);
       } finally {
         if (active) { setLoading(false); scrollToEnd(); }
       }
     })();
     return () => { active = false; };
-  }, [id, scrollToEnd]);
+  }, [id, scrollToEnd, refreshInbox]);
 
   useEffect(() => subscribeMessages(id, (m) => {
     setMsgs((prev) => (prev.some((x) => x.id === m.id) ? prev : [...prev, m]));
-    if (m.sender_id !== user?.id) void markRead(id);
+    if (m.sender_id !== user?.id) void markRead(id).then(refreshInbox);
     scrollToEnd();
-  }), [id, user?.id, scrollToEnd]);
+  }), [id, user?.id, scrollToEnd, refreshInbox]);
 
   const send = async () => {
     const body = text.trim();

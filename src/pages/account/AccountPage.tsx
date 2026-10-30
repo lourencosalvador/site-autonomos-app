@@ -6,7 +6,7 @@ import { navigate } from '../../router';
 import { useCategories } from '../../hooks/useServices';
 import { type ProviderReviews, providerReviews, providerWallet } from '../../lib/hub';
 import { formatKz } from '../../lib/payments';
-import { type Broadcast, acceptBroadcast, listOpenBroadcasts, myBroadcasts, subscribeBroadcasts } from '../../lib/broadcasts';
+import { type Broadcast, acceptBroadcast, listOpenBroadcasts, locationLine, myBroadcasts, subscribeBroadcasts } from '../../lib/broadcasts';
 import { isActive, stageLabel } from '../../lib/requestStage';
 import { RequestRow } from '../../components/app/RequestRow';
 import {
@@ -16,7 +16,7 @@ import {
 export function AccountPage() {
   const { user } = useAuth();
   if (!user) return null;
-  return user.role === 'professional' ? <ProviderHome /> : <ClientHome />;
+  return user.activeRole === 'professional' ? <ProviderHome /> : <ClientHome />;
 }
 
 function useMyRequests() {
@@ -35,8 +35,9 @@ function ClientHome() {
   const { rows } = useMyRequests();
   if (!user) return null;
   const first = user.name.split(/\s+/)[0] || user.name;
-  const active = (rows ?? []).filter(isActive);
-  const recent = (rows ?? []).filter((r) => !isActive(r)).slice(0, 4);
+  const mine = (rows ?? []).filter((r) => r.client_id === user.id);
+  const active = mine.filter(isActive);
+  const recent = mine.filter((r) => !isActive(r)).slice(0, 4);
   const needsAction = active.filter((r) => stageLabel(r, false).action).length;
 
   return (
@@ -154,7 +155,7 @@ function ProviderHome() {
   useEffect(() => {
     if (!approved) return;
     providerReviews().then(setReviews).catch(() => {});
-    providerWallet().then((w) => setBalance(w.available_minor)).catch(() => {});
+    providerWallet().then((w) => setBalance(Number(w.due_minor) || 0)).catch(() => {});
   }, [approved]);
 
   if (!user) return null;
@@ -195,7 +196,7 @@ function ProviderHome() {
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
           <Stat label="Disponíveis" value={jobs?.length ?? '—'} hint="nas suas áreas" icon={Bell} />
           <Stat label="Em curso" value={current.length} hint="aceites por si" icon={ClipboardList} />
-          <Stat label="Saldo" value={balance === null ? '—' : formatKz(balance)} hint="disponível" icon={Wallet} />
+          <Stat label="A receber" value={balance === null ? '—' : formatKz(balance)} hint="pagamentos confirmados" icon={Wallet} />
           <Stat label="Avaliação" value={reviews?.count ? reviews.average.toFixed(1) : '—'} hint={reviews?.count ? `${reviews.count} avaliaç${reviews.count === 1 ? 'ão' : 'ões'}` : 'sem avaliações'} icon={Star} />
         </div>
       )}
@@ -278,7 +279,7 @@ function JobCard({ job, busy, disabled, onAccept }: { job: Broadcast; busy: bool
       </div>
       <p className="mt-3 text-base leading-relaxed text-ink-800">{job.description}</p>
       <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-[15px] text-ink-500">
-        {job.city && <span className="inline-flex items-center gap-1.5"><MapPin size={16} className="text-ink-400" /> {job.city}</span>}
+        {locationLine(job) && <span className="inline-flex items-center gap-1.5"><MapPin size={16} className="text-ink-400" /> {locationLine(job)}</span>}
         {when && <span className="inline-flex items-center gap-1.5"><CalendarDays size={16} className="text-ink-400" /> {when}</span>}
       </div>
       <div className="mt-5 flex flex-col gap-3 border-t border-line pt-4 sm:flex-row sm:items-center sm:justify-between">

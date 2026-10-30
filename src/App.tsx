@@ -8,7 +8,6 @@ import { track } from './lib/analytics';
 import { useAuth } from './auth/AuthContext';
 import { HomePage } from './pages/HomePage';
 import { ServicesPage } from './pages/ServicesPage';
-import { RequestPage } from './pages/RequestPage';
 import { BecomeProPage } from './pages/BecomeProPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
@@ -25,6 +24,7 @@ import { ProfilePage } from './pages/account/ProfilePage';
 import { ProviderProfilePage } from './pages/account/ProviderProfilePage';
 import { IncomingCallOverlay } from './components/IncomingCallOverlay';
 import { AppShell } from './components/app/AppShell';
+import { InboxProvider } from './components/app/Inbox';
 
 const AdminApp = lazy(() => import('./admin/AdminApp'));
 
@@ -70,7 +70,7 @@ function App() {
   if (route.name === 'account') {
     if (loading) return <Loading />;
     if (!user) {
-      navigate('/entrar?next=' + encodeURIComponent(route.section ? `/conta/${route.section}` : '/conta'));
+      navigate('/entrar?next=' + encodeURIComponent(window.location.hash.replace(/^#/, '') || '/conta'));
       return <Loading />;
     }
     const section = route.section;
@@ -80,8 +80,7 @@ function App() {
     }
     let content;
     if (section === 'pedir') {
-      if (user.role === 'professional') { navigate('/conta'); content = <Loading />; }
-      else content = <NewRequestPage />;
+      content = <NewRequestPage />;
     } else if (section.startsWith('pedido/')) {
       content = <RequestStatusPage id={section.slice('pedido/'.length)} />;
     } else if (section.startsWith('chat/')) {
@@ -101,11 +100,18 @@ function App() {
       content = <AccountPage />;
     }
     return (
-      <>
+      <InboxProvider>
         <IncomingCallOverlay />
         <AppShell immersive={section.startsWith('chat/')}>{content}</AppShell>
-      </>
+      </InboxProvider>
     );
+  }
+
+  if (!loading && !user && route.name === 'request') {
+    const cat = hashParam('categoria');
+    const target = '/conta/pedir' + (cat ? `?categoria=${encodeURIComponent(cat)}` : '');
+    navigate('/entrar?next=' + encodeURIComponent(target));
+    return <Loading />;
   }
 
   if (user && route.name !== 'services') {
@@ -125,7 +131,6 @@ function App() {
       <main className="overflow-x-clip">
         {route.name === 'home' && <HomePage />}
         {route.name === 'services' && <ServicesPage />}
-        {route.name === 'request' && <RequestPage />}
         {route.name === 'become-pro' && <BecomeProPage />}
         {route.name === 'about' && <AboutPage />}
         {route.name === 'contact' && <ContactPage />}

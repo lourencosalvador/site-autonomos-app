@@ -1,32 +1,43 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import {
-  Bell, BellOff, Briefcase, Building2, ChevronDown, ChevronLeft, HelpCircle, KeyRound, LogOut, Mail, MapPin, Pencil,
-  PencilLine, ShieldCheck, Smartphone, Tags, UserRound, type LucideIcon,
+  Bell, Briefcase, Building2, ChevronDown, ChevronLeft, Clock, FileText, HelpCircle, KeyRound, Landmark, LogOut, Mail, MapPin, Pencil,
+  PencilLine, ShieldCheck, Smartphone, Sparkles, Tags, UserRound, type LucideIcon,
 } from 'lucide-react';
 import { useAuth, type AuthUser } from '../../auth/AuthContext';
 import { useToast } from '../../components/Toast';
 import { TextArea, TextInput } from '../../components/Field';
 import { FAQS } from '../../components/FaqSection';
 import { useCategories } from '../../hooks/useServices';
-import { updateMyProfile, providerReviews, type ProviderReviews } from '../../lib/hub';
+import { type ProfileInput, profileErrorMessage, providerReviews, updateMyProfile, type ProviderReviews } from '../../lib/hub';
 import { type CatalogItem, addCatalogItem, deleteCatalogItem, myCatalog, updateCatalogItem, uploadCatalogImage } from '../../lib/catalog';
-import { changeAvatar, changePassword } from '../../lib/profile';
+import { changeAvatar, changePassword, saveIdDocument, uploadIdDocument } from '../../lib/profile';
+import { formatIban, isValidAoPhone, isValidIban } from '../../lib/phone';
 import { hashParam, navigate } from '../../router';
-import { AreaPicker, CompanyField } from '../../components/app/AreaPicker';
-import { HeaderIconButton, Modal, Portfolio, ProfileHeader, ProfileTabs, ReviewsView, StarsButton } from '../../components/app/profile';
-import { Badge, Btn, Card, EmptyState, Spinner, cx } from '../../components/app/ui';
+import { AreaPicker } from '../../components/app/AreaPicker';
+import { CompanyPicker, FilePick, PasswordInput, PhoneInput, ProvinceSelect } from '../../components/app/forms';
+import { ProfessionalForm } from '../../components/app/ProfessionalForm';
+import { FeeExplainer } from '../../components/app/FeeExplainer';
+import { useInbox } from '../../components/app/Inbox';
+import { HeaderIconButton, Portfolio, ProfileHeader, ProfileTabs, ReviewsView, StarsButton } from '../../components/app/profile';
+import { Badge, Btn, Card, Notice, Spinner, cx } from '../../components/app/ui';
 
 type Tab = 'info' | 'portfolio' | 'reviews';
-type Panel = 'pessoais' | 'password' | 'privacidade' | 'telefone' | 'faq';
+type Panel = 'pessoais' | 'banco' | 'password' | 'privacidade' | 'telefone' | 'taxas' | 'profissional' | 'faq';
+type MenuItem = { id: Panel | 'sair'; label: string; icon: LucideIcon; editable?: boolean };
 
-const MENU: { id: Panel | 'sair'; label: string; icon: LucideIcon; editable?: boolean }[] = [
-  { id: 'pessoais', label: 'Informações pessoais', icon: UserRound, editable: true },
-  { id: 'password', label: 'Palavra-passe', icon: KeyRound, editable: true },
-  { id: 'privacidade', label: 'Privacidade', icon: ShieldCheck, editable: true },
-  { id: 'telefone', label: 'Número de telefone', icon: Smartphone, editable: true },
-  { id: 'faq', label: 'Perguntas frequentes', icon: HelpCircle },
-  { id: 'sair', label: 'Sair', icon: LogOut },
-];
+function menuFor(user: AuthUser): MenuItem[] {
+  return [
+    { id: 'pessoais', label: 'Informações pessoais', icon: UserRound, editable: true },
+    ...(user.isProfessional ? [{ id: 'banco', label: 'Dados bancários (IBAN)', icon: Landmark, editable: true } as MenuItem] : []),
+    { id: 'password', label: 'Palavra-passe', icon: KeyRound, editable: true },
+    { id: 'telefone', label: 'Número de telefone', icon: Smartphone, editable: true },
+    { id: 'privacidade', label: 'Privacidade', icon: ShieldCheck },
+    { id: 'taxas', label: 'Taxas e pagamentos', icon: FileText },
+    ...(!user.isProfessional ? [{ id: 'profissional', label: 'Tornar-me profissional', icon: Sparkles } as MenuItem] : []),
+    { id: 'faq', label: 'Perguntas frequentes', icon: HelpCircle },
+    { id: 'sair', label: 'Sair', icon: LogOut },
+  ];
+}
 
 const APPROVAL = {
   approved: { label: 'Perfil aprovado', tone: 'success' },
@@ -37,11 +48,12 @@ const APPROVAL = {
 export function ProfilePage() {
   const { user, refresh, signOut } = useAuth();
   const { success, error: toastError } = useToast();
-  const isPro = user?.role === 'professional';
+  const { openNotifications, unread } = useInbox();
+  const isPro = !!user?.isProfessional;
   const initialTab = hashParam('tab');
-  const [tab, setTab] = useState<Tab>(isPro && (initialTab === 'portfolio' || initialTab === 'avaliacoes') ? (initialTab === 'portfolio' ? 'portfolio' : 'reviews') : 'info');
-  const [panel, setPanel] = useState<Panel | null>(null);
-  const [notifOpen, setNotifOpen] = useState(false);
+  const initialPanel = hashParam('painel') as Panel | null;
+  const [tab, setTab] = useState<Tab>(isPro && initialTab === 'portfolio' ? 'portfolio' : isPro && initialTab === 'avaliacoes' ? 'reviews' : 'info');
+  const [panel, setPanel] = useState<Panel | null>(initialPanel);
   const [uploading, setUploading] = useState(false);
   const [items, setItems] = useState<CatalogItem[] | null>(null);
   const [reviews, setReviews] = useState<ProviderReviews | null>(null);
@@ -73,12 +85,13 @@ export function ProfilePage() {
     ? [user.specialty || user.workAreas[0], user.companyName].filter(Boolean).join(' · ') || 'Profissional'
     : 'Cliente';
   const approval = isPro && user.approvalStatus ? APPROVAL[user.approvalStatus] : null;
+  const menu = menuFor(user);
 
   return (
     <>
       <ProfileHeader
         name={user.name}
-        email={user.email}
+        email={user.email || user.phone}
         subtitle={subtitle}
         avatarUrl={user.avatarUrl}
         onAvatar={onAvatar}
@@ -86,10 +99,21 @@ export function ProfilePage() {
         actions={
           <>
             <HeaderIconButton label="Editar perfil" onClick={() => { setTab('info'); setPanel('pessoais'); }}><PencilLine size={21} /></HeaderIconButton>
-            <HeaderIconButton label="Notificações" onClick={() => setNotifOpen(true)}><Bell size={21} /></HeaderIconButton>
+            <HeaderIconButton label="Notificações" onClick={openNotifications}>
+              <span className="relative">
+                <Bell size={21} />
+                {unread.notifications > 0 && <span className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-red-500 ring-2 ring-brand-cyan" />}
+              </span>
+            </HeaderIconButton>
           </>
         }
       />
+
+      {isPro && user.approvalStatus === 'approved' && !user.iban && (
+        <Notice tone="warning" title="Indique o seu IBAN" className="mt-5" action={<Btn size="md" variant="outline" onClick={() => { setTab('info'); setPanel('banco'); }}>Adicionar IBAN</Btn>}>
+          Precisamos do seu IBAN para transferir o valor dos serviços concluídos.
+        </Notice>
+      )}
 
       <div className="my-5 flex flex-col items-center gap-2 sm:my-6 sm:flex-row sm:justify-between">
         {isPro ? (
@@ -137,7 +161,7 @@ export function ProfilePage() {
       {tab === 'info' && (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-[minmax(260px,320px)_1fr]">
           <nav className={cx('space-y-2', panel && 'hidden md:block')}>
-            {MENU.map((m) => {
+            {menu.map((m) => {
               const active = (panel ?? 'pessoais') === m.id;
               const Icon = m.icon;
               return (
@@ -146,7 +170,7 @@ export function ProfilePage() {
                     'flex h-14 w-full items-center gap-3 rounded-xl border border-line bg-white px-4 text-left transition-colors hover:bg-cloud-50',
                     active && 'md:border-brand-cyan2 md:bg-brand-cyan/[0.06]',
                   )}>
-                  <Icon size={20} className={m.id === 'sair' ? 'text-red-500' : 'text-ink-400'} />
+                  <Icon size={20} className={m.id === 'sair' ? 'text-red-500' : m.id === 'profissional' ? 'text-brand-dark' : 'text-ink-400'} />
                   <span className={cx('flex-1 text-[15px] font-medium', m.id === 'sair' ? 'text-red-600' : 'text-ink-700')}>{m.label}</span>
                   {m.editable && <Pencil size={17} className="text-brand-cyan2" />}
                 </button>
@@ -154,7 +178,7 @@ export function ProfilePage() {
             })}
           </nav>
 
-          <section className={cx(!panel && 'hidden md:block')}>
+          <section className={cx('min-w-0', !panel && 'hidden md:block')}>
             <button onClick={() => setPanel(null)} className="mb-4 inline-flex items-center gap-1 text-[15px] font-medium text-ink-500 hover:text-ink-900 md:hidden">
               <ChevronLeft size={18} /> Informações
             </button>
@@ -162,14 +186,6 @@ export function ProfilePage() {
           </section>
         </div>
       )}
-
-      <Modal open={notifOpen} onClose={() => setNotifOpen(false)} className="max-w-md">
-        <div className="flex items-center justify-between border-b border-line px-5 py-4">
-          <h3 className="text-lg font-semibold text-ink-900">Notificações</h3>
-          <button onClick={() => setNotifOpen(false)} aria-label="Fechar" className="rounded-lg p-2 text-ink-400 hover:bg-cloud-100">✕</button>
-        </div>
-        <EmptyState icon={BellOff} title="Sem notificações" description="Quando houver novidades sobre os seus pedidos, aparecem aqui." />
-      </Modal>
     </>
   );
 }
@@ -177,9 +193,12 @@ export function ProfilePage() {
 function PanelView({ panel, user }: { panel: Panel; user: AuthUser }) {
   switch (panel) {
     case 'pessoais': return <PersonalPanel user={user} />;
+    case 'banco': return user.isProfessional ? <BankPanel user={user} /> : <PersonalPanel user={user} />;
     case 'password': return <PasswordPanel />;
-    case 'privacidade': return <PrivacyPanel isPro={user.role === 'professional'} />;
+    case 'privacidade': return <PrivacyPanel isPro={user.isProfessional} />;
     case 'telefone': return <PhonePanel user={user} />;
+    case 'taxas': return <div><PanelTitle title="Taxas e pagamentos" description="Transparência sobre o que a AUTONOMOUS cobra." /><FeeExplainer audience="both" /></div>;
+    case 'profissional': return user.isProfessional ? <PersonalPanel user={user} /> : <BecomeProPanel />;
     case 'faq': return <FaqPanel />;
   }
 }
@@ -196,8 +215,8 @@ function PanelTitle({ title, description }: { title: string; description?: strin
 function useSaveProfile(user: AuthUser) {
   const { refresh } = useAuth();
   const { success, error: toastError } = useToast();
-  return async (patch: Partial<{ name: string; phone: string | null; province: string | null; specialty: string | null; bio: string | null; workAreas: string[]; companyName: string | null }>) => {
-    const isPro = user.role === 'professional';
+  return async (patch: Partial<ProfileInput>) => {
+    const isPro = user.isProfessional;
     try {
       await updateMyProfile({
         name: patch.name ?? user.name,
@@ -206,14 +225,16 @@ function useSaveProfile(user: AuthUser) {
         bio: 'bio' in patch ? patch.bio : user.bio,
         specialty: isPro ? ('specialty' in patch ? patch.specialty : user.specialty) : null,
         workAreas: isPro ? patch.workAreas ?? user.workAreas : null,
-        companyName: isPro ? ('companyName' in patch ? patch.companyName : user.companyName) : null,
+        companyId: isPro ? ('companyId' in patch ? patch.companyId : user.companyId) : null,
+        iban: isPro ? ('iban' in patch ? patch.iban : user.iban) : null,
+        ibanHolder: isPro ? ('ibanHolder' in patch ? patch.ibanHolder : user.ibanHolder) : null,
+        experienceYears: isPro ? ('experienceYears' in patch ? patch.experienceYears : user.experienceYears) : null,
       });
       await refresh();
       success('Alteração guardada');
       return true;
     } catch (e) {
-      const m = e instanceof Error ? e.message : '';
-      toastError('Não foi possível guardar', m.includes('AREAS_REQUIRED') ? 'Escolha pelo menos uma área.' : m.includes('TOO_MANY_AREAS') ? 'Máximo de 3 áreas.' : undefined);
+      toastError('Não foi possível guardar', profileErrorMessage(e));
       return false;
     }
   };
@@ -258,7 +279,7 @@ function FieldCard({ icon: Icon, label, value, placeholder, editable = true, ren
           </div>
         </div>
       ) : (
-        <div className={cx('mt-2 pl-8 text-[15px] leading-relaxed', empty ? 'text-ink-400' : 'text-ink-600')}>
+        <div className={cx('mt-2 break-words pl-8 text-[15px] leading-relaxed', empty ? 'text-ink-400' : 'text-ink-600')}>
           {empty ? placeholder ?? 'Por preencher' : value}
         </div>
       )}
@@ -269,16 +290,19 @@ function FieldCard({ icon: Icon, label, value, placeholder, editable = true, ren
 
 function PersonalPanel({ user }: { user: AuthUser }) {
   const save = useSaveProfile(user);
+  const { success, error: toastError } = useToast();
+  const { refresh } = useAuth();
   const categories = useCategories();
-  const isPro = user.role === 'professional';
+  const isPro = user.isProfessional;
   const [name, setName] = useState(user.name);
   const [province, setProvince] = useState(user.province ?? '');
   const [specialty, setSpecialty] = useState(user.specialty ?? '');
+  const [experience, setExperience] = useState(user.experienceYears != null ? String(user.experienceYears) : '');
   const [bio, setBio] = useState(user.bio ?? '');
   const [areas, setAreas] = useState<string[]>(user.workAreas);
-  const [isCompany, setIsCompany] = useState(!!user.companyName);
-  const [company, setCompany] = useState(user.companyName ?? '');
-  const { error: toastError } = useToast();
+  const [isCompany, setIsCompany] = useState(!!user.companyId);
+  const [companyId, setCompanyId] = useState(user.companyId ?? '');
+  const [bi, setBi] = useState<File | null>(null);
 
   return (
     <div>
@@ -287,24 +311,40 @@ function PersonalPanel({ user }: { user: AuthUser }) {
         <FieldCard icon={UserRound} label="Nome" value={user.name}
           renderEdit={() => <TextInput value={name} onChange={(e) => setName(e.target.value)} autoFocus />}
           onSave={async () => { if (name.trim().length < 2) { toastError('Indique o seu nome.'); return false; } return save({ name: name.trim() }); }} />
-        <FieldCard icon={Mail} label="E-mail" value={user.email} editable={false} hint="O email da conta não pode ser alterado." />
-        <FieldCard icon={MapPin} label="Província / Cidade" value={user.province} placeholder="Ex.: Luanda"
-          renderEdit={() => <TextInput value={province} onChange={(e) => setProvince(e.target.value)} placeholder="Ex.: Luanda" autoFocus />}
-          onSave={() => save({ province: province.trim() || null })} />
+        <FieldCard icon={Mail} label="E-mail" value={user.email || null} placeholder="Conta criada com o número de telefone" editable={false}
+          hint={user.email ? 'O email da conta não pode ser alterado.' : undefined} />
+        <FieldCard icon={MapPin} label="Província" value={user.province} placeholder="Selecione a província"
+          renderEdit={() => <ProvinceSelect value={province} onChange={setProvince} />}
+          onSave={() => save({ province: province || null })} />
         {isPro && (
           <>
-            <FieldCard icon={Briefcase} label="Profissão / especialidade" value={user.specialty} placeholder="Ex.: Canalizador, fotógrafo…"
-              renderEdit={() => <TextInput value={specialty} onChange={(e) => setSpecialty(e.target.value)} placeholder="Ex.: Deteção e reparação de fugas" autoFocus />}
+            <FieldCard icon={Briefcase} label="Especialidade" value={user.specialty} placeholder="Ex.: Reparação de fugas de água"
+              renderEdit={() => <TextInput value={specialty} onChange={(e) => setSpecialty(e.target.value)} placeholder="Ex.: Reparação de fugas de água" autoFocus />}
               onSave={() => save({ specialty: specialty.trim() || null })} />
+            <FieldCard icon={Clock} label="Anos de experiência" value={user.experienceYears != null ? `${user.experienceYears} ano${user.experienceYears === 1 ? '' : 's'}` : null}
+              renderEdit={() => <TextInput type="number" inputMode="numeric" min={0} max={70} value={experience} onChange={(e) => setExperience(e.target.value)} autoFocus />}
+              onSave={async () => {
+                const n = Number(experience);
+                if (experience === '' || !Number.isInteger(n) || n < 0 || n > 70) { toastError('Indique um número válido.'); return false; }
+                return save({ experienceYears: n });
+              }} />
             <FieldCard icon={Tags} label="Áreas de atuação" value={user.workAreas.length ? user.workAreas.join(' · ') : null}
               hint="Recebe pedidos apenas destas áreas (máximo 3)."
               renderEdit={() => <AreaPicker options={categories} value={areas} onChange={setAreas} />}
               onSave={async () => { if (!areas.length) { toastError('Escolha pelo menos uma área.'); return false; } return save({ workAreas: areas }); }} />
             <FieldCard icon={Building2} label="Empresa" value={user.companyName ?? 'Trabalho individual'}
-              renderEdit={() => <CompanyField enabled={isCompany} name={company} onToggle={setIsCompany} onName={setCompany} />}
+              renderEdit={() => <CompanyPicker enabled={isCompany} companyId={companyId} onToggle={setIsCompany} onCompany={(id) => setCompanyId(id)} />}
               onSave={async () => {
-                if (isCompany && company.trim().length < 2) { toastError('Indique o nome da empresa.'); return false; }
-                return save({ companyName: isCompany ? company.trim() : null });
+                if (isCompany && !companyId) { toastError('Escolha a empresa.'); return false; }
+                return save({ companyId: isCompany ? companyId : null });
+              }} />
+            <FieldCard icon={FileText} label="Bilhete de Identidade" value={user.idDocumentUrl ? <a href={user.idDocumentUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-brand-dark hover:underline">Documento enviado</a> : null}
+              placeholder="Ainda não enviou o BI"
+              renderEdit={() => <FilePick label="Escolher BI" icon={FileText} accept="image/jpeg,image/png,image/webp,application/pdf" file={bi} onChange={setBi} hint="PDF ou foto legível" />}
+              onSave={async () => {
+                if (!bi) { toastError('Escolha o ficheiro do BI.'); return false; }
+                try { await saveIdDocument(await uploadIdDocument(bi)); await refresh(); success('BI enviado'); return true; }
+                catch (e) { toastError('Não foi possível enviar', e instanceof Error ? e.message : undefined); return false; }
               }} />
           </>
         )}
@@ -316,16 +356,47 @@ function PersonalPanel({ user }: { user: AuthUser }) {
   );
 }
 
+function BankPanel({ user }: { user: AuthUser }) {
+  const save = useSaveProfile(user);
+  const { error: toastError } = useToast();
+  const [iban, setIban] = useState(user.iban ?? '');
+  const [holder, setHolder] = useState(user.ibanHolder ?? user.name);
+  return (
+    <div>
+      <PanelTitle title="Dados bancários" description="A AUTONOMOUS transfere para esta conta o valor dos serviços concluídos (já com a comissão descontada)." />
+      <FieldCard icon={Landmark} label="IBAN" value={user.iban ? <span className="font-medium tracking-wide text-ink-900">{formatIban(user.iban)}</span> : null}
+        placeholder="Adicione o seu IBAN" hint={user.ibanHolder ? `Titular: ${user.ibanHolder}` : undefined}
+        renderEdit={() => (
+          <div className="space-y-3">
+            <TextInput value={iban} onChange={(e) => setIban(e.target.value.toUpperCase())} placeholder="AO06 0000 0000 0000 0000 0000 0" autoFocus />
+            <TextInput value={holder} onChange={(e) => setHolder(e.target.value)} placeholder="Nome do titular da conta" />
+          </div>
+        )}
+        onSave={async () => {
+          if (!isValidIban(iban)) { toastError('IBAN inválido', 'Deve ter 21 dígitos (o prefixo AO06 é opcional).'); return false; }
+          if (holder.trim().length < 2) { toastError('Indique o titular da conta.'); return false; }
+          return save({ iban, ibanHolder: holder.trim() });
+        }} />
+    </div>
+  );
+}
+
 function PhonePanel({ user }: { user: AuthUser }) {
   const save = useSaveProfile(user);
-  const [phone, setPhone] = useState(user.phone ?? '+244 ');
+  const { error: toastError } = useToast();
+  const [phone, setPhone] = useState(user.phone ?? '');
   return (
     <div>
       <PanelTitle title="Número de telefone" description="Usado para o contacto entre cliente e profissional." />
       <FieldCard icon={Smartphone} label="Telefone / WhatsApp" value={user.phone} placeholder="Adicione o seu número"
-        hint="Só é partilhado com a outra parte depois de um pedido ser aceite."
-        renderEdit={() => <TextInput type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+244 9XX XXX XXX" autoFocus />}
-        onSave={() => save({ phone: phone.replace(/\D/g, '').length >= 9 ? phone.trim() : null })} />
+        hint={user.email ? 'Só é partilhado com a outra parte depois de um pedido ser aceite.' : 'É também o número com que entra na conta.'}
+        renderEdit={() => <PhoneInput value={phone} onChange={setPhone} autoFocus />}
+        onSave={async () => {
+          if (!phone && !user.isProfessional) return save({ phone: null });
+          if (!isValidAoPhone(phone)) { toastError('Número inválido', 'Use 9 dígitos, a começar por 9.'); return false; }
+          return save({ phone });
+        }} />
+      {!user.email && <Notice tone="info" className="mt-3">A sua conta entra com o número com que se registou. Alterar aqui não muda o número de acesso.</Notice>}
     </div>
   );
 }
@@ -351,11 +422,11 @@ function PasswordPanel() {
       <Card className="space-y-4 p-4 sm:p-5">
         <div className="space-y-1.5">
           <label htmlFor="pw" className="text-[15px] font-medium text-ink-900">Nova palavra-passe</label>
-          <TextInput id="pw" type="password" autoComplete="new-password" value={pw} onChange={(e) => { setPw(e.target.value); setError(null); }} />
+          <PasswordInput id="pw" value={pw} onChange={(v) => { setPw(v); setError(null); }} />
         </div>
         <div className="space-y-1.5">
           <label htmlFor="pw2" className="text-[15px] font-medium text-ink-900">Confirmar palavra-passe</label>
-          <TextInput id="pw2" type="password" autoComplete="new-password" value={confirm} onChange={(e) => { setConfirm(e.target.value); setError(null); }} />
+          <PasswordInput id="pw2" value={confirm} onChange={(v) => { setConfirm(v); setError(null); }} />
         </div>
         {error && <p className="text-[15px] font-medium text-red-600">{error}</p>}
         <Btn onClick={submit} loading={busy}>Alterar palavra-passe</Btn>
@@ -367,14 +438,14 @@ function PasswordPanel() {
 function PrivacyPanel({ isPro }: { isPro: boolean }) {
   const rows = isPro
     ? [
-        ['O que os clientes veem', 'O seu nome, foto, profissão, áreas, empresa, portfólio e avaliações.'],
-        ['Contactos', 'O seu telefone só é partilhado com o cliente depois de aceitar o pedido.'],
-        ['Pagamentos', 'Os valores ficam retidos pela AUTONOMOUS até o cliente confirmar o serviço.'],
+        ['O que os clientes veem', 'O seu nome, foto, especialidade, áreas, empresa, portfólio e avaliações.'],
+        ['Contactos e morada', 'O seu telefone e a morada do cliente só são partilhados depois de aceitar o pedido.'],
+        ['Documentos e IBAN', 'O BI e o IBAN são vistos apenas pela equipa da AUTONOMOUS.'],
       ]
     : [
-        ['O que os profissionais veem', 'O seu nome, foto e os detalhes do pedido que fizer.'],
+        ['O que os profissionais veem', 'O seu nome, foto e os detalhes do pedido. A morada completa só é vista pelo profissional que aceitar.'],
         ['Contactos', 'O seu telefone só é partilhado com o profissional que aceitar o seu pedido.'],
-        ['Pagamentos', 'O valor fica retido pela AUTONOMOUS até confirmar que o serviço foi concluído.'],
+        ['Pagamentos', 'Paga depois do serviço, por transferência para a AUTONOMOUS, com comprovativo.'],
       ];
   return (
     <div>
@@ -386,6 +457,19 @@ function PrivacyPanel({ isPro }: { isPro: boolean }) {
             <p className="mt-1 text-[15px] leading-relaxed text-ink-500">{d}</p>
           </div>
         ))}
+      </Card>
+    </div>
+  );
+}
+
+function BecomeProPanel() {
+  const { success } = useToast();
+  return (
+    <div>
+      <PanelTitle title="Tornar-me profissional" description="Use a mesma conta para pedir serviços e para receber pedidos. A nossa equipa verifica o perfil antes de começar." />
+      <Card className="p-5 sm:p-6">
+        <ProfessionalForm mode="activate" submitLabel="Ativar perfil profissional"
+          onDone={() => { success('Perfil profissional criado', 'Vamos verificar os seus dados.'); navigate('/conta'); }} />
       </Card>
     </div>
   );

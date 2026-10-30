@@ -1,12 +1,12 @@
 import { useState, type ReactNode } from 'react';
 import {
-  Activity, BadgeCheck, ClipboardCheck, ClipboardList, FlaskConical, LayoutDashboard, LifeBuoy, LogOut, Menu, Settings, UserPlus, Users, Wallet, Wrench, ExternalLink,
+  Activity, BadgeCheck, Building2, ClipboardCheck, ClipboardList, FlaskConical, LayoutDashboard, LifeBuoy, LogOut, Menu, Settings, UserPlus, Users, Wallet, Wrench, ExternalLink,
 } from 'lucide-react';
 import { Dialog, SheetContent, DialogTitle } from '../ui/dialog';
 import { cn, formatTime, initials } from '../lib/utils';
 import type { AdminSession } from '../lib/session';
 
-export type SectionId = '' | 'atividade' | 'pagamentos' | 'apoio' | 'pedidos-app' | 'prestadores' | 'pedidos' | 'candidaturas' | 'utilizadores' | 'servicos' | 'teste' | 'definicoes';
+export type SectionId = '' | 'atividade' | 'pagamentos' | 'apoio' | 'pedidos-app' | 'prestadores' | 'empresas' | 'pedidos' | 'candidaturas' | 'utilizadores' | 'servicos' | 'teste' | 'definicoes';
 
 type NavItem = { id: SectionId; label: string; icon: React.ComponentType<{ className?: string }>; count?: number; danger?: boolean };
 
@@ -36,6 +36,7 @@ export function Shell({
       items: [
         { id: 'pedidos-app', label: 'Pedidos da app', icon: ClipboardCheck, count: counts.appRequests, danger: true },
         { id: 'prestadores', label: 'Prestadores', icon: BadgeCheck, count: counts.professionals },
+        { id: 'empresas', label: 'Empresas e taxas', icon: Building2 },
       ],
     },
     {

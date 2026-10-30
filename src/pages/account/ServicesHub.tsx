@@ -18,8 +18,8 @@ export function ServicesHub() {
   useEffect(() => subscribeBroadcasts({}, () => { void load(); }), [load]);
 
   if (!user) return null;
-  const isPro = user.role === 'professional';
-  const mine = (rows ?? []).filter((r) => !isPro || r.provider_id === user.id);
+  const isPro = user.activeRole === 'professional';
+  const mine = (rows ?? []).filter((r) => (isPro ? r.provider_id === user.id : r.client_id === user.id));
   const active = mine.filter(isActive);
   const history = mine.filter((r) => !isActive(r));
   const list = tab === 'active' ? active : history;

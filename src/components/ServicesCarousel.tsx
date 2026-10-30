@@ -119,7 +119,7 @@ function ServiceCard({ service, onClick }: { service: Service; onClick: () => vo
 
         <button
           onClick={onClick}
-          className="btn-ripple mt-4 w-full rounded-full bg-brand-dark py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-brand-cyan hover:text-brand-dark"
+          className="mt-4 h-11 w-full rounded-xl bg-brand-dark text-[15px] font-semibold text-white transition-colors hover:bg-brand-dark2"
         >
           Solicitar
         </button>

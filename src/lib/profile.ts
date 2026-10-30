@@ -38,6 +38,22 @@ export async function changeAvatar(file: File): Promise<string> {
   return url;
 }
 
+export async function uploadIdDocument(file: File): Promise<string> {
+  if (!['image/jpeg', 'image/png', 'image/webp', 'application/pdf'].includes(file.type)) throw new Error('BI: use PDF, JPG ou PNG.');
+  if (file.size > 8 * 1024 * 1024) throw new Error('BI: ficheiro demasiado grande (máx. 8 MB).');
+  const ext = file.type === 'application/pdf' ? 'pdf' : file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+  const path = `${crypto.randomUUID()}/bi.${ext}`;
+  const { error } = await supabase.storage.from('applications').upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw new Error('Não foi possível carregar o BI.');
+  return supabase.storage.from('applications').getPublicUrl(path).data.publicUrl;
+}
+
+export async function saveIdDocument(url: string): Promise<void> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) return;
+  await supabase.from('profiles').update({ id_document_url: url }).eq('id', session.user.id);
+}
+
 export async function changePassword(password: string): Promise<void> {
   const { error } = await supabase.auth.updateUser({ password });
   if (error) {

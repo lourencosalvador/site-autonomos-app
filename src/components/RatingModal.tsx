@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Loader2, Star, X } from 'lucide-react';
 import { TextArea } from './Field';
-import { rateProvider } from '../lib/hub';
+import { rateClient, rateProvider } from '../lib/hub';
 
-export function RatingModal({ open, broadcastId, providerName, onClose, onDone }: {
+export function RatingModal({ open, broadcastId, providerName, onClose, onDone, target = 'provider' }: {
+  target?: 'provider' | 'client';
   open: boolean;
   broadcastId: string;
   providerName: string;
@@ -23,7 +24,7 @@ export function RatingModal({ open, broadcastId, providerName, onClose, onDone }
     setBusy(true);
     setError(null);
     try {
-      await rateProvider(broadcastId, rating, comment.trim() || undefined);
+      await (target === 'client' ? rateClient : rateProvider)(broadcastId, rating, comment.trim() || undefined);
       onDone?.();
       onClose();
     } catch (e) {

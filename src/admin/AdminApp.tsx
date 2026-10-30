@@ -17,8 +17,9 @@ import { TestPage } from './pages/TestPage';
 import { SupportPage } from './pages/SupportPage';
 import { AppRequestsPage } from './pages/AppRequestsPage';
 import { ProfessionalsPage } from './pages/ProfessionalsPage';
+import { CompaniesPage } from './pages/CompaniesPage';
 
-const SECTIONS: SectionId[] = ['', 'atividade', 'pagamentos', 'apoio', 'pedidos-app', 'prestadores', 'pedidos', 'candidaturas', 'utilizadores', 'servicos', 'teste', 'definicoes'];
+const SECTIONS: SectionId[] = ['', 'atividade', 'pagamentos', 'apoio', 'pedidos-app', 'prestadores', 'empresas', 'pedidos', 'candidaturas', 'utilizadores', 'servicos', 'teste', 'definicoes'];
 
 export default function AdminApp({ section }: { section: string }) {
   const [session, setSession] = useState<AdminSession | null>(getSession);
@@ -105,6 +106,7 @@ function Dashboard({ section, session, onLogout }: { section: SectionId; session
       {section === 'apoio' && <SupportPage onChange={supportCount.reload} />}
       {section === 'pedidos-app' && <AppRequestsPage onChange={appCount.reload} />}
       {section === 'prestadores' && <ProfessionalsPage onChange={proCount.reload} />}
+      {section === 'empresas' && <CompaniesPage />}
       {section === 'pedidos' && <RequestsPage onChange={counts.reload} />}
       {section === 'candidaturas' && <ApplicationsPage onChange={counts.reload} />}
       {section === 'utilizadores' && <UsersPage />}

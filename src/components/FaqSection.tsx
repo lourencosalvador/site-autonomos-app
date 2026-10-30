@@ -18,15 +18,19 @@ export const FAQS: { q: string; a: string }[] = [
   },
   {
     q: 'Preciso pagar para utilizar a plataforma?',
-    a: 'Criar uma conta e pedir serviços é gratuito. Só paga quando aceitar o orçamento: o valor do serviço mais uma taxa de serviço de 10%.',
+    a: 'Criar uma conta e pedir serviços é gratuito. Só paga depois de o serviço estar concluído: o valor do orçamento mais uma taxa de serviço de 10%.',
   },
   {
     q: 'Como é definido o preço do serviço?',
-    a: 'O profissional envia um orçamento com base no tipo de serviço, na complexidade e nos materiais. Em alguns casos o valor é dado depois de ver o trabalho no local. Só avança se aceitar o valor.',
+    a: 'O profissional envia um orçamento que mostra o que está incluído (mão de obra, deslocação, materiais…). Se precisar de ver o local, propõe datas para uma visita de diagnóstico gratuita. Só avança se aceitar o valor.',
   },
   {
-    q: 'O meu pagamento fica seguro?',
-    a: 'Sim. O valor fica retido pela AUTONOMOUS e só é libertado ao profissional quando confirmar que o serviço foi concluído.',
+    q: 'Quando e como pago?',
+    a: 'Só paga depois de o profissional concluir e de confirmar que está tudo feito. Faz uma transferência para a conta da AUTONOMOUS (os dados aparecem na app) e envia o comprovativo. Nunca pague antes de o trabalho estar terminado.',
+  },
+  {
+    q: 'Quanto cobra a AUTONOMOUS aos profissionais?',
+    a: 'Uma comissão de 10% sobre o valor do serviço. O restante é transferido para o IBAN indicado no perfil, depois de confirmarmos o pagamento do cliente.',
   },
   {
     q: 'Como sei que o profissional é confiável?',

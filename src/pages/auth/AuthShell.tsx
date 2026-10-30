@@ -6,7 +6,8 @@ import { useNavigate } from '../../router';
  * Moldura das páginas de autenticação: painel de marca à esquerda (desktop)
  * e o formulário à direita. Em telemóvel fica só o formulário, com o logótipo no topo.
  */
-export function AuthShell({ title, subtitle, children, footer }: {
+export function AuthShell({ title, subtitle, children, footer, wide }: {
+  wide?: boolean;
   title: string;
   subtitle: string;
   children: ReactNode;
@@ -16,7 +17,7 @@ export function AuthShell({ title, subtitle, children, footer }: {
   return (
     <div className="flex min-h-[100dvh] bg-white">
       {/* Painel de marca */}
-      <aside className="relative hidden w-[44%] shrink-0 overflow-hidden bg-brand-dark lg:block">
+      <aside className={(wide ? "lg:w-[36%] " : "lg:w-[44%] ") + "relative hidden shrink-0 overflow-hidden bg-brand-dark lg:sticky lg:top-0 lg:block lg:h-[100dvh]"}>
         <div className="absolute inset-0 bg-grid-dark opacity-30" />
         <div className="absolute -left-24 top-24 h-80 w-80 animate-blob rounded-full bg-brand-cyan/25 blur-3xl" />
         <div className="absolute -right-16 bottom-10 h-80 w-80 animate-blob rounded-full bg-lilac-300/30 blur-3xl [animation-delay:3s]" />
@@ -65,7 +66,7 @@ export function AuthShell({ title, subtitle, children, footer }: {
         </div>
 
         <div className="flex flex-1 items-center justify-center py-8">
-          <div className="w-full max-w-[26rem]">
+          <div className={wide ? "w-full max-w-[40rem]" : "w-full max-w-[26rem]"}>
             <button onClick={() => navigate('/')} className="mb-8 hidden items-center gap-1.5 text-sm text-ink-400 transition-colors hover:text-ink-900 lg:inline-flex">
               <ArrowLeft size={15} /> Voltar ao site
             </button>

@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
-import { BadgeCheck, Building2, Check, MessageCircle, Phone, RefreshCw, X } from 'lucide-react';
+import { BadgeCheck, Building2, Check, FileText, MessageCircle, Phone, RefreshCw, X } from 'lucide-react';
+import { formatIban } from '../../lib/phone';
+import { initials } from '../lib/utils';
 import { PageHeader } from '../components/Shell';
 import { SearchInput } from '../components/SearchInput';
 import { DetailRow } from '../components/blocks';
@@ -23,6 +25,11 @@ type Pro = {
   specialty: string | null;
   province: string | null;
   bio: string | null;
+  avatar_url: string | null;
+  id_document_url: string | null;
+  experience_years: number | null;
+  iban: string | null;
+  iban_holder: string | null;
   approval_status: Approval;
   approval_reviewed_at: string | null;
   created_at: string;
@@ -114,8 +121,13 @@ export function ProfessionalsPage({ onChange }: { onChange?: () => void }) {
               {list.map((p) => (
                 <TR key={p.id} className="cursor-pointer hover:bg-zinc-50/80" onClick={() => setOpenId(p.id)}>
                   <TD>
-                    <p className="font-medium text-zinc-900">{p.name ?? '—'}</p>
-                    <p className="text-xs text-zinc-500">{p.email ?? '—'}</p>
+                    <div className="flex items-center gap-2.5">
+                      <ProAvatar p={p} />
+                      <div className="min-w-0">
+                        <p className="font-medium text-zinc-900">{p.name ?? '—'}</p>
+                        <p className="text-xs text-zinc-500">{p.email ?? 'Registo por telefone'}</p>
+                      </div>
+                    </div>
                   </TD>
                   <TD>
                     <div className="flex max-w-[260px] flex-wrap gap-1">
@@ -146,7 +158,8 @@ export function ProfessionalsPage({ onChange }: { onChange?: () => void }) {
           {open && (
             <>
               <div className="border-b border-zinc-100 px-6 py-5 pr-12">
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="flex flex-wrap items-center gap-3">
+                  <ProAvatar p={open} big />
                   <DialogTitle>{open.name ?? '—'}</DialogTitle>
                   <Badge tone={APPROVAL[open.approval_status].tone}>{APPROVAL[open.approval_status].label}</Badge>
                 </div>
@@ -165,6 +178,9 @@ export function ProfessionalsPage({ onChange }: { onChange?: () => void }) {
                   <DetailRow label="Tipo">{open.company_name ? `Empresa · ${open.company_name}` : 'Individual'}</DetailRow>
                   <DetailRow label="Áreas">{open.work_areas?.join(', ') || '—'}</DetailRow>
                   <DetailRow label="Especialidade">{open.specialty ?? '—'}</DetailRow>
+                  <DetailRow label="Experiência">{open.experience_years != null ? `${open.experience_years} ano(s)` : '—'}</DetailRow>
+                  <DetailRow label="IBAN">{open.iban ? `${formatIban(open.iban)}${open.iban_holder ? ` · ${open.iban_holder}` : ''}` : 'Não indicado'}</DetailRow>
+                  <DetailRow label="BI">{open.id_document_url ? <a href={open.id_document_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-medium text-zinc-900 underline underline-offset-4"><FileText className="size-3.5" /> Abrir documento</a> : <span className="text-red-600">Não enviado</span>}</DetailRow>
                   <DetailRow label="Província">{open.province ?? '—'}</DetailRow>
                   <DetailRow label="Serviços concluídos">{open.jobs_done}</DetailRow>
                   {open.approval_reviewed_at && <DetailRow label="Revisto em">{formatDateTime(open.approval_reviewed_at)}</DetailRow>}
@@ -180,6 +196,13 @@ export function ProfessionalsPage({ onChange }: { onChange?: () => void }) {
       </Dialog>
     </>
   );
+}
+
+function ProAvatar({ p, big }: { p: Pro; big?: boolean }) {
+  const size = big ? 'size-12 text-sm' : 'size-8 text-xs';
+  return p.avatar_url
+    ? <a href={p.avatar_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}><img src={p.avatar_url} alt="" className={`${size} shrink-0 rounded-full object-cover`} /></a>
+    : <span className={`flex ${size} shrink-0 items-center justify-center rounded-full bg-zinc-900 font-semibold text-white`}>{initials(p.name)}</span>;
 }
 
 function ApprovalActions({ p, busy, onSet }: { p: Pro; busy: boolean; onSet: (id: string, s: Approval) => void }) {

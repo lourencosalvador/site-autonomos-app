@@ -133,7 +133,7 @@ export function ServicesPage() {
                 <button
                   type="button"
                   onClick={() => navigate(requestPath(!!user))}
-                  className="btn-ripple inline-flex items-center gap-2 rounded-full bg-ink-900 px-5 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-brand-cyan hover:text-brand-dark"
+                  className="inline-flex h-11 items-center gap-2 rounded-xl bg-brand-dark px-5 text-[15px] font-semibold text-white transition-colors hover:bg-brand-dark2"
                 >
                   Solicitar serviço <ArrowRight size={15} />
                 </button>
@@ -186,7 +186,7 @@ function ServiceCard({ service, index, onRequest }: { service: Service; index: n
         </div>
         <button
           onClick={onRequest}
-          className="btn-ripple mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-ink-900 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-brand-cyan hover:text-brand-dark"
+          className="mt-4 flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-[15px] font-semibold text-white transition-colors hover:bg-brand-dark2"
         >
           Solicitar <ArrowRight size={15} />
         </button>

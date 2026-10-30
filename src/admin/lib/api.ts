@@ -38,6 +38,11 @@ const MESSAGES: Record<string, string> = {
   not_pending: 'Só é possível cancelar cobranças pendentes.',
   invalid_phone: 'Número de telefone inválido.',
   invalid_amount: 'Valor inválido.',
+  invalid_iban: 'IBAN inválido. Deve ter 21 dígitos (AO06 opcional).',
+  invalid_rate: 'Taxa inválida (entre 0 e 50%).',
+  duplicate_name: 'Já existe uma empresa com esse nome.',
+  company_in_use: 'Há profissionais associados a esta empresa. Desative-a em vez de apagar.',
+  reason_required: 'Indique o motivo.',
 };
 
 export class AdminError extends Error {}
