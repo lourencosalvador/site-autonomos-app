@@ -20,7 +20,7 @@ export function CelebrationModal({ open, onClose, onWallet }: { open: boolean; o
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4" onClick={onClose}>
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         {pieces.map((p, i) => (
           <span key={i} className="confetti-piece" style={{
@@ -34,11 +34,11 @@ export function CelebrationModal({ open, onClose, onWallet }: { open: boolean; o
         ))}
       </div>
 
-      <div className="relative z-10 w-full max-w-sm rounded-2xl bg-white p-7 text-center" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
+      <div className="ui-pop relative z-10 w-full max-w-sm rounded-2xl border border-line bg-white p-7 text-center shadow-[0_24px_64px_-16px_rgba(3,71,94,0.35)]" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
         <button onClick={onClose} aria-label="Fechar" className="absolute right-4 top-4 rounded-lg p-2 text-ink-400 hover:bg-cloud-100"><X size={20} /></button>
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600"><CheckCircle2 size={28} /></div>
         <h3 className="text-xl font-semibold tracking-tight text-ink-900">Serviço concluído</h3>
-        <p className="mt-2 text-base leading-relaxed text-ink-500">Bom trabalho. Assim que o cliente confirmar, o valor fica disponível na sua carteira.</p>
+        <p className="mt-2 text-base leading-relaxed text-ink-500">Bom trabalho. Depois de o cliente confirmar e pagar, o valor entra no saldo da sua carteira.</p>
         <button
           onClick={onWallet}
           className="mt-6 inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark px-5 text-base font-semibold text-white transition-colors hover:bg-brand-dark2"

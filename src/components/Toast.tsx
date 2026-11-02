@@ -89,7 +89,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={api}>
       {children}
-      <div className="pointer-events-none fixed inset-x-4 top-4 z-[100] flex flex-col items-center gap-3 sm:inset-x-auto sm:right-5 sm:top-5 sm:items-end">
+      <div className="toast-stack pointer-events-none fixed top-4 z-[100] flex flex-col gap-3 sm:top-5">
         {items.map((item) => {
           const { Icon, chip, bar } = CONFIG[item.type];
           const isLeaving = leaving.has(item.id);
@@ -97,8 +97,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             <div
               key={item.id}
               role="status"
-              className={`pointer-events-auto flex w-full items-start gap-3 overflow-hidden rounded-2xl border border-cloud-200 bg-white p-4 shadow-card ring-1 ring-black/[0.03] transition-all duration-300 ease-out sm:w-80 ${
-                isLeaving ? 'translate-x-0 scale-95 opacity-0 sm:translate-x-4' : 'animate-fadeRight'
+              className={`pointer-events-auto flex w-full items-start gap-3 overflow-hidden rounded-2xl border border-cloud-200 bg-white p-4 shadow-[0_12px_32px_-12px_rgba(3,71,94,0.25)] transition-all duration-300 ease-out ${
+                isLeaving ? '-translate-y-1 scale-95 opacity-0' : 'toast-in'
               }`}
             >
               <span className={`h-full w-1 shrink-0 self-stretch rounded-full ${bar}`} />

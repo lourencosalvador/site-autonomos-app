@@ -1,4 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react';
+import { importWithReload } from './lib/chunkReload';
 import { Loader2 } from 'lucide-react';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -26,7 +27,7 @@ import { IncomingCallOverlay } from './components/IncomingCallOverlay';
 import { AppShell } from './components/app/AppShell';
 import { InboxProvider } from './components/app/Inbox';
 
-const AdminApp = lazy(() => import('./admin/AdminApp'));
+const AdminApp = lazy(() => importWithReload(() => import('./admin/AdminApp')));
 
 function Loading() {
   return (
