@@ -1,23 +1,32 @@
-import { useState } from 'react';
-import { Loader2, Star, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Star, X } from 'lucide-react';
 import { TextArea } from './Field';
+import { useToast } from './Toast';
+import { Modal } from './app/profile';
+import { Avatar, Btn, cx } from './app/ui';
 import { rateClient, rateProvider } from '../lib/hub';
 
-export function RatingModal({ open, broadcastId, providerName, onClose, onDone, target = 'provider' }: {
+const LABELS = ['', 'Mau', 'Fraco', 'Razoável', 'Bom', 'Excelente'];
+
+export function RatingModal({ open, broadcastId, providerName, avatarUrl, onClose, onDone, target = 'provider' }: {
   target?: 'provider' | 'client';
   open: boolean;
   broadcastId: string;
   providerName: string;
+  avatarUrl?: string | null;
   onClose: () => void;
   onDone?: () => void;
 }) {
+  const { success } = useToast();
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comment, setComment] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  if (!open) return null;
+  useEffect(() => {
+    if (open) { setRating(0); setHover(0); setComment(''); setError(null); }
+  }, [open]);
 
   const submit = async () => {
     if (rating < 1) { setError('Escolha de 1 a 5 estrelas.'); return; }
@@ -25,55 +34,64 @@ export function RatingModal({ open, broadcastId, providerName, onClose, onDone, 
     setError(null);
     try {
       await (target === 'client' ? rateClient : rateProvider)(broadcastId, rating, comment.trim() || undefined);
+      success('Obrigado pela avaliação', 'A sua opinião ajuda a manter a confiança na plataforma.');
       onDone?.();
       onClose();
     } catch (e) {
       const code = e instanceof Error ? e.message : '';
-      setError(code.includes('ALREADY_RATED') ? 'Já avaliou este serviço.' : 'Não foi possível enviar. Tente novamente.');
+      setError(code.includes('ALREADY_RATED') ? 'Já avaliou este serviço.' : code.includes('NOT_COMPLETED') ? 'Só pode avaliar depois de o serviço estar concluído.' : 'Não foi possível enviar. Tente novamente.');
     } finally {
       setBusy(false);
     }
   };
 
   const shown = hover || rating;
+  const isProvider = target === 'provider';
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={onClose}>
-      <div className="w-full max-w-sm rounded-t-3xl bg-white p-6 sm:rounded-2xl" onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true">
-        <div className="mb-1 flex items-start justify-between">
-          <h3 className="text-xl font-semibold tracking-tight text-ink-900">Como correu o serviço?</h3>
-          <button onClick={onClose} className="rounded-full p-1.5 text-ink-400 hover:bg-cloud-100"><X size={18} /></button>
-        </div>
-        <p className="text-base text-ink-500">Avalie {providerName}.</p>
+    <Modal open={open} onClose={busy ? () => {} : onClose} className="max-w-md">
+      <div className="relative px-6 pb-6 pt-7 text-center sm:px-8">
+        <button onClick={onClose} disabled={busy} aria-label="Fechar"
+          className="absolute right-3 top-3 rounded-lg p-2 text-ink-400 transition-colors hover:bg-cloud-100 hover:text-ink-700">
+          <X size={20} />
+        </button>
+        <div className="flex justify-center"><Avatar name={providerName} src={avatarUrl} size="lg" /></div>
+        <h3 className="mt-4 text-xl font-semibold tracking-tight text-ink-900">{isProvider ? 'Como correu o serviço?' : 'Como foi o cliente?'}</h3>
+        <p className="mt-1 text-[15px] text-ink-500">Avalie {providerName}. {isProvider ? 'A avaliação aparece no perfil do profissional.' : 'Só a equipa e outros profissionais a veem.'}</p>
 
-        <div className="mt-4 flex justify-center gap-1.5">
+        <div className="mt-6 flex justify-center gap-1" onMouseLeave={() => setHover(0)} role="radiogroup" aria-label="Classificação">
           {[1, 2, 3, 4, 5].map((n) => (
             <button
               key={n}
+              type="button"
+              role="radio"
+              aria-checked={rating === n}
+              aria-label={`${n} estrela${n > 1 ? 's' : ''}: ${LABELS[n]}`}
               onMouseEnter={() => setHover(n)}
-              onMouseLeave={() => setHover(0)}
               onClick={() => { setRating(n); setError(null); }}
-              aria-label={`${n} estrela${n > 1 ? 's' : ''}`}
-              className="p-1 transition-transform hover:scale-110"
+              className="rounded-lg p-1.5 transition-transform duration-150 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-cyan2/60"
             >
-              <Star size={34} className={n <= shown ? 'fill-amber-400 text-amber-400' : 'text-cloud-300'} />
+              <Star size={36} strokeWidth={1.6} className={cx('transition-colors', n <= shown ? 'fill-amber-400 text-amber-400' : 'text-cloud-300')} />
             </button>
           ))}
         </div>
+        <p className={cx('mt-2 h-6 text-[15px] font-semibold transition-opacity', shown ? 'text-ink-900 opacity-100' : 'opacity-0')} aria-live="polite">
+          {LABELS[shown]}
+        </p>
 
-        <div className="mt-4">
-          <TextArea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="Deixe um comentário (opcional)…" className="min-h-[90px]" />
-        </div>
-
-        {error && <p className="mt-2 text-sm font-medium text-red-500">{error}</p>}
-
-        <div className="mt-4 flex gap-2">
-          <button onClick={onClose} className="h-12 flex-1 rounded-xl border border-line px-4 text-base font-semibold text-ink-700 hover:bg-cloud-100">Agora não</button>
-          <button onClick={submit} disabled={busy} className="flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-dark px-4 text-base font-semibold text-white hover:bg-brand-dark2 disabled:opacity-60">
-            {busy ? <Loader2 size={16} className="animate-spin" /> : 'Enviar avaliação'}
-          </button>
-        </div>
+        <TextArea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          placeholder={isProvider ? 'Conte como foi (opcional): pontualidade, qualidade, simpatia…' : 'Comentário (opcional)'}
+          className="mt-4 min-h-[96px] text-left"
+          maxLength={500}
+        />
+        {error && <p className="mt-2 text-left text-sm font-medium text-red-600">{error}</p>}
       </div>
-    </div>
+      <div className="grid grid-cols-2 gap-3 border-t border-line px-6 py-4 sm:px-8">
+        <Btn variant="outline" onClick={onClose} disabled={busy}>Agora não</Btn>
+        <Btn onClick={submit} loading={busy} disabled={rating < 1}>Enviar</Btn>
+      </div>
+    </Modal>
   );
 }

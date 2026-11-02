@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { ArrowDownToLine, ArrowUpRight, Clock, Landmark, Lock, Receipt, Wallet as WalletIcon, X } from 'lucide-react';
 import { useAuth, type AuthUser } from '../../auth/AuthContext';
 import { navigate } from '../../router';
@@ -13,7 +13,7 @@ import { Modal } from '../../components/app/profile';
 import { FormField } from '../../components/app/forms';
 import { TextInput } from '../../components/Field';
 import { useToast } from '../../components/Toast';
-import { Badge, Btn, Card, EmptyState, PageHeader, Spinner, type Tone, cx } from '../../components/app/ui';
+import { Badge, Btn, Card, EmptyState, PageHeader, Spinner, ValueSkeleton, type Tone, cx } from '../../components/app/ui';
 
 const SAQUE_STATE: Record<WithdrawalStatus, { label: string; tone: Tone }> = {
   pending: { label: 'Em processamento', tone: 'warning' },
@@ -52,7 +52,7 @@ export function WalletPage() {
     );
   }
 
-  const v = (minor: number | undefined) => (loading ? '—' : formatKz(n(minor)));
+  const v = (minor: number | undefined): ReactNode => (loading ? <ValueSkeleton /> : formatKz(n(minor)));
   const available = n(w?.available_minor);
   const pending = w?.pending_withdrawal ?? null;
   const movements = w?.movements ?? [];

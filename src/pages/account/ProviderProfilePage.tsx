@@ -78,9 +78,9 @@ export function ProviderProfilePage({ id }: { id: string }) {
           </Card>
           <Card className="p-5 sm:p-6">
             <dl className="divide-y divide-line">
-              <DetailRow label="Especialidade">{p.specialty || '—'}</DetailRow>
+              <DetailRow label="Especialidade">{p.specialty || 'Não indicada'}</DetailRow>
               <DetailRow label="Tipo">{p.company_name ? p.company_name : 'Individual'}</DetailRow>
-              <DetailRow label="Localização">{p.province || '—'}</DetailRow>
+              <DetailRow label="Localização">{p.province || 'Não indicada'}</DetailRow>
               <DetailRow label="Serviços concluídos">{p.jobs_done}</DetailRow>
               {since && <DetailRow label="Na AUTONOMOUS desde">{since}</DetailRow>}
             </dl>

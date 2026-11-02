@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useEffect } from 'react';
 import { Globe, Phone, PhoneCall, X } from 'lucide-react';
 import type { BroadcastPerson } from '../lib/broadcasts';
@@ -20,7 +21,7 @@ export function CallModal({ open, onClose, person, onInternetCall }: {
   const phone = person?.phone || null;
   const telHref = phone ? `tel:${phone.replace(/\s+/g, '')}` : undefined;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/40 p-0 backdrop-blur-sm sm:items-center sm:p-4" onClick={onClose}>
       <div
         className="w-full max-w-sm rounded-t-3xl bg-white p-6 shadow-cardHover sm:rounded-3xl"
@@ -75,5 +76,5 @@ export function CallModal({ open, onClose, person, onInternetCall }: {
         </div>
       </div>
     </div>
-  );
+  , document.body);
 }

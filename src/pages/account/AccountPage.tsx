@@ -10,7 +10,7 @@ import { type Broadcast, acceptBroadcast, listOpenBroadcasts, locationLine, myBr
 import { isActive, stageLabel } from '../../lib/requestStage';
 import { RequestRow } from '../../components/app/RequestRow';
 import {
-  Avatar, Badge, Btn, Card, CardHeader, EmptyState, Notice, PageHeader, SectionTitle, Spinner, Stat, formatDate, timeAgo,
+  Avatar, Badge, Btn, Card, CardHeader, EmptyState, Notice, PageHeader, SectionTitle, Spinner, Stat, ValueSkeleton, formatDate, timeAgo,
 } from '../../components/app/ui';
 
 export function AccountPage() {
@@ -194,10 +194,10 @@ function ProviderHome() {
 
       {approved && (
         <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-          <Stat label="Disponíveis" value={jobs?.length ?? '—'} hint="nas suas áreas" icon={Bell} />
+          <Stat label="Disponíveis" value={jobs ? jobs.length : <ValueSkeleton />} hint="nas suas áreas" icon={Bell} />
           <Stat label="Em curso" value={current.length} hint="aceites por si" icon={ClipboardList} />
-          <Stat label="Saldo" value={balance === null ? '—' : formatKz(balance)} hint="disponível para sacar" icon={Wallet} />
-          <Stat label="Avaliação" value={reviews?.count ? reviews.average.toFixed(1) : '—'} hint={reviews?.count ? `${reviews.count} avaliaç${reviews.count === 1 ? 'ão' : 'ões'}` : 'sem avaliações'} icon={Star} />
+          <Stat label="Saldo" value={balance === null ? <ValueSkeleton /> : formatKz(balance)} hint="disponível para sacar" icon={Wallet} />
+          <Stat label="Avaliação" value={reviews === null ? <ValueSkeleton /> : reviews?.count ? reviews.average.toFixed(1) : 'Novo'} hint={reviews?.count ? `${reviews.count} avaliaç${reviews.count === 1 ? 'ão' : 'ões'}` : 'sem avaliações'} icon={Star} />
         </div>
       )}
 

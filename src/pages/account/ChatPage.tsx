@@ -75,7 +75,7 @@ export function ChatPage({ id }: { id: string }) {
           <button onClick={() => navigate(`/conta/pedido/${id}`)} aria-label="Voltar" className="rounded-lg p-2 text-ink-500 hover:bg-cloud-100"><ArrowLeft size={20} /></button>
           <Avatar name={other?.name} src={other?.avatar_url} size="sm" />
           <div className="min-w-0 flex-1">
-            <p className="truncate text-base font-semibold text-ink-900">{other?.name || '—'}</p>
+            <p className="truncate text-base font-semibold text-ink-900">{other?.name || 'Conversa'}</p>
             <p className="truncate text-sm text-ink-500">{broadcast?.category}</p>
           </div>
           <button onClick={() => setCallOpen(true)} aria-label="Ligar" className="flex h-11 w-11 items-center justify-center rounded-xl border border-line text-brand-dark transition-colors hover:bg-cloud-100">

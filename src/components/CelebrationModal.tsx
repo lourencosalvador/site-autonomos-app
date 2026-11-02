@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useMemo } from 'react';
 import { CheckCircle2, Wallet, X } from 'lucide-react';
 
@@ -18,7 +19,7 @@ export function CelebrationModal({ open, onClose, onWallet }: { open: boolean; o
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[80] flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onClick={onClose}>
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         {pieces.map((p, i) => (
@@ -46,5 +47,5 @@ export function CelebrationModal({ open, onClose, onWallet }: { open: boolean; o
         </button>
       </div>
     </div>
-  );
+  , document.body);
 }

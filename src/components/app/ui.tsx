@@ -169,6 +169,11 @@ export function Avatar({ name, src, size = 'md' }: { name?: string | null; src?:
   );
 }
 
+/** Marcador de carregamento para valores (em vez de um traço). */
+export function ValueSkeleton({ className }: { className?: string }) {
+  return <span aria-label="A carregar" className={cx('inline-block h-[0.8em] w-16 animate-pulse rounded-md bg-current opacity-15 align-middle', className)} />;
+}
+
 export function Spinner({ className }: { className?: string }) {
   return <Loader2 className={cx('animate-spin text-ink-300', className)} size={24} />;
 }

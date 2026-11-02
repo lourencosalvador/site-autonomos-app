@@ -17,11 +17,19 @@ type Key = 'category' | 'description' | 'province' | 'municipality' | 'neighborh
 type Step = 'catalog' | 'form';
 type Choose = (service: Service | null, media?: HTMLElement | null, title?: HTMLElement | null) => void;
 
-/** Muda de passo com uma View Transition (a imagem do card passa para o topo do formulário). */
+/**
+ * Muda de passo com uma View Transition (a imagem do card passa para o topo do formulário).
+ * O nome `app-main` só existe durante a transição: um view-transition-name permanente
+ * prende os overlays `fixed` (modais) dentro da área de conteúdo.
+ */
 function transition(update: () => void) {
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   if (!document.startViewTransition || reduce) { update(); return null; }
-  return document.startViewTransition(() => flushSync(update));
+  const main = document.querySelector<HTMLElement>('[data-app-main]');
+  if (main) main.style.viewTransitionName = 'app-main';
+  const t = document.startViewTransition(() => flushSync(update));
+  t.finished.finally(() => { if (main) main.style.viewTransitionName = ''; });
+  return t;
 }
 
 function setHashCategory(category: string | null) {
@@ -259,7 +267,7 @@ function RequestForm({ category, onCategory, onBack }: { category: string; onCat
   };
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className="max-w-3xl">
       <button type="button" onClick={onBack} className="mb-3 inline-flex items-center gap-1.5 text-[15px] font-medium text-ink-500 transition-colors hover:text-ink-900">
         <ArrowLeft size={17} /> Escolher outro serviço
       </button>

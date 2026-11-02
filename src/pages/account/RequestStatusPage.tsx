@@ -159,7 +159,7 @@ export function RequestStatusPage({ id }: { id: string }) {
       />
       <CelebrationModal open={celebrate} onClose={() => setCelebrate(false)} onWallet={() => { setCelebrate(false); navigate('/conta/financas'); }} />
       <RatingModal open={rateOpen} broadcastId={b.id} target={iAmClient ? 'provider' : 'client'}
-        providerName={other?.name || (iAmClient ? 'o profissional' : 'o cliente')} onClose={() => setRateOpen(false)} onDone={() => { void refetch(); }} />
+        providerName={other?.name || (iAmClient ? 'o profissional' : 'o cliente')} avatarUrl={other?.avatar_url} onClose={() => setRateOpen(false)} onDone={() => { void refetch(); }} />
     </>
   );
 }
@@ -876,7 +876,7 @@ function PersonCard({ person, iAmClient, unread, onChat, onCall }: { person: Bro
       <div className="mt-3 flex items-center gap-3">
         <Avatar name={person.name} src={person.avatar_url} size="lg" />
         <div className="min-w-0">
-          <p className="truncate text-lg font-semibold text-ink-900">{person.name || '—'}</p>
+          <p className="truncate text-lg font-semibold text-ink-900">{person.name || (iAmClient ? 'Profissional' : 'Cliente')}</p>
           <p className="truncate text-[15px] text-ink-500">{subtitle}</p>
         </div>
       </div>

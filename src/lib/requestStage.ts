@@ -17,6 +17,8 @@ export function stageOf(b: Broadcast): Stage {
     if (b.quote_status !== 'accepted') return 'quote_pending';
     if (!b.provider_done_at) return 'in_progress';
     if (!b.client_confirmed_at) return 'awaiting_confirmation';
+    // Pagos no modelo antigo (antes do pagamento no fim): não há transferência a fazer.
+    if (b.payment_status === 'paid') return 'completed';
     return b.payment_status === 'submitted' ? 'payment_review' : 'awaiting_payment';
   }
   return b.status as Stage;
