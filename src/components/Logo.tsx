@@ -6,7 +6,7 @@ export function Logo({ className = '' }: { light?: boolean; className?: string }
     <button
       onClick={() => navigate('/')}
       className={`group flex items-center ${className}`}
-      aria-label="AUTONOMOUS — início"
+      aria-label="AUTONOMOUS, página inicial"
     >
       <img
         src="/logo-principal.svg"

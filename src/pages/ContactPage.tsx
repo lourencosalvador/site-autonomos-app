@@ -1,80 +1,85 @@
-import { Mail, Phone, MapPin, Clock, MessageSquare } from 'lucide-react';
-import { SectionHeading } from '../components/SectionHeading';
-import { PageHero } from '../components/PageHero';
+import { ArrowUpRight, Clock, Mail, MapPin, MessageCircle, Phone, type LucideIcon } from 'lucide-react';
+import { FaqSection } from '../components/FaqSection';
 import { track } from '../lib/analytics';
 
-const CHANNELS = [
-  { icon: Mail, label: 'Email', value: 'autonomous.ao@gmail.com', href: 'mailto:autonomous.ao@gmail.com' },
-  { icon: Phone, label: 'Telefone / WhatsApp', value: '+244 976 477 097', href: 'tel:+244976477097' },
-  { icon: MapPin, label: 'Endereço', value: 'Luanda, Angola', href: null },
-  { icon: Clock, label: 'Atendimento', value: 'Seg–Sáb · 08h às 18h', href: null },
+type Channel = { icon: LucideIcon; label: string; value: string; hint: string; action: string; href: string; external?: boolean };
+
+const CHANNELS: Channel[] = [
+  { icon: MessageCircle, label: 'WhatsApp', value: '+244 976 477 097', hint: 'A forma mais rápida de falar connosco.', action: 'Abrir conversa', href: 'https://wa.me/244976477097', external: true },
+  { icon: Phone, label: 'Telefone', value: '+244 976 477 097', hint: 'Segunda a sábado, das 08h às 18h.', action: 'Ligar', href: 'tel:+244976477097' },
+  { icon: Mail, label: 'Email', value: 'autonomous.ao@gmail.com', hint: 'Para parcerias, empresas e assuntos detalhados.', action: 'Enviar email', href: 'mailto:autonomous.ao@gmail.com' },
+];
+
+const INFO = [
+  { icon: Clock, label: 'Horário', value: 'Segunda a sábado, 08h às 18h' },
+  { icon: MapPin, label: 'Onde estamos', value: 'Luanda, Angola' },
 ];
 
 export function ContactPage() {
   return (
     <>
-      <PageHero
-        icon={MessageSquare}
-        eyebrow="Fale connosco"
-        title={<>Estamos aqui para <span className="text-gradient-cyan">ajudar.</span></>}
-        subtitle="Tem dúvidas ou precisa de suporte? A nossa equipa responde rapidamente."
-      />
-
-      <section className="bg-cloud-50 py-24">
-        <div className="mx-auto max-w-7xl px-5 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-2">
-            {/* Channels */}
-            <div>
-              <SectionHeading center={false} eyebrow="Contactos" title="Vários canais à sua disposição." />
-              <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                {CHANNELS.map((c, i) => {
-                  const Icon = c.icon;
-                  const inner = (
-                    <div className={`reveal reveal-delay-${i + 1} flex items-start gap-4 rounded-2xl border border-cloud-200 bg-white p-5 shadow-soft transition-all duration-300 hover:-translate-y-1 hover:border-brand-cyan/40 hover:shadow-cardHover`}>
-                      <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-cyan/12 text-brand-dark">
-                        <Icon size={20} />
-                      </div>
-                      <div>
-                        <p className="text-xs font-semibold uppercase tracking-wider text-ink-400">{c.label}</p>
-                        <p className="mt-0.5 font-semibold text-ink-900">{c.value}</p>
-                      </div>
+      <section className="border-b border-cloud-200 bg-white pb-20 pt-32 lg:pb-24 lg:pt-40">
+        <div className="mx-auto grid max-w-7xl gap-12 px-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16 lg:px-8">
+          <div>
+            <p className="reveal inline-flex items-center gap-2.5 text-sm font-semibold uppercase tracking-[0.14em] text-brand-dark">
+              <span className="h-0.5 w-5 rounded-full bg-brand-cyan2" /> Contacto
+            </p>
+            <h1 className="reveal reveal-delay-1 mt-4 font-display text-4xl font-bold leading-[1.1] tracking-tight text-ink-900 sm:text-5xl">
+              Estamos aqui para ajudar.
+            </h1>
+            <p className="reveal reveal-delay-2 mt-5 max-w-md text-lg leading-relaxed text-ink-500">
+              Dúvidas sobre um pedido, um profissional ou uma parceria? Fale connosco pelo canal que preferir. Respondemos em poucas horas.
+            </p>
+            <dl className="reveal reveal-delay-2 mt-10 space-y-5">
+              {INFO.map((i) => {
+                const Icon = i.icon;
+                return (
+                  <div key={i.label} className="flex items-center gap-4">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-cloud-300 text-brand-dark">
+                      <Icon size={20} strokeWidth={1.8} />
+                    </span>
+                    <div>
+                      <dt className="text-sm text-ink-500">{i.label}</dt>
+                      <dd className="text-base font-semibold text-ink-900">{i.value}</dd>
                     </div>
-                  );
-                  return c.href ? (
-                    <a key={c.label} href={c.href} onClick={() => track('contact_click', c.label)} className="block">{inner}</a>
-                  ) : (
-                    <div key={c.label}>{inner}</div>
-                  );
-                })}
-              </div>
-
-              <div className="reveal mt-8 rounded-3xl bg-gradient-to-br from-brand-dark to-brand-dark2 p-7 text-white shadow-card">
-                <h3 className="font-display text-lg font-bold">Suporte ao cliente</h3>
-                <p className="mt-2 text-sm text-white/70">
-                  Para questões sobre pedidos, profissionais ou parcerias, envie-nos um email, ligue ou fale connosco pelo WhatsApp. Atendimento de segunda a sábado — respondemos em poucas horas.
-                </p>
-              </div>
-            </div>
-
-            {/* Map / illustration */}
-            <div className="reveal-right relative overflow-hidden rounded-3xl border border-cloud-200 shadow-card">
-              <div className="relative h-full min-h-[420px] bg-brand-dark">
-                <div className="absolute inset-0 bg-grid-dark opacity-40" />
-                <div className="absolute left-1/2 top-1/2 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-cyan/20 blur-3xl" />
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-cyan/15 text-brand-cyan animate-pulseGlow">
-                    <MapPin size={28} />
                   </div>
-                  <h3 className="mt-5 font-display text-xl font-bold text-white">Luanda, Angola</h3>
-                  <p className="mt-2 max-w-xs text-sm text-white/65">
-                    A nossa equipa opera a partir de Luanda, servindo clientes e profissionais em todo o país.
-                  </p>
-                </div>
-              </div>
-            </div>
+                );
+              })}
+            </dl>
           </div>
+
+          <ul className="reveal reveal-delay-1 divide-y divide-cloud-300 self-start overflow-hidden rounded-3xl border border-cloud-300 bg-white">
+            {CHANNELS.map((c) => {
+              const Icon = c.icon;
+              return (
+                <li key={c.label}>
+                  <a
+                    href={c.href}
+                    target={c.external ? '_blank' : undefined}
+                    rel={c.external ? 'noopener noreferrer' : undefined}
+                    onClick={() => track('contact_click', c.label)}
+                    className="group flex flex-col gap-4 p-6 transition-colors hover:bg-cloud-50 sm:flex-row sm:items-center sm:p-7"
+                  >
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand-dark text-brand-cyan">
+                      <Icon size={22} strokeWidth={1.8} />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-sm font-medium text-ink-500">{c.label}</span>
+                      <span className="mt-0.5 block truncate text-lg font-semibold text-ink-900">{c.value}</span>
+                      <span className="mt-0.5 block text-[15px] text-ink-500">{c.hint}</span>
+                    </span>
+                    <span className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl border border-cloud-300 bg-white px-4 text-[15px] font-semibold text-ink-900 transition-colors group-hover:border-brand-dark group-hover:bg-brand-dark group-hover:text-white">
+                      {c.action} <ArrowUpRight size={16} />
+                    </span>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </section>
+
+      <FaqSection contactCard={false} />
     </>
   );
 }

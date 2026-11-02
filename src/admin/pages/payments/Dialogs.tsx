@@ -124,7 +124,7 @@ export function NewChargeDialog({ open, ctx, onClose, onCreated }: { open: boole
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="nc-desc">Descrição</Label>
-                <Textarea id="nc-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} maxLength={60} placeholder="Ex: Reparação de fuga — Talatona" />
+                <Textarea id="nc-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} maxLength={60} placeholder="Ex: Reparação de fuga, Talatona" />
                 <FieldHint>{method === 'REF' ? 'Com telefone, o cliente recebe a referência por SMS.' : 'O cliente recebe o pedido na app Multicaixa Express e tem cerca de 1 minuto para aprovar.'}</FieldHint>
               </div>
               <DialogFooter className="pt-1">

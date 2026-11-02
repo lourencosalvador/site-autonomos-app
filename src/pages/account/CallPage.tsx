@@ -117,7 +117,7 @@ export function CallPage({ id }: { id: string }) {
               <p className="mt-2 text-white/70">
                 {remoteJoined ? formatTime(elapsed) : 'A tocar… à espera que atenda'}
               </p>
-              {micError && <p className="mt-1 text-xs text-amber-300">Microfone bloqueado — só consegue ouvir.</p>}
+              {micError && <p className="mt-1 text-xs text-amber-300">Microfone bloqueado: só consegue ouvir.</p>}
             </>
           )}
           {phase === 'error' && (

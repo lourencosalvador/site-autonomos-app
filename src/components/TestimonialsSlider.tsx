@@ -1,6 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Star, Quote, ChevronLeft, ChevronRight } from 'lucide-react';
-import { TESTIMONIALS } from '../data';
+import { Star } from 'lucide-react';
+import { TESTIMONIALS, type Testimonial } from '../data';
 
 /** Initials from a full name, e.g. "Ana Domingos" -> "AD". */
 function initials(name: string) {
@@ -12,81 +11,44 @@ function initials(name: string) {
     .join('');
 }
 
-export function TestimonialsSlider() {
-  const [index, setIndex] = useState(0);
-  const count = TESTIMONIALS.length;
-
-  const go = useCallback((dir: 1 | -1) => {
-    setIndex((i) => (i + dir + count) % count);
-  }, [count]);
-
-  useEffect(() => {
-    const t = window.setInterval(() => setIndex((i) => (i + 1) % count), 6000);
-    return () => window.clearInterval(t);
-  }, [count]);
-
+/**
+ * Testemunhos em grelha: o primeiro em destaque, os restantes à volta.
+ * No telemóvel passa a uma faixa com scroll horizontal (snap).
+ */
+export function TestimonialsGrid() {
   return (
-    <div className="relative mx-auto max-w-4xl">
-      <div className="relative overflow-hidden rounded-3xl">
-        <div
-          className="flex transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]"
-          style={{ transform: `translateX(-${index * 100}%)` }}
-        >
-          {TESTIMONIALS.map((t) => (
-            <div key={t.name} className="w-full shrink-0 px-1">
-              <figure className="relative rounded-3xl border border-brand-dark/10 bg-white p-8 shadow-card sm:p-10">
-                <Quote className="absolute right-8 top-8 h-12 w-12 text-brand-cyan/20" />
-                <div className="flex items-center gap-1 text-brand-cyan2">
-                  {Array.from({ length: t.rating }).map((_, i) => (
-                    <Star key={i} size={18} className="fill-current" />
-                  ))}
-                </div>
-                <blockquote className="mt-5 font-display text-lg font-medium leading-relaxed text-brand-dark sm:text-xl">
-                  “{t.text}”
-                </blockquote>
-                <figcaption className="mt-6 flex items-center gap-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-cyan to-brand-dark font-display text-sm font-bold text-white ring-2 ring-brand-cyan/40">
-                    {initials(t.name)}
-                  </div>
-                  <div>
-                    <p className="font-semibold text-brand-dark">{t.name}</p>
-                    <p className="text-sm text-ink-700/70">{t.role} · {t.city}</p>
-                  </div>
-                </figcaption>
-              </figure>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-6 flex items-center justify-center gap-4">
-        <button
-          onClick={() => go(-1)}
-          aria-label="Anterior"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-dark/15 text-brand-dark transition-all hover:border-brand-cyan hover:text-brand-cyan"
-        >
-          <ChevronLeft size={18} />
-        </button>
-        <div className="flex gap-2">
-          {TESTIMONIALS.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setIndex(i)}
-              aria-label={`Testemunho ${i + 1}`}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                i === index ? 'w-7 bg-brand-cyan' : 'w-2 bg-brand-dark/20 hover:bg-brand-dark/40'
-              }`}
-            />
-          ))}
-        </div>
-        <button
-          onClick={() => go(1)}
-          aria-label="Seguinte"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-brand-dark/15 text-brand-dark transition-all hover:border-brand-cyan hover:text-brand-cyan"
-        >
-          <ChevronRight size={18} />
-        </button>
-        </div>
+    <div className="-mx-5 flex snap-x snap-mandatory gap-4 overflow-x-auto px-5 pb-2 [scrollbar-width:none] md:mx-0 md:grid md:grid-cols-2 md:gap-5 md:overflow-visible md:px-0 md:pb-0 lg:grid-cols-3 [&::-webkit-scrollbar]:hidden">
+      {TESTIMONIALS.map((t, i) => (
+        <TestimonialCard key={t.name} t={t} featured={i === 0} />
+      ))}
     </div>
+  );
+}
+
+function TestimonialCard({ t, featured }: { t: Testimonial; featured: boolean }) {
+  return (
+    <figure
+      className={`reveal flex w-[86%] shrink-0 snap-start flex-col rounded-3xl p-7 sm:w-[60%] md:w-auto ${
+        featured ? 'bg-brand-dark text-white md:col-span-2 lg:col-span-1 lg:row-span-2 lg:p-9' : 'border border-cloud-300 bg-white'
+      }`}
+    >
+      <div className={`flex items-center gap-0.5 ${featured ? 'text-brand-cyan' : 'text-brand-cyan2'}`} aria-label={`${t.rating} de 5 estrelas`}>
+        {Array.from({ length: t.rating }).map((_, i) => <Star key={i} size={15} className="fill-current" />)}
+      </div>
+      <blockquote className={`mt-5 leading-relaxed ${featured ? 'font-display text-xl font-medium text-white lg:text-2xl lg:leading-snug' : 'text-[17px] text-ink-800'}`}>
+        “{t.text}”
+      </blockquote>
+      <figcaption className={`mt-auto flex items-center gap-3 pt-7 ${featured ? 'lg:border-t lg:border-white/10 lg:pt-6' : ''}`}>
+        <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+          featured ? 'bg-white/10 text-white' : 'bg-cloud-200 text-brand-dark'
+        }`}>
+          {initials(t.name)}
+        </span>
+        <span>
+          <span className={`block text-[15px] font-semibold ${featured ? 'text-white' : 'text-ink-900'}`}>{t.name}</span>
+          <span className={`block text-sm ${featured ? 'text-white/60' : 'text-ink-500'}`}>{t.role} · {t.city}</span>
+        </span>
+      </figcaption>
+    </figure>
   );
 }

@@ -76,7 +76,7 @@ export function TestPage() {
             {confirmClear ? (
               <>
                 <Button variant="ghost" size="sm" onClick={() => setConfirmClear(false)} disabled={busy}>Cancelar</Button>
-                <Button variant="destructive" size="sm" onClick={clearAll} disabled={busy}>Confirmar — apagar {rows.length}</Button>
+                <Button variant="destructive" size="sm" onClick={clearAll} disabled={busy}>Confirmar: apagar {rows.length}</Button>
               </>
             ) : (
               <Button variant="destructive" size="sm" onClick={() => setConfirmClear(true)} disabled={rows.length === 0}>

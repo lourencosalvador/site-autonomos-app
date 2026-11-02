@@ -67,7 +67,7 @@ export function AboutPage() {
               </div>
               <h2 className="mt-5 font-display text-2xl font-extrabold text-ink-900">Missão</h2>
               <p className="mt-3 text-base leading-relaxed text-ink-500">
-                Tornar a contratação de profissionais de confiança simples, rápida e fiável — para todos.
+                Tornar a contratação de profissionais de confiança simples, rápida e fiável, para todos.
               </p>
             </div>
             <div className="reveal-right rounded-3xl border border-cloud-200 bg-white p-8 shadow-soft transition-all duration-300 hover:-translate-y-1.5 hover:shadow-cardHover">
@@ -76,7 +76,7 @@ export function AboutPage() {
               </div>
               <h2 className="mt-5 font-display text-2xl font-extrabold text-ink-900">Visão</h2>
               <p className="mt-3 text-base leading-relaxed text-ink-500">
-                Ligar clientes e profissionais independentes de forma simples, rápida e segura — e tornar-nos uma referência de confiança em Angola.
+                Ligar clientes e profissionais independentes de forma simples, rápida e segura, e tornar-nos uma referência de confiança em Angola.
               </p>
             </div>
           </div>

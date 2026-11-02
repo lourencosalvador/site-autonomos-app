@@ -22,7 +22,7 @@ const MOMENTS: Moment[] = [
     tag: 'SonaJovem 5.0',
     title: 'A AUTONOMOUS no espaço SonaJovem da Sonangol',
     summary:
-      'Apresentámos a plataforma a visitantes, parceiros e empreendedores no stand dedicado aos projetos do programa SonaJovem — com a mensagem que nos define: confiança construída em cada ligação.',
+      'Apresentámos a plataforma a visitantes, parceiros e empreendedores no stand dedicado aos projetos do programa SonaJovem, com a mensagem que nos define: confiança construída em cada ligação.',
     meta: 'Luanda',
     focus: 'center 40%',
   },
@@ -45,7 +45,7 @@ const MOMENTS: Moment[] = [
     src: '/galeria/g06.jpg',
     tag: 'Apresentação',
     title: '“Feito para Angola”: a plataforma apresentada ao público',
-    summary: 'A nossa visão no grande ecrã — ligar clientes a profissionais verificados em todo o país.',
+    summary: 'A nossa visão no grande ecrã: ligar clientes a profissionais verificados em todo o país.',
   },
   {
     src: '/galeria/g02.jpg',

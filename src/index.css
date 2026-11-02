@@ -386,3 +386,24 @@ body {
     radial-gradient(var(--wave) at 50% 100%, #0000 97%, #000) 50% 100% / calc(var(--wave) * 2.2) 51% repeat-x;
 }
 .receipt-rule { border-top: 2px dashed #DCE9F1; }
+
+/* Novo pedido: o card do serviço passa para o topo do formulário. */
+::view-transition-group(svc-media),
+::view-transition-group(svc-title) {
+  animation-duration: 0.5s;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+::view-transition-old(svc-media),
+::view-transition-new(svc-media) {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  overflow: clip;
+}
+::view-transition-old(app-main) { animation: vt-out 0.16s ease-out both; }
+::view-transition-new(app-main) { animation: vt-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both; }
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(10px); } }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}

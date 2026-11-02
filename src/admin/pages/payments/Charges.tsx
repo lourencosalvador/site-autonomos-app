@@ -122,7 +122,7 @@ export function Charges({ ctx, version }: { ctx: MoneyCtx; version: number }) {
 export function paymentInstructions(c: Pick<Charge, 'method' | 'reference_entity' | 'reference_number' | 'reference_due_at' | 'amount_minor' | 'description'>, ctx: MoneyCtx) {
   if (c.method !== 'REF' || !c.reference_number) return '';
   const due = c.reference_due_at ? `\nVálida até: ${formatDateTime(c.reference_due_at)}` : '';
-  return `AUTONOMOUS — ${c.description ?? 'Pagamento'}\nPagamento por Referência (ATM, Multicaixa Express ou Internet Banking)\nEntidade: ${c.reference_entity}\nReferência: ${c.reference_number}\nValor: ${formatMoney(c.amount_minor, ctx)}${due}`;
+  return `AUTONOMOUS · ${c.description ?? 'Pagamento'}\nPagamento por Referência (ATM, Multicaixa Express ou Internet Banking)\nEntidade: ${c.reference_entity}\nReferência: ${c.reference_number}\nValor: ${formatMoney(c.amount_minor, ctx)}${due}`;
 }
 
 function ChargeSheet({ id, ctx, onClose, onChanged }: { id: string | null; ctx: MoneyCtx; onClose: () => void; onChanged: () => void }) {
@@ -266,7 +266,7 @@ function ChargeSheet({ id, ctx, onClose, onChanged }: { id: string | null; ctx: 
               destructive
               title="Cancelar esta cobrança?"
               description={c.method === 'REF'
-                ? 'Deixa de ser considerada à espera de pagamento. Atenção: a referência continua válida na rede Multicaixa até expirar — se o cliente pagar, o pagamento é registado na mesma.'
+                ? 'Deixa de ser considerada à espera de pagamento. Atenção: a referência continua válida na rede Multicaixa até expirar. Se o cliente pagar, o pagamento é registado na mesma.'
                 : 'Deixa de ser considerada à espera de pagamento.'}
               confirmLabel="Cancelar cobrança"
               onConfirm={async () => {

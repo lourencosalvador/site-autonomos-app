@@ -191,7 +191,7 @@ function TransactionSheet({ id, ctx, onClose }: { id: string | null; ctx: MoneyC
                           {(c.events ?? []).map((e) => (
                             <li key={e.id} className="text-xs text-zinc-500">
                               <span className="text-zinc-700">{SOURCE_LABELS[e.source] ?? e.source}</span>
-                              {e.message ? ` — ${e.message}` : ''} · {formatDateTime(e.created_at)}
+                              {e.message ? `: ${e.message}` : ''} · {formatDateTime(e.created_at)}
                             </li>
                           ))}
                         </ol>

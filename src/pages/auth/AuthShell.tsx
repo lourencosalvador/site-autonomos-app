@@ -22,7 +22,7 @@ export function AuthShell({ title, subtitle, children, footer, wide }: {
         <div className="absolute -left-24 top-24 h-80 w-80 animate-blob rounded-full bg-brand-cyan/25 blur-3xl" />
         <div className="absolute -right-16 bottom-10 h-80 w-80 animate-blob rounded-full bg-lilac-300/30 blur-3xl [animation-delay:3s]" />
         <div className="relative flex h-full flex-col justify-between p-10 xl:p-12">
-          <button onClick={() => navigate('/')} className="w-fit" aria-label="AUTONOMOUS — início">
+          <button onClick={() => navigate('/')} className="w-fit" aria-label="AUTONOMOUS, página inicial">
             <img src="/admin-logo-light.svg" alt="AUTONOMOUS" className="h-6 w-auto" />
           </button>
           <div>
@@ -57,7 +57,7 @@ export function AuthShell({ title, subtitle, children, footer, wide }: {
       {/* Formulário */}
       <main className="flex flex-1 flex-col px-5 py-6 sm:px-8">
         <div className="flex items-center justify-between lg:hidden">
-          <button onClick={() => navigate('/')} aria-label="AUTONOMOUS — início">
+          <button onClick={() => navigate('/')} aria-label="AUTONOMOUS, página inicial">
             <img src="/logo-principal.svg" alt="AUTONOMOUS" className="h-7 w-auto" />
           </button>
           <button onClick={() => navigate('/')} className="inline-flex items-center gap-1.5 text-sm text-ink-400 transition-colors hover:text-ink-900">

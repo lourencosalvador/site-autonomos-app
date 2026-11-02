@@ -7,27 +7,12 @@ import { refreshReveal } from '../hooks/useScrollReveal';
 import { useServices } from '../hooks/useServices';
 import { track } from '../lib/analytics';
 import { useAuth } from '../auth/AuthContext';
+import { POPULAR_SERVICES as POPULAR, searchServices } from '../lib/serviceSearch';
 
 
 function requestPath(loggedIn: boolean, category?: string) {
   const base = loggedIn ? '/conta/pedir' : '/solicitar-servico';
   return category ? `${base}?categoria=${encodeURIComponent(category)}` : base;
-}
-
-const POPULAR = ['Eletricidade', 'Canalização', 'Ar condicionado', 'Limpeza', 'Energia solar', 'Pintura'];
-
-
-function normalize(text: string) {
-  return text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-}
-
-function searchServices(services: Service[], query: string): Service[] {
-  const terms = normalize(query).split(/\s+/).filter(Boolean);
-  if (terms.length === 0) return services;
-  return services.filter((s) => {
-    const haystack = normalize(`${s.title} ${s.description} ${s.keywords ?? ''}`);
-    return terms.every((t) => haystack.includes(t));
-  });
 }
 
 export function ServicesPage() {

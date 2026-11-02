@@ -5,8 +5,8 @@ import { Button } from './Button';
 
 export const FAQS: { q: string; a: string }[] = [
   {
-    q: 'O que é a AUTONOMOS?',
-    a: 'A AUTONOMOS é uma plataforma que conecta pessoas que precisam de um serviço a profissionais qualificados de forma rápida, simples e segura. Basta solicitar o serviço e encontrar o profissional ideal para o seu problema.',
+    q: 'O que é a AUTONOMOUS?',
+    a: 'A AUTONOMOUS é uma plataforma que conecta pessoas que precisam de um serviço a profissionais qualificados de forma rápida, simples e segura. Basta solicitar o serviço e encontrar o profissional ideal para o seu problema.',
   },
   {
     q: 'Quais serviços posso encontrar?',
@@ -34,7 +34,7 @@ export const FAQS: { q: string; a: string }[] = [
   },
   {
     q: 'Como sei que o profissional é confiável?',
-    a: 'Os profissionais passam por um processo de registo e análise do seu perfil na plataforma e possuem um perfil onde os clientes podem consultar informações, avaliações e histórico de serviços realizados — fator importante para a sua contratação.',
+    a: 'Os profissionais passam por um processo de registo e análise do seu perfil na plataforma e possuem um perfil onde os clientes podem consultar informações, avaliações e histórico de serviços realizados. Assim escolhe com confiança.',
   },
   {
     q: 'Posso avaliar o profissional após o serviço?',
@@ -49,11 +49,11 @@ export const FAQS: { q: string; a: string }[] = [
     a: 'Basta criar uma conta como prestador, preencher os seus dados, escolher as categorias em que trabalha e aguardar a validação do seu perfil. Depois disso, poderá começar a receber solicitações de clientes.',
   },
   {
-    q: 'Quem pode ser prestador na AUTONOMOS?',
+    q: 'Quem pode ser prestador na AUTONOMOUS?',
     a: 'Qualquer profissional que possua experiência na sua área de atuação e cumpra os requisitos da plataforma pode candidatar-se para oferecer os seus serviços.',
   },
   {
-    q: 'Em que cidades a AUTONOMOS está disponível?',
+    q: 'Em que cidades a AUTONOMOUS está disponível?',
     a: 'A plataforma está disponível somente em Luanda, mas com previsão de expansão.',
   },
   {
@@ -61,84 +61,61 @@ export const FAQS: { q: string; a: string }[] = [
     a: 'Caso tenha alguma dúvida ou precise de ajuda, utilize os canais de atendimento disponíveis na página de Contacto da plataforma. A nossa equipa terá todo o gosto em ajudar.',
   },
   {
-    q: 'A AUTONOMOS garante o serviço realizado?',
-    a: 'A AUTONOMOS atua como intermediária entre clientes e profissionais, facilitando a contratação de serviços. A execução do trabalho é da responsabilidade do prestador contratado. No entanto, a plataforma acompanha avaliações, recebe reclamações e toma medidas quando necessário para manter a qualidade dos serviços.',
+    q: 'A AUTONOMOUS garante o serviço realizado?',
+    a: 'A AUTONOMOUS atua como intermediária entre clientes e profissionais, facilitando a contratação de serviços. A execução do trabalho é da responsabilidade do prestador contratado. No entanto, a plataforma acompanha avaliações, recebe reclamações e toma medidas quando necessário para manter a qualidade dos serviços.',
   },
   {
     q: 'Os meus dados pessoais estão protegidos?',
-    a: 'Sim. A AUTONOMOS adota medidas para proteger as informações dos utilizadores e trata os dados pessoais de acordo com a sua Política de Privacidade.',
+    a: 'Sim. A AUTONOMOUS adota medidas para proteger as informações dos utilizadores e trata os dados pessoais de acordo com a sua Política de Privacidade.',
   },
 ];
 
-export function FaqSection() {
+export function FaqSection({ contactCard = true }: { contactCard?: boolean }) {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="relative overflow-hidden bg-white py-24">
-      <div className="absolute -right-24 top-1/4 h-80 w-80 rounded-full bg-lilac-200/40 blur-3xl" />
-      <div className="absolute -left-24 bottom-1/4 h-72 w-72 rounded-full bg-brand-cyan/10 blur-3xl" />
-      <div className="relative mx-auto max-w-3xl px-5 lg:px-8">
-        <SectionHeading
-          eyebrow="Perguntas Frequentes"
-          title={<>Tudo o que precisa de <span className="text-gradient-cyan">saber.</span></>}
-          subtitle="Reunimos as dúvidas mais comuns de clientes e profissionais. Não encontrou a sua? Fale connosco."
-        />
+    <section className="bg-white py-24">
+      <div className="mx-auto grid max-w-7xl gap-12 px-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:gap-16 lg:px-8">
+        <div className="lg:sticky lg:top-28 lg:self-start">
+          <SectionHeading
+            center={false}
+            eyebrow="Perguntas frequentes"
+            title="Tudo o que precisa de saber."
+            subtitle={contactCard ? 'As dúvidas mais comuns de clientes e profissionais. Não encontrou a sua? Fale connosco.' : 'As dúvidas mais comuns de clientes e profissionais.'}
+          />
+          {contactCard && (
+          <div className="reveal mt-8 rounded-2xl border border-cloud-300 bg-cloud-50 p-6">
+            <p className="font-display text-lg font-bold text-ink-900">Ainda tem dúvidas?</p>
+            <p className="mt-1 text-[15px] leading-relaxed text-ink-500">A nossa equipa responde por WhatsApp, telefone ou email.</p>
+            <Button to="/contato" size="md" variant="secondary" className="mt-5">Falar connosco</Button>
+          </div>
+          )}
+        </div>
 
-        <div className="reveal mt-12 space-y-3">
+        <div className="reveal border-t border-cloud-300">
           {FAQS.map((item, i) => {
             const isOpen = open === i;
             return (
-              <div
-                key={item.q}
-                className={`group overflow-hidden rounded-2xl border transition-all duration-300 ${
-                  isOpen
-                    ? 'border-brand-cyan/40 bg-cloud-50 shadow-cardHover'
-                    : 'border-cloud-200 bg-white hover:border-brand-cyan/30 hover:bg-cloud-50'
-                }`}
-              >
+              <div key={item.q} className="border-b border-cloud-300">
                 <button
                   type="button"
                   onClick={() => setOpen(isOpen ? null : i)}
                   aria-expanded={isOpen}
-                  className="flex w-full items-center justify-between gap-4 px-5 py-5 text-left lg:px-6"
+                  className="group flex w-full items-center justify-between gap-6 py-5 text-left"
                 >
-                  <span className="font-display text-base font-bold text-ink-900 lg:text-lg">
+                  <span className={`text-base font-semibold transition-colors sm:text-[17px] ${isOpen ? 'text-brand-dark' : 'text-ink-900 group-hover:text-brand-dark'}`}>
                     {item.q}
                   </span>
-                  <span
-                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
-                      isOpen
-                        ? 'rotate-45 bg-brand-cyan text-brand-dark shadow-glow'
-                        : 'bg-brand-dark text-brand-cyan group-hover:bg-brand-cyan group-hover:text-brand-dark'
-                    }`}
-                  >
-                    <Plus size={18} />
-                  </span>
+                  <Plus size={20} strokeWidth={1.8} className={`shrink-0 text-ink-400 transition-transform duration-300 ${isOpen ? 'rotate-45 text-brand-dark' : ''}`} />
                 </button>
-                <div
-                  className={`grid transition-all duration-300 ease-out ${
-                    isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-                  }`}
-                >
+                <div className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                   <div className="overflow-hidden">
-                    <p className="px-5 pb-5 text-sm leading-relaxed text-ink-500 lg:px-6 lg:text-base">
-                      {item.a}
-                    </p>
+                    <p className="pb-6 pr-10 text-[15px] leading-relaxed text-ink-500 sm:text-base">{item.a}</p>
                   </div>
                 </div>
               </div>
             );
           })}
-        </div>
-
-        <div className="reveal reveal-delay-1 mt-12 flex flex-col items-center gap-4 rounded-3xl border border-cloud-200 bg-cloud-50 px-6 py-10 text-center">
-          <h3 className="font-display text-xl font-bold text-ink-900">Ainda tem dúvidas?</h3>
-          <p className="max-w-md text-sm text-ink-500">
-            A nossa equipa de suporte está pronta para ajudar em qualquer etapa.
-          </p>
-          <Button to="/contato" size="md" variant="dark">
-            Falar com o suporte
-          </Button>
         </div>
       </div>
     </section>

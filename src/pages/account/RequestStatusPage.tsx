@@ -524,7 +524,7 @@ function PaymentGuide({ b, busy, onPay, fees }: { b: Broadcast; busy: boolean; o
       {b.payment_status === 'rejected' && (
         <Notice tone="danger" title="O comprovativo anterior não foi aceite" className="mt-5">{b.payment_rejected_reason || 'Envie um novo comprovativo.'}</Notice>
       )}
-      <Notice tone="info" className="mt-5">O pagamento é feito apenas depois de o profissional terminar o trabalho — nunca antes.</Notice>
+      <Notice tone="info" className="mt-5">O pagamento é feito apenas depois de o profissional terminar o trabalho, nunca antes.</Notice>
 
       <div className="mt-5 rounded-2xl border border-line bg-cloud-50 px-5 py-2">
         <div className="flex items-center gap-2 pt-3 text-sm font-medium text-ink-500"><Landmark size={16} /> Dados para transferência</div>
