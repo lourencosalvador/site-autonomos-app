@@ -62,7 +62,7 @@ export function WalletPage() {
     { label: 'Já sacado', value: v(w?.withdrawn_minor) },
     { label: 'A aguardar o cliente', value: v(w?.upcoming_minor) },
     { label: 'Faturado (bruto)', value: v(w?.gross_minor) },
-    { label: 'Comissões', value: v(w?.fees_minor) },
+    { label: 'Taxas AUTONOMOUS', value: v(w?.fees_minor) },
   ];
 
   const cancel = async () => {
@@ -194,7 +194,7 @@ function MovementRow({ m }: { m: Movement }) {
             {m.state === 'credited' ? <Badge tone="success">No saldo</Badge> : <Badge>A aguardar o cliente</Badge>}
           </div>
           <p className="mt-0.5 truncate text-sm text-ink-500">{m.client_name || 'Cliente'} · {day(m.at)}</p>
-          <p className="mt-1 font-mono text-[13px] text-ink-400">Bruto {formatKz(m.gross_minor)} · Comissão −{formatKz(m.fee_minor)}</p>
+          <p className="mt-1 font-mono text-[13px] text-ink-400">Serviço {formatKz(m.gross_minor)} · Taxa −{formatKz(m.fee_minor)}</p>
         </div>
         <p className={cx('shrink-0 font-mono text-base font-semibold tabular-nums', m.state === 'credited' ? 'text-emerald-700' : 'text-ink-400')}>+{formatKz(m.amount_minor)}</p>
       </button>

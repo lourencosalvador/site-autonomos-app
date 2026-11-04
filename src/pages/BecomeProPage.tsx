@@ -1,7 +1,6 @@
 import { TrendingUp, Wallet, Clock, Eye } from 'lucide-react';
 import { PageHero } from '../components/PageHero';
 import { ProfessionalForm } from '../components/app/ProfessionalForm';
-import { FeeExplainer } from '../components/app/FeeExplainer';
 import { navigate } from '../router';
 import { track } from '../lib/analytics';
 
@@ -40,7 +39,7 @@ export function BecomeProPage() {
       </section>
 
       <section className="bg-white py-14 sm:py-16">
-        <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 sm:px-5 lg:grid-cols-[1fr_360px] lg:px-8">
+        <div className="mx-auto max-w-3xl px-4 sm:px-5 lg:px-8">
           <div className="rounded-2xl border border-line bg-white">
             <div className="border-b border-line px-5 py-6 sm:px-8">
               <h2 className="font-display text-2xl font-semibold tracking-tight text-ink-900">Registo de profissional</h2>
@@ -50,9 +49,6 @@ export function BecomeProPage() {
               <ProfessionalForm submitLabel="Quero fazer parte da AUTONOMOUS" onDone={() => { track('application_submitted'); navigate('/conta'); }} />
             </div>
           </div>
-          <aside className="h-fit lg:sticky lg:top-28">
-            <FeeExplainer audience="professional" />
-          </aside>
         </div>
       </section>
     </>

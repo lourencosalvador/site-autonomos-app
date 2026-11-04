@@ -145,11 +145,11 @@ function PaymentSettingsCard() {
           <>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <Label htmlFor="fee-c">Taxa do cliente (%)</Label>
+                <Label htmlFor="fee-c">Taxa de solicitação, paga pelo cliente (%)</Label>
                 <Input id="fee-c" inputMode="decimal" value={form.client} onChange={(e) => set('client', e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="fee-p">Comissão do profissional (%)</Label>
+                <Label htmlFor="fee-p">Taxa AUTONOMOUS, descontada ao profissional (%)</Label>
                 <Input id="fee-p" inputMode="decimal" value={form.provider} onChange={(e) => set('provider', e.target.value)} />
               </div>
             </div>

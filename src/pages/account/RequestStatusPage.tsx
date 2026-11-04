@@ -452,15 +452,12 @@ function QuoteReview({ b, busy, onRespond, fees }: { b: Broadcast; busy: boolean
         {b.quote_note && <p className="mt-4 whitespace-pre-line text-[15px] leading-relaxed text-ink-700">{b.quote_note}</p>}
         <dl className="mt-5 divide-y divide-line border-t border-line">
           <DetailRow label="Serviço">{formatKz(f.service)}</DetailRow>
-          <DetailRow label={`Taxa de serviço AUTONOMOUS (${pct(fees.client_fee_rate)}) · paga por si`}>{formatKz(f.clientFee)}</DetailRow>
+          <DetailRow label={`Taxa de solicitação AUTONOMOUS (${pct(fees.client_fee_rate)})`}>{formatKz(f.clientFee)}</DetailRow>
           <div className="flex items-center justify-between gap-4 pt-3">
             <dt className="text-base font-semibold text-ink-900">Total a pagar</dt>
             <dd className="text-lg font-semibold text-ink-900">{formatKz(f.clientTotal)}</dd>
           </div>
         </dl>
-        <p className="mt-3 text-sm leading-relaxed text-ink-500">
-          A comissão do profissional ({pct(fees.provider_fee_rate)}, {formatKz(f.providerFee)}) é descontada ao profissional e não altera o seu total.
-        </p>
       </div>
 
       {rejecting ? (
@@ -557,6 +554,11 @@ function PaymentGuide({ b, busy, onPay, fees }: { b: Broadcast; busy: boolean; o
   );
 }
 
+/** Percentagem guardada no pedido (snapshot das taxas no momento em que o orçamento foi aceite). */
+function ratePct(fee: number, service: number) {
+  return `${service ? Math.round((fee / service) * 100) : 0}%`;
+}
+
 function AmountSummary({ b, audience, className }: { b: Broadcast; audience: 'client' | 'provider'; className?: string }) {
   const service = b.price_minor ?? 0;
   if (!service) return null;
@@ -564,16 +566,17 @@ function AmountSummary({ b, audience, className }: { b: Broadcast; audience: 'cl
   const providerFee = b.provider_fee_minor ?? 0;
   return (
     <dl className={cx('max-w-md divide-y divide-line rounded-xl border border-line px-4', className)}>
-      <DetailRow label="Serviço">{formatKz(service)}</DetailRow>
       {audience === 'client' ? (
         <>
-          <DetailRow label="Taxa de serviço">{formatKz(clientFee)}</DetailRow>
-          <DetailRow label="Total">{formatKz(service + clientFee)}</DetailRow>
+          <DetailRow label="Serviço">{formatKz(service)}</DetailRow>
+          <DetailRow label={`Taxa de solicitação AUTONOMOUS (${ratePct(clientFee, service)})`}>{formatKz(clientFee)}</DetailRow>
+          <DetailRow label="Total a pagar">{formatKz(service + clientFee)}</DetailRow>
         </>
       ) : (
         <>
-          <DetailRow label="Comissão AUTONOMOUS">− {formatKz(providerFee)}</DetailRow>
-          <DetailRow label="Vai receber">{formatKz(b.provider_net_minor ?? service - providerFee)}</DetailRow>
+          <DetailRow label="Valor do serviço">{formatKz(service)}</DetailRow>
+          <DetailRow label={`Taxa AUTONOMOUS (${ratePct(providerFee, service)})`}>− {formatKz(providerFee)}</DetailRow>
+          <DetailRow label="Valor a receber">{formatKz(b.provider_net_minor ?? service - providerFee)}</DetailRow>
         </>
       )}
     </dl>
@@ -827,10 +830,9 @@ function QuoteForm({ busy, fees, onSubmit, initial }: {
       {kz > 0 && (
         <dl className="divide-y divide-line rounded-xl border border-line px-4">
           <DetailRow label="Valor do serviço">{formatKz(f.service)}</DetailRow>
-          <DetailRow label={`O cliente paga (+${pct(fees.client_fee_rate)} taxa de serviço)`}>{formatKz(f.clientTotal)}</DetailRow>
-          <DetailRow label={`Comissão AUTONOMOUS (${pct(fees.provider_fee_rate)})`}>− {formatKz(f.providerFee)}</DetailRow>
+          <DetailRow label={`Taxa AUTONOMOUS (${pct(fees.provider_fee_rate)})`}>− {formatKz(f.providerFee)}</DetailRow>
           <div className="flex items-center justify-between gap-4 py-3">
-            <dt className="text-[15px] font-semibold text-ink-900">Vai receber</dt>
+            <dt className="text-[15px] font-semibold text-ink-900">Valor a receber</dt>
             <dd className="text-base font-semibold text-ink-900">{formatKz(f.providerNet)}</dd>
           </div>
         </dl>
@@ -907,10 +909,10 @@ function DetailsCard({ b, participant, iAmClient }: { b: Broadcast; participant:
         {b.visit_at && <DetailRow label="Visita">{fmtSlot(b.visit_at)}</DetailRow>}
         {b.quote_status === 'accepted' && !!b.price_minor && (
           <>
-            <DetailRow label="Serviço">{formatKz(b.price_minor)}</DetailRow>
+            <DetailRow label={iAmClient ? 'Serviço' : 'Valor do serviço'}>{formatKz(b.price_minor)}</DetailRow>
             {iAmClient
               ? <DetailRow label="Total a pagar">{formatKz(b.price_minor + (b.client_fee_minor ?? 0))}</DetailRow>
-              : <DetailRow label="Vai receber">{formatKz(b.provider_net_minor ?? b.price_minor)}</DetailRow>}
+              : <DetailRow label="Valor a receber">{formatKz(b.provider_net_minor ?? b.price_minor)}</DetailRow>}
           </>
         )}
       </dl>

@@ -294,9 +294,9 @@ function RequestSheet({ request, onClose, onChanged }: { request: AppRequest | n
                 {r.quote_status === 'accepted' && r.price_minor ? (
                   <dl className="divide-y divide-zinc-100">
                     <DetailRow label="Serviço (bruto)">{formatKz(r.price_minor)}</DetailRow>
-                    <DetailRow label="Taxa do cliente">{formatKz(r.client_fee_minor ?? 0)}</DetailRow>
+                    <DetailRow label="Taxa de solicitação (cliente)">{formatKz(r.client_fee_minor ?? 0)}</DetailRow>
                     <DetailRow label="Cliente paga">{formatKz(total(r))}</DetailRow>
-                    <DetailRow label="Comissão do profissional">{formatKz(r.provider_fee_minor ?? 0)}</DetailRow>
+                    <DetailRow label="Taxa AUTONOMOUS (profissional)">{formatKz(r.provider_fee_minor ?? 0)}</DetailRow>
                     <DetailRow label="Líquido ao profissional">{formatKz(r.provider_net_minor ?? r.price_minor)}</DetailRow>
                     <DetailRow label="Receita AUTONOMOUS">{formatKz((r.client_fee_minor ?? 0) + (r.provider_fee_minor ?? 0))}</DetailRow>
                     <DetailRow label="Pagamento">{r.payment_status === 'paid' ? `Confirmado ${formatDateTime(r.paid_at)}` : r.payment_status === 'submitted' ? 'Comprovativo enviado' : r.payment_status === 'rejected' ? `Rejeitado: ${r.payment_rejected_reason ?? ''}` : 'Por pagar'}</DetailRow>

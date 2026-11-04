@@ -175,7 +175,7 @@ function PanelView({ panel, user }: { panel: Panel; user: AuthUser }) {
     case 'password': return <PasswordPanel />;
     case 'privacidade': return <PrivacyPanel isPro={user.isProfessional} />;
     case 'telefone': return <PhonePanel user={user} />;
-    case 'taxas': return <div><PanelTitle title="Taxas e pagamentos" description="Transparência sobre o que a AUTONOMOUS cobra." /><FeeExplainer audience="both" /></div>;
+    case 'taxas': return <div><PanelTitle title="Taxas e pagamentos" description="Transparência sobre o que a AUTONOMOUS cobra." /><FeeExplainer audience={user.activeRole === 'professional' ? 'professional' : 'client'} /></div>;
     case 'profissional': return user.isProfessional ? <PersonalPanel user={user} /> : <BecomeProPanel />;
     case 'faq': return <FaqPanel />;
   }

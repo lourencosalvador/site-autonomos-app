@@ -17,29 +17,32 @@ export function FeeExplainer({ audience, className }: { audience: 'client' | 'pr
         <h3 className="text-base font-semibold text-ink-900">Como funcionam as taxas</h3>
       </div>
       <p className="mt-2 text-[15px] leading-relaxed text-ink-500">
-        O profissional define o valor do serviço no orçamento. A AUTONOMOUS cobra
-        {showClient && <> <strong className="text-ink-900">{pct(info.client_fee_rate)} ao cliente</strong></>}
-        {showClient && showPro && ' e'}
-        {showPro && <> <strong className="text-ink-900">{pct(info.provider_fee_rate)} ao profissional</strong></>}
-        {' '}sobre esse valor. Tudo é mostrado antes de o cliente aceitar.
+        {audience === 'client' && <>O profissional define o valor do serviço no orçamento. A AUTONOMOUS acrescenta uma <strong className="text-ink-900">taxa de solicitação de {pct(info.client_fee_rate)}</strong>. Vê o total antes de aceitar.</>}
+        {audience === 'professional' && <>Define o valor do serviço no orçamento. A AUTONOMOUS desconta uma <strong className="text-ink-900">taxa de {pct(info.provider_fee_rate)}</strong> sobre esse valor.</>}
+        {audience === 'both' && <>O profissional define o valor do serviço no orçamento. O cliente paga uma <strong className="text-ink-900">taxa de solicitação de {pct(info.client_fee_rate)}</strong> e ao profissional é descontada uma <strong className="text-ink-900">taxa de {pct(info.provider_fee_rate)}</strong>.</>}
       </p>
       <p className="mt-4 text-sm font-medium text-ink-400">Exemplo: serviço de {formatKz(EXAMPLE)}</p>
       <dl className="mt-2 divide-y divide-line rounded-xl border border-line">
+        <Row label="Valor do serviço" value={formatKz(f.service)} />
         {showClient && (
           <>
-            <Row label="Taxa de serviço (paga pelo cliente)" value={`+ ${formatKz(f.clientFee)}`} />
-            <Row label="O cliente paga" value={formatKz(f.clientTotal)} strong />
+            <Row label={`Taxa de solicitação AUTONOMOUS (${pct(info.client_fee_rate)})`} value={`+ ${formatKz(f.clientFee)}`} />
+            <Row label={audience === 'client' ? 'Total a pagar' : 'Total a pagar pelo cliente'} value={formatKz(f.clientTotal)} strong />
           </>
         )}
         {showPro && (
           <>
-            <Row label="Comissão (descontada ao profissional)" value={`− ${formatKz(f.providerFee)}`} />
-            <Row label="O profissional recebe" value={formatKz(f.providerNet)} strong />
+            <Row label={`Taxa AUTONOMOUS (${pct(info.provider_fee_rate)})`} value={`− ${formatKz(f.providerFee)}`} />
+            <Row label={audience === 'professional' ? 'Valor a receber' : 'Valor a receber pelo profissional'} value={formatKz(f.providerNet)} strong />
           </>
         )}
       </dl>
       <p className="mt-3 text-sm leading-relaxed text-ink-400">
-        O cliente paga depois de o serviço estar concluído, por transferência para a AUTONOMOUS. O valor do profissional entra no saldo da carteira e pode ser sacado para a conta bancária a qualquer momento.
+        {audience === 'professional'
+          ? 'O valor a receber entra no saldo da carteira quando confirmamos o pagamento do cliente e pode ser sacado a qualquer momento.'
+          : audience === 'client'
+            ? 'Só paga depois de o serviço estar concluído, por transferência para a AUTONOMOUS.'
+            : 'O cliente paga depois de o serviço estar concluído. O valor do profissional entra no saldo da carteira e pode ser sacado a qualquer momento.'}
       </p>
     </div>
   );

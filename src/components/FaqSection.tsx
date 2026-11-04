@@ -18,7 +18,7 @@ export const FAQS: { q: string; a: string }[] = [
   },
   {
     q: 'Preciso pagar para utilizar a plataforma?',
-    a: 'Criar uma conta e pedir serviços é gratuito. Só paga depois de o serviço estar concluído: o valor do orçamento mais uma taxa de serviço de 10%.',
+    a: 'Criar uma conta e pedir serviços é gratuito. Só paga depois de o serviço estar concluído: o valor do orçamento mais uma taxa de solicitação de 10%.',
   },
   {
     q: 'Como é definido o preço do serviço?',
@@ -30,7 +30,7 @@ export const FAQS: { q: string; a: string }[] = [
   },
   {
     q: 'Quanto cobra a AUTONOMOUS aos profissionais?',
-    a: 'Uma comissão de 10% sobre o valor do serviço. Depois de confirmarmos o pagamento do cliente, o restante entra no saldo da sua carteira e pode sacá-lo para a sua conta bancária quando quiser.',
+    a: 'Uma taxa de 10% sobre o valor do serviço. Depois de confirmarmos o pagamento do cliente, o restante entra no saldo da sua carteira e pode sacá-lo para a sua conta bancária quando quiser.',
   },
   {
     q: 'Como sei que o profissional é confiável?',
