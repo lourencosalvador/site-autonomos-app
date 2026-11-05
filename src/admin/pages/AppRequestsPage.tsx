@@ -73,7 +73,7 @@ const STAGE: Record<Stage, { label: string; tone: 'neutral' | 'brand' | 'success
   unanswered: { label: 'Sem resposta', tone: 'danger' },
   visit_requested: { label: 'Visita: cliente indica datas', tone: 'warning' },
   visit_confirm: { label: 'Visita: prestador confirma data', tone: 'warning' },
-  visit_scheduled: { label: 'Visita agendada', tone: 'brand' },
+  visit_scheduled: { label: 'Visita confirmada', tone: 'brand' },
   quote_pending: { label: 'Orçamento por enviar', tone: 'warning' },
   quote_sent: { label: 'Orçamento enviado', tone: 'brand' },
   quote_rejected: { label: 'Orçamento recusado', tone: 'danger' },
