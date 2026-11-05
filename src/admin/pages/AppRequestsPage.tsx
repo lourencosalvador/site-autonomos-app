@@ -17,7 +17,7 @@ type Person = { id: string; name: string | null; phone: string | null; email: st
 type Provider = Person & { company_name: string | null; work_areas: string[] | null };
 
 type Stage =
-  | 'searching' | 'unanswered' | 'visit_requested' | 'visit_scheduled' | 'quote_pending' | 'quote_sent' | 'quote_rejected'
+  | 'searching' | 'unanswered' | 'visit_requested' | 'visit_confirm' | 'visit_scheduled' | 'quote_pending' | 'quote_sent' | 'quote_rejected'
   | 'in_progress' | 'awaiting_confirmation' | 'awaiting_payment' | 'payment_review'
   | 'completed' | 'cancelled' | 'no_providers' | 'expired';
 
@@ -40,6 +40,7 @@ export type AppRequest = {
   visit_slots: string[] | null;
   visit_at: string | null;
   visit_note: string | null;
+  visit_client_note: string | null;
   quote_status: string;
   quote_minor: number | null;
   quote_note: string | null;
@@ -70,7 +71,8 @@ export type AppRequest = {
 const STAGE: Record<Stage, { label: string; tone: 'neutral' | 'brand' | 'success' | 'warning' | 'danger' }> = {
   searching: { label: 'À procura', tone: 'brand' },
   unanswered: { label: 'Sem resposta', tone: 'danger' },
-  visit_requested: { label: 'Visita: aguardar agendamento', tone: 'warning' },
+  visit_requested: { label: 'Visita: cliente indica datas', tone: 'warning' },
+  visit_confirm: { label: 'Visita: prestador confirma data', tone: 'warning' },
   visit_scheduled: { label: 'Visita agendada', tone: 'brand' },
   quote_pending: { label: 'Orçamento por enviar', tone: 'warning' },
   quote_sent: { label: 'Orçamento enviado', tone: 'brand' },
@@ -92,7 +94,7 @@ export function needsCall(r: AppRequest) {
 }
 
 type Filter = 'payments' | 'quote' | 'active' | 'call' | 'all';
-const QUOTE_STAGES: Stage[] = ['visit_requested', 'visit_scheduled', 'quote_pending', 'quote_sent', 'quote_rejected'];
+const QUOTE_STAGES: Stage[] = ['visit_requested', 'visit_confirm', 'visit_scheduled', 'quote_pending', 'quote_sent', 'quote_rejected'];
 const ACTIVE_STAGES: Stage[] = ['in_progress', 'awaiting_confirmation', 'awaiting_payment'];
 
 function total(r: AppRequest) {
@@ -317,11 +319,12 @@ function RequestSheet({ request, onClose, onChanged }: { request: AppRequest | n
                 <section>
                   <p className="mb-1 text-xs font-medium uppercase tracking-wide text-zinc-400">Visita de diagnóstico</p>
                   <dl className="divide-y divide-zinc-100">
-                    <DetailRow label="Estado">{r.visit_status === 'requested' ? (r.visit_slots?.length ? 'A aguardar escolha do cliente' : 'Cliente pediu outras datas') : r.visit_status === 'scheduled' ? 'Agendada' : r.visit_status === 'done' ? 'Realizada' : '—'}</DetailRow>
+                    <DetailRow label="Estado">{r.visit_status === 'requested' ? (r.visit_slots?.length ? 'Cliente indicou datas; prestador tem de confirmar' : 'A aguardar as datas do cliente') : r.visit_status === 'scheduled' ? 'Agendada' : r.visit_status === 'done' ? 'Realizada' : '—'}</DetailRow>
                     {r.visit_at && <DetailRow label="Data">{formatDateTime(r.visit_at)}</DetailRow>}
-                    {!!r.visit_slots?.length && r.visit_status === 'requested' && <DetailRow label="Datas propostas">{r.visit_slots.map((s) => formatDateTime(s)).join(' · ')}</DetailRow>}
+                    {!!r.visit_slots?.length && r.visit_status === 'requested' && <DetailRow label="Datas do cliente">{r.visit_slots.map((s) => formatDateTime(s)).join(' · ')}</DetailRow>}
                   </dl>
-                  {r.visit_note && <p className="mt-2 rounded-lg bg-zinc-50 p-3 text-[13px] text-zinc-700">{r.visit_note}</p>}
+                  {r.visit_note && <p className="mt-2 rounded-lg bg-zinc-50 p-3 text-[13px] text-zinc-700"><span className="font-medium text-zinc-500">Prestador: </span>{r.visit_note}</p>}
+                  {r.visit_client_note && <p className="mt-2 rounded-lg bg-zinc-50 p-3 text-[13px] text-zinc-700"><span className="font-medium text-zinc-500">Cliente: </span>{r.visit_client_note}</p>}
                 </section>
               )}
 

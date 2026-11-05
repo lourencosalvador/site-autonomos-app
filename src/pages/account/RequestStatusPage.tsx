@@ -14,7 +14,7 @@ import { navigate } from '../../router';
 import {
   type Broadcast, type BroadcastPerson, type QuoteItem, type QuoteItemKey, QUOTE_ITEMS,
   acceptBroadcast, cancelBroadcast, cancelVisit, confirmService, getBroadcast, locationLine, mapsUrl, markVisitDone,
-  providerMarkDone, requestOtherDates, requestVisit, respondQuote, scheduleVisit, sendQuote, submitPayment,
+  confirmVisit, proposeVisitDates, providerMarkDone, requestOtherDates, requestVisit, respondQuote, sendQuote, submitPayment,
   subscribeBroadcasts, uploadPaymentProof,
 } from '../../lib/broadcasts';
 import { type Stage, stageLabel, stageOf } from '../../lib/requestStage';
@@ -32,7 +32,8 @@ function errMessage(e: unknown): string {
   if (m.includes('VISIT_PENDING')) return 'Conclua a visita de diagnóstico antes de enviar o orçamento.';
   if (m.includes('QUOTE_CLOSED')) return 'Este orçamento já não pode ser alterado.';
   if (m.includes('SLOTS_REQUIRED') || m.includes('INVALID_SLOTS')) return 'Indique datas futuras para a visita.';
-  if (m.includes('TOO_MANY_SLOTS')) return 'Pode propor no máximo 5 datas.';
+  if (m.includes('TOO_MANY_SLOTS')) return 'Pode indicar no máximo 3 datas.';
+  if (m.includes('NOTE_REQUIRED')) return 'Explique ao cliente o que precisa de ver.';
   if (m.includes('INVALID_SLOT')) return 'Essa data já não está disponível.';
   if (m.includes('VISIT_CLOSED')) return 'A visita já não pode ser alterada.';
   if (m.includes('PAYMENT_CLOSED')) return 'Este pagamento já foi enviado.';
@@ -96,10 +97,11 @@ export function RequestStatusPage({ id }: { id: string }) {
   const actions: Actions = {
     cancel: () => run(() => cancelBroadcast(b.id), 'Pedido cancelado'),
     accept: () => run(async () => { if (!(await acceptBroadcast(b.id))) throw new Error('TAKEN'); }, 'Pedido aceite'),
-    requestVisit: (slots, note) => run(() => requestVisit(b.id, slots, note), 'Datas enviadas ao cliente'),
+    requestVisit: (note) => run(() => requestVisit(b.id, note), 'Pedido de visita enviado ao cliente'),
+    proposeDates: (slots, note) => run(() => proposeVisitDates(b.id, slots, note), 'Datas enviadas ao profissional'),
+    confirmVisit: (slot) => run(() => confirmVisit(b.id, slot), 'Visita confirmada'),
     cancelVisit: () => run(() => cancelVisit(b.id), 'Visita dispensada'),
-    scheduleVisit: (slot) => run(() => scheduleVisit(b.id, slot), 'Visita agendada'),
-    otherDates: (note) => run(() => requestOtherDates(b.id, note), 'Pedido de novas datas enviado'),
+    otherDates: (note) => run(() => requestOtherDates(b.id, note), 'Indique as novas datas'),
     visitDone: () => run(() => markVisitDone(b.id), 'Visita marcada como realizada'),
     sendQuote: (minor, note, items) => run(() => sendQuote(b.id, minor, note, items), 'Orçamento enviado ao cliente'),
     respond: (accept) => run(() => respondQuote(b.id, accept), accept ? 'Orçamento aceite' : 'Orçamento recusado'),
@@ -167,9 +169,10 @@ export function RequestStatusPage({ id }: { id: string }) {
 type Actions = {
   cancel: () => void;
   accept: () => void;
-  requestVisit: (slots: string[], note: string) => Promise<boolean>;
+  requestVisit: (note: string) => Promise<boolean>;
+  proposeDates: (slots: string[], note: string) => Promise<boolean>;
+  confirmVisit: (slot: string) => void;
   cancelVisit: () => void;
-  scheduleVisit: (slot: string) => void;
   otherDates: (note: string) => Promise<boolean>;
   visitDone: () => void;
   sendQuote: (minor: number, note: string, items: QuoteItem[]) => Promise<boolean>;
@@ -213,7 +216,7 @@ function Progress({ stage }: { stage: Stage }) {
   );
 }
 
-const VISIT_STEPS = ['Visita solicitada', 'Aguardar agendamento', 'Visita agendada', 'Aguardar orçamento', 'Orçamento enviado'];
+const VISIT_STEPS = ['Visita pedida', 'Cliente indica as datas', 'Profissional confirma a data', 'Visita ao local', 'Orçamento'];
 
 function VisitTimeline({ step }: { step: number }) {
   return (
@@ -281,25 +284,22 @@ function ClientPanel({ b, stage, busy, actions, fees }: { b: Broadcast; stage: S
     case 'quote_pending':
       return b.visit_status === 'done' ? (
         <Status icon={Hourglass} title="A aguardar o orçamento" action={cancel}
-          text={<>A visita foi realizada. {name} vai enviar-lhe o orçamento.</>}><VisitTimeline step={3} /></Status>
+          text={<>A visita foi realizada. {name} vai enviar-lhe o orçamento.</>}><VisitTimeline step={4} /></Status>
       ) : (
         <Status icon={Clock} title="A aguardar o orçamento" action={cancel}
           text={<>{name} aceitou o seu pedido e vai enviar-lhe o orçamento. Pode conversar para combinar detalhes.</>} />
       );
     case 'visit_dates':
-      return (
-        <Status icon={CalendarClock} title="A aguardar novas datas" action={cancel}
-          text={<>Pediu outras datas para a visita. {name} vai propor novas opções.</>}><VisitTimeline step={1} /></Status>
-      );
+      return <ProposeVisitDates b={b} busy={busy} actions={actions} cancel={cancel} />;
     case 'visit_requested':
-      return <ScheduleVisit b={b} busy={busy} actions={actions} cancel={cancel} />;
+      return <ClientDatesSent b={b} busy={busy} actions={actions} cancel={cancel} />;
     case 'visit_scheduled':
       return (
-        <Status icon={CalendarClock} tone="brand" title="Visita agendada"
-          text={<>{name} vai ao local <strong className="text-ink-900">{fmtSlot(b.visit_at!)}</strong> para avaliar o trabalho. O orçamento é enviado depois da visita.</>}
+        <Status icon={CalendarClock} tone="brand" title="Visita confirmada"
+          text={<>{name} vai ao local <strong className="text-ink-900 first-letter:uppercase">{fmtSlot(b.visit_at!)}</strong> para avaliar o problema. O orçamento é enviado depois da visita.</>}
           action={<><OtherDatesButton actions={actions} busy={busy} label="Preciso de outra data" />{cancel}</>}>
           <div className="mt-3"><FreeVisitBadge /></div>
-          <VisitTimeline step={2} />
+          <VisitTimeline step={3} />
         </Status>
       );
     case 'quote_rejected':
@@ -376,47 +376,116 @@ function OtherDatesButton({ actions, busy, label }: { actions: Actions; busy: bo
   if (!open) return <Btn variant="outline" onClick={() => setOpen(true)} disabled={busy}>{label}</Btn>;
   return (
     <div className="w-full space-y-3 rounded-xl border border-line p-4">
-      <label htmlFor="other-note" className="text-[15px] font-medium text-ink-900">Que dias ou horas lhe dão jeito?</label>
-      <TextArea id="other-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ex.: sábado de manhã ou dias úteis depois das 17h." className="min-h-[80px]" />
+      <label htmlFor="other-note" className="text-[15px] font-medium text-ink-900">Mensagem para o profissional <span className="font-normal text-ink-400">(opcional)</span></label>
+      <p className="-mt-1 text-sm text-ink-500">Depois indica as novas datas que lhe dão jeito.</p>
+      <TextArea id="other-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ex.: Surgiu um imprevisto nesse dia." className="min-h-[80px]" />
       <div className="flex flex-wrap gap-2">
-        <Btn size="md" loading={busy} onClick={async () => { if (await actions.otherDates(note)) setOpen(false); }}>Pedir outras datas</Btn>
+        <Btn size="md" loading={busy} onClick={async () => { if (await actions.otherDates(note)) setOpen(false); }}>Indicar outras datas</Btn>
         <Btn size="md" variant="ghost" onClick={() => setOpen(false)}>Voltar</Btn>
       </div>
     </div>
   );
 }
 
-function ScheduleVisit({ b, busy, actions, cancel }: { b: Broadcast; busy: boolean; actions: Actions; cancel: ReactNode }) {
-  const slots = (b.visit_slots ?? []).filter((s) => new Date(s).getTime() > Date.now());
-  const [picked, setPicked] = useState<string | null>(null);
+const MAX_CLIENT_DATES = 3;
+
+/** Cliente: o profissional pediu a visita; indica até 3 datas que lhe dão jeito. */
+function ProposeVisitDates({ b, busy, actions, cancel, initial, onDone }: {
+  b: Broadcast; busy: boolean; actions: Actions; cancel?: ReactNode; initial?: string[]; onDone?: () => void;
+}) {
+  const name = b.provider?.name || 'O profissional';
+  const [slots, setSlots] = useState<string[]>(() => {
+    const fut = (initial ?? []).filter((s) => new Date(s).getTime() > Date.now()).map(toLocalInput);
+    return fut.length ? fut : [''];
+  });
+  const [note, setNote] = useState(b.visit_client_note ?? '');
+  const [error, setError] = useState<string | null>(null);
+  const min = toLocalInput(new Date(Date.now() + 60 * 60e3).toISOString());
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    const valid = slots.filter(Boolean).map((s) => new Date(s));
+    if (!valid.length) return setError('Indique pelo menos uma data.');
+    if (valid.some((d) => isNaN(d.getTime()) || d.getTime() <= Date.now())) return setError('As datas têm de ser no futuro.');
+    setError(null);
+    if (await actions.proposeDates(valid.map((d) => d.toISOString()), note.trim())) onDone?.();
+  };
+
   return (
-    <div>
+    <form onSubmit={submit}>
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="text-xl font-semibold tracking-tight text-ink-900">Agende a visita de diagnóstico</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-ink-900">Visita de diagnóstico</h2>
         <FreeVisitBadge />
       </div>
       <p className="mt-1.5 text-base leading-relaxed text-ink-500">
-        {b.provider?.name || 'O profissional'} precisa de ver o local para preparar um orçamento correto. A visita é <strong className="text-ink-900">gratuita</strong>. Escolha uma das datas disponíveis.
+        {name} pediu uma visita de diagnóstico para avaliar o problema e preparar um orçamento mais certo.
+        A visita é <strong className="text-ink-900">totalmente gratuita</strong>. Indique a data que lhe dá jeito.
       </p>
-      {b.visit_note && <p className="mt-3 rounded-xl bg-cloud-100 px-4 py-3 text-[15px] text-ink-700">“{b.visit_note}”</p>}
+      {b.visit_note && (
+        <div className="mt-4 rounded-xl bg-cloud-100 px-4 py-3">
+          <p className="text-sm font-medium text-ink-500">Mensagem de {name}</p>
+          <p className="mt-0.5 whitespace-pre-line text-[15px] text-ink-800">{b.visit_note}</p>
+        </div>
+      )}
       <VisitTimeline step={1} />
-      <div className="mt-5 grid gap-2 sm:grid-cols-2">
-        {slots.map((s) => (
-          <button key={s} onClick={() => setPicked(s)}
-            className={cx('flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors',
-              picked === s ? 'border-brand-dark bg-brand-dark text-white' : 'border-line bg-white text-ink-900 hover:bg-cloud-50')}>
-            <CalendarClock size={19} className={picked === s ? 'text-brand-cyan' : 'text-ink-400'} />
-            <span className="text-[15px] font-medium first-letter:uppercase">{fmtSlot(s)}</span>
-          </button>
+
+      <div className="mt-6 space-y-1.5">
+        <p className="text-[15px] font-medium text-ink-900">Quando pode receber o profissional?</p>
+        <p className="text-sm text-ink-500">Indique até {MAX_CLIENT_DATES} opções. {name} confirma a que lhe der jeito.</p>
+      </div>
+      <div className="mt-3 space-y-2">
+        {slots.map((s, i) => (
+          <div key={i} className="flex items-center gap-2">
+            <TextInput type="datetime-local" min={min} value={s} onChange={(e) => setSlots((v) => v.map((x, j) => (j === i ? e.target.value : x)))}
+              aria-label={i === 0 ? 'Data preferida' : `Data alternativa ${i}`} />
+            {slots.length > 1 && (
+              <button type="button" onClick={() => setSlots((v) => v.filter((_, j) => j !== i))} aria-label="Remover data"
+                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-line text-ink-400 hover:bg-cloud-100 hover:text-red-600"><Trash2 size={18} /></button>
+            )}
+          </div>
         ))}
       </div>
-      {slots.length === 0 && <Notice tone="warning" className="mt-4">As datas propostas já passaram. Peça novas datas ao profissional.</Notice>}
-      <div className="mt-6 flex flex-wrap gap-3">
-        <Btn onClick={() => picked && actions.scheduleVisit(picked)} disabled={!picked} loading={busy}>Confirmar data</Btn>
-        <OtherDatesButton actions={actions} busy={busy} label="Nenhuma data me serve" />
+      {slots.length < MAX_CLIENT_DATES && (
+        <Btn type="button" variant="ghost" size="md" className="mt-2" onClick={() => setSlots((v) => [...v, ''])}><CalendarPlus size={18} /> Adicionar data alternativa</Btn>
+      )}
+      <div className="mt-4 space-y-1.5">
+        <label htmlFor="visit-client-note" className="text-[15px] font-medium text-ink-900">Mensagem para o profissional <span className="font-normal text-ink-400">(opcional)</span></label>
+        <TextArea id="visit-client-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ex.: Ligue antes de vir; o portão é o azul." className="min-h-[80px]" />
       </div>
-      <div className="mt-3">{cancel}</div>
-    </div>
+      {error && <p className="mt-3 text-[15px] font-medium text-red-600">{error}</p>}
+      <div className="mt-5 flex flex-wrap gap-3">
+        <Btn type="submit" loading={busy}>Enviar datas</Btn>
+        {onDone && <Btn type="button" variant="ghost" onClick={onDone}>Voltar</Btn>}
+      </div>
+      {cancel && <div className="mt-3">{cancel}</div>}
+    </form>
+  );
+}
+
+/** Cliente: datas enviadas, à espera de que o profissional confirme uma. */
+function ClientDatesSent({ b, busy, actions, cancel }: { b: Broadcast; busy: boolean; actions: Actions; cancel: ReactNode }) {
+  const [editing, setEditing] = useState(false);
+  const name = b.provider?.name || 'O profissional';
+  if (editing) return <ProposeVisitDates b={b} busy={busy} actions={actions} initial={b.visit_slots} onDone={() => setEditing(false)} />;
+  return (
+    <Status icon={CalendarClock} title="A aguardar confirmação" action={<><Btn variant="outline" onClick={() => setEditing(true)} disabled={busy}>Alterar datas</Btn>{cancel}</>}
+      text={<>Enviou {b.visit_slots?.length === 1 ? 'uma data' : `${b.visit_slots?.length} datas`} para a visita. {name} vai confirmar a que lhe der jeito.</>}>
+      <SlotList slots={b.visit_slots ?? []} />
+      <div className="mt-3"><FreeVisitBadge /></div>
+      <VisitTimeline step={2} />
+    </Status>
+  );
+}
+
+function SlotList({ slots }: { slots: string[] }) {
+  return (
+    <ul className="mt-4 space-y-2">
+      {slots.map((s) => (
+        <li key={s} className="flex items-center gap-2.5 rounded-xl border border-line px-4 py-3 text-[15px] font-medium text-ink-800">
+          <CalendarClock size={17} className="shrink-0 text-ink-400" /> <span className="first-letter:uppercase">{fmtSlot(s)}</span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -592,7 +661,7 @@ function ProviderPanel({ b, stage, busy, actions, fees }: { b: Broadcast; stage:
   switch (stage) {
     case 'quote_pending':
     case 'quote_rejected':
-      if (proposing) return <VisitProposal busy={busy} onCancel={() => setProposing(false)} onSubmit={async (s, n) => { if (await actions.requestVisit(s, n)) setProposing(false); }} />;
+      if (proposing) return <VisitRequestForm busy={busy} onCancel={() => setProposing(false)} onSubmit={async (n) => { if (await actions.requestVisit(n)) setProposing(false); }} />;
       return (
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-ink-900">Enviar orçamento</h2>
@@ -606,7 +675,7 @@ function ProviderPanel({ b, stage, busy, actions, fees }: { b: Broadcast; stage:
             <div className="mt-6 flex flex-col gap-3 border-t border-line pt-5 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="text-[15px] font-semibold text-ink-900">Precisa de ver o local primeiro?</p>
-                <p className="text-sm text-ink-500">Proponha datas para uma visita de diagnóstico gratuita.</p>
+                <p className="text-sm text-ink-500">Peça uma visita de diagnóstico gratuita. O cliente indica as datas.</p>
               </div>
               <Btn variant="outline" onClick={() => setProposing(true)} disabled={busy}><MapPinned size={18} /> Pedir visita</Btn>
             </div>
@@ -615,30 +684,23 @@ function ProviderPanel({ b, stage, busy, actions, fees }: { b: Broadcast; stage:
       );
     case 'visit_dates':
       return (
-        <div>
-          <Notice tone="warning" title="O cliente pediu outras datas">{b.visit_note || 'Proponha novas datas para a visita.'}</Notice>
-          <VisitProposal busy={busy} onSubmit={(s, n) => actions.requestVisit(s, n)} onCancelVisit={actions.cancelVisit} />
-        </div>
-      );
-    case 'visit_requested':
-      return proposing ? (
-        <VisitProposal busy={busy} initial={b.visit_slots} onCancel={() => setProposing(false)} onSubmit={async (s, n) => { if (await actions.requestVisit(s, n)) setProposing(false); }} />
-      ) : (
-        <Status icon={CalendarClock} title="A aguardar o agendamento" text={<>Propôs {b.visit_slots?.length} data(s) para a visita. {client} vai escolher uma.</>}
-          action={<><Btn variant="outline" onClick={() => setProposing(true)}>Alterar datas</Btn><Btn variant="ghost" onClick={actions.cancelVisit} disabled={busy}>Dispensar visita</Btn></>}>
-          <ul className="mt-4 space-y-1.5">
-            {(b.visit_slots ?? []).map((s) => <li key={s} className="flex items-center gap-2 text-[15px] text-ink-700 first-letter:uppercase"><CalendarClock size={16} className="text-ink-400" /> {fmtSlot(s)}</li>)}
-          </ul>
+        <Status icon={CalendarClock} title="À espera das datas do cliente"
+          text={<>Pediu uma visita de diagnóstico. {client} vai indicar as datas que lhe dão jeito e depois confirma uma.</>}
+          action={<Btn variant="ghost" onClick={actions.cancelVisit} disabled={busy}>Dispensar visita</Btn>}>
+          {b.visit_client_note && <Notice tone="warning" title="O cliente precisa de outra data" className="mt-4">{b.visit_client_note}</Notice>}
+          {b.visit_note && <p className="mt-4 rounded-xl bg-cloud-100 px-4 py-3 text-[15px] text-ink-700"><span className="font-medium text-ink-500">A sua mensagem: </span>{b.visit_note}</p>}
           <VisitTimeline step={1} />
         </Status>
       );
+    case 'visit_requested':
+      return <ConfirmVisitDate b={b} busy={busy} actions={actions} />;
     case 'visit_scheduled':
       return (
-        <Status icon={CalendarClock} tone="brand" title="Visita agendada"
+        <Status icon={CalendarClock} tone="brand" title="Visita confirmada"
           text={<>Visita de diagnóstico <strong className="text-ink-900">{fmtSlot(b.visit_at!)}</strong>. Depois da visita, marque-a como realizada para enviar o orçamento.</>}
           action={<><Btn onClick={actions.visitDone} loading={busy}><Check size={18} /> Visita realizada</Btn><Btn variant="ghost" onClick={actions.cancelVisit} disabled={busy}>Dispensar visita</Btn></>}>
           <Notice tone="info" className="mt-4">O orçamento fica bloqueado até a visita estar realizada.</Notice>
-          <VisitTimeline step={2} />
+          <VisitTimeline step={3} />
         </Status>
       );
     case 'quote_sent':
@@ -693,58 +755,81 @@ function toLocalInput(iso: string) {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
 
-function VisitProposal({ busy, initial, onSubmit, onCancel, onCancelVisit }: {
-  busy: boolean; initial?: string[]; onSubmit: (slots: string[], note: string) => void | Promise<unknown>; onCancel?: () => void; onCancelVisit?: () => void;
+/** Profissional: pede a visita explicando o que precisa de ver. As datas vêm do cliente. */
+function VisitRequestForm({ busy, onSubmit, onCancel, title = 'Pedir visita de diagnóstico', submitLabel = 'Pedir visita ao cliente', placeholder }: {
+  busy: boolean; onSubmit: (note: string) => void | Promise<unknown>; onCancel?: () => void; title?: string; submitLabel?: string; placeholder?: string;
 }) {
-  const [slots, setSlots] = useState<string[]>(() => {
-    const fut = (initial ?? []).filter((s) => new Date(s).getTime() > Date.now()).map(toLocalInput);
-    return fut.length ? fut : [''];
-  });
   const [note, setNote] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const min = toLocalInput(new Date(Date.now() + 30 * 60e3).toISOString());
-
   const submit = (e: FormEvent) => {
     e.preventDefault();
-    const valid = slots.filter(Boolean).map((s) => new Date(s));
-    if (!valid.length) return setError('Indique pelo menos uma data.');
-    if (valid.some((d) => isNaN(d.getTime()) || d.getTime() <= Date.now())) return setError('As datas têm de ser no futuro.');
+    if (note.trim().length < 5) return setError('Explique ao cliente o que precisa de ver.');
     setError(null);
-    void onSubmit(valid.map((d) => d.toISOString()), note.trim());
+    void onSubmit(note.trim());
   };
-
   return (
     <form onSubmit={submit} className="mt-1">
       <div className="flex flex-wrap items-center gap-2">
-        <h2 className="text-xl font-semibold tracking-tight text-ink-900">Pedir visita de diagnóstico</h2>
+        <h2 className="text-xl font-semibold tracking-tight text-ink-900">{title}</h2>
         <FreeVisitBadge />
       </div>
-      <p className="mt-1.5 text-base text-ink-500">Proponha até 5 datas. O cliente escolhe a que lhe der jeito. A visita é gratuita para o cliente.</p>
-      <div className="mt-5 space-y-2">
-        {slots.map((s, i) => (
-          <div key={i} className="flex items-center gap-2">
-            <TextInput type="datetime-local" min={min} value={s} onChange={(e) => setSlots((v) => v.map((x, j) => (j === i ? e.target.value : x)))} aria-label={`Data ${i + 1}`} />
-            {slots.length > 1 && (
-              <button type="button" onClick={() => setSlots((v) => v.filter((_, j) => j !== i))} aria-label="Remover data"
-                className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-line text-ink-400 hover:bg-cloud-100 hover:text-red-600"><Trash2 size={18} /></button>
-            )}
-          </div>
-        ))}
+      <p className="mt-1.5 text-base text-ink-500">O cliente recebe o pedido, indica as datas que lhe dão jeito e o senhor confirma uma. A visita é gratuita para o cliente.</p>
+      <div className="mt-5 space-y-1.5">
+        <label htmlFor="visit-note" className="text-[15px] font-medium text-ink-900">O que precisa de ver? <span className="text-ink-400">*</span></label>
+        <TextArea id="visit-note" value={note} onChange={(e) => { setNote(e.target.value); setError(null); }} hasError={!!error}
+          placeholder={placeholder ?? 'Ex.: Preciso de ver a canalização debaixo da pia para dar o valor certo.'} className="min-h-[100px]" />
       </div>
-      {slots.length < 5 && (
-        <Btn type="button" variant="ghost" size="md" className="mt-2" onClick={() => setSlots((v) => [...v, ''])}><CalendarPlus size={18} /> Adicionar outra data</Btn>
-      )}
-      <div className="mt-4 space-y-1.5">
-        <label htmlFor="visit-note" className="text-[15px] font-medium text-ink-900">Mensagem para o cliente <span className="font-normal text-ink-400">(opcional)</span></label>
-        <TextArea id="visit-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Ex.: Preciso de ver a canalização antes de dar o valor." className="min-h-[80px]" />
-      </div>
-      {error && <p className="mt-3 text-[15px] font-medium text-red-600">{error}</p>}
+      {error && <p className="mt-2 text-[15px] font-medium text-red-600">{error}</p>}
       <div className="mt-5 flex flex-wrap gap-3">
-        <Btn type="submit" loading={busy}>Enviar datas ao cliente</Btn>
+        <Btn type="submit" loading={busy}>{submitLabel}</Btn>
         {onCancel && <Btn type="button" variant="ghost" onClick={onCancel}>Voltar</Btn>}
-        {onCancelVisit && <Btn type="button" variant="ghost" onClick={onCancelVisit} disabled={busy}>Dispensar visita</Btn>}
       </div>
     </form>
+  );
+}
+
+/** Profissional: o cliente indicou datas; confirma uma ou pede outras. */
+function ConfirmVisitDate({ b, busy, actions }: { b: Broadcast; busy: boolean; actions: Actions }) {
+  const client = b.client?.name || 'O cliente';
+  const slots = (b.visit_slots ?? []).filter((s) => new Date(s).getTime() > Date.now());
+  const [picked, setPicked] = useState<string | null>(slots.length === 1 ? slots[0] : null);
+  const [asking, setAsking] = useState(false);
+  if (asking) {
+    return <VisitRequestForm busy={busy} title="Pedir outras datas" submitLabel="Pedir outras datas ao cliente"
+      placeholder="Ex.: Essas datas não me dão jeito. Pode indicar outro dia, de preferência de manhã?"
+      onCancel={() => setAsking(false)} onSubmit={async (n) => { if (await actions.requestVisit(n)) setAsking(false); }} />;
+  }
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="text-xl font-semibold tracking-tight text-ink-900">Confirme a data da visita</h2>
+        <FreeVisitBadge />
+      </div>
+      <p className="mt-1.5 text-base leading-relaxed text-ink-500">{client} indicou {slots.length === 1 ? 'esta data' : 'estas datas'} para a visita de diagnóstico. Escolha a que lhe dá jeito.</p>
+      {b.visit_client_note && (
+        <div className="mt-4 rounded-xl bg-cloud-100 px-4 py-3">
+          <p className="text-sm font-medium text-ink-500">Mensagem de {client}</p>
+          <p className="mt-0.5 whitespace-pre-line text-[15px] text-ink-800">{b.visit_client_note}</p>
+        </div>
+      )}
+      <VisitTimeline step={2} />
+      <div className="mt-5 grid gap-2 sm:grid-cols-2">
+        {slots.map((s) => (
+          <button key={s} type="button" onClick={() => setPicked(s)} aria-pressed={picked === s}
+            className={cx('flex items-center gap-3 rounded-xl border px-4 py-3.5 text-left transition-colors',
+              picked === s ? 'border-brand-dark bg-brand-dark text-white' : 'border-line bg-white text-ink-900 hover:bg-cloud-50')}>
+            <CalendarClock size={19} className={picked === s ? 'text-brand-cyan' : 'text-ink-400'} />
+            <span className="text-[15px] font-medium first-letter:uppercase">{fmtSlot(s)}</span>
+          </button>
+        ))}
+      </div>
+      {slots.length === 0 && <Notice tone="warning" className="mt-4">As datas indicadas já passaram. Peça outras datas ao cliente.</Notice>}
+      <div className="mt-6 flex flex-wrap gap-3">
+        <Btn onClick={() => picked && actions.confirmVisit(picked)} disabled={!picked} loading={busy}><Check size={18} /> Confirmar data</Btn>
+        <Btn variant="outline" onClick={() => setAsking(true)} disabled={busy}>Nenhuma data me serve</Btn>
+        <Btn variant="ghost" onClick={actions.cancelVisit} disabled={busy}>Dispensar visita</Btn>
+      </div>
+    </div>
   );
 }
 

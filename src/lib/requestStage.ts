@@ -28,8 +28,8 @@ type Label = { label: string; tone: Tone; action?: boolean };
 
 const CLIENT: Record<Stage, Label> = {
   searching: { label: 'À procura', tone: 'brand' },
-  visit_dates: { label: 'A aguardar datas da visita', tone: 'neutral' },
-  visit_requested: { label: 'Agende a visita', tone: 'warning', action: true },
+  visit_dates: { label: 'Indique datas para a visita', tone: 'warning', action: true },
+  visit_requested: { label: 'A aguardar confirmação da visita', tone: 'neutral' },
   visit_scheduled: { label: 'Visita agendada', tone: 'brand' },
   quote_pending: { label: 'A aguardar orçamento', tone: 'neutral' },
   quote_sent: { label: 'Orçamento recebido', tone: 'warning', action: true },
@@ -46,8 +46,8 @@ const CLIENT: Record<Stage, Label> = {
 
 const PROVIDER: Record<Stage, Label> = {
   searching: { label: 'Disponível', tone: 'brand' },
-  visit_dates: { label: 'Proponha novas datas', tone: 'warning', action: true },
-  visit_requested: { label: 'A aguardar agendamento', tone: 'neutral' },
+  visit_dates: { label: 'A aguardar datas do cliente', tone: 'neutral' },
+  visit_requested: { label: 'Confirme a data da visita', tone: 'warning', action: true },
   visit_scheduled: { label: 'Visita agendada', tone: 'warning', action: true },
   quote_pending: { label: 'Enviar orçamento', tone: 'warning', action: true },
   quote_sent: { label: 'Orçamento enviado', tone: 'neutral' },

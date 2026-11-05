@@ -58,10 +58,10 @@ export function AuthShell({ title, subtitle, children, footer, wide }: {
       <main className="flex flex-1 flex-col px-5 py-6 sm:px-8">
         <div className="flex items-center justify-between lg:hidden">
           <button onClick={() => navigate('/')} aria-label="AUTONOMOUS, página inicial">
-            <img src="/logo-principal.svg" alt="AUTONOMOUS" className="h-7 w-auto" />
+            <img src="/logo-principal.svg" alt="AUTONOMOUS" className="h-10 w-[180px] object-cover object-left" />
           </button>
-          <button onClick={() => navigate('/')} className="inline-flex items-center gap-1.5 text-sm text-ink-400 transition-colors hover:text-ink-900">
-            <ArrowLeft size={15} /> Início
+          <button onClick={() => navigate('/')} className="inline-flex h-11 items-center gap-2 rounded-xl border border-line px-4 text-[15px] font-semibold text-ink-700 transition-colors hover:bg-cloud-50 hover:text-ink-900">
+            <ArrowLeft size={18} /> Início
           </button>
         </div>
 

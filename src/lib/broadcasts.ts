@@ -70,6 +70,7 @@ export type Broadcast = {
   visit_slots?: string[];
   visit_at?: string | null;
   visit_note?: string | null;
+  visit_client_note?: string | null;
   proof_url?: string | null;
   proof_reference?: string | null;
   proof_submitted_at?: string | null;
@@ -133,10 +134,13 @@ export async function cancelBroadcast(id: string): Promise<Broadcast | null> {
 export const providerMarkDone = (id: string) => call<Broadcast>('provider_mark_done', { p_id: id });
 export const confirmService = (id: string) => call<Broadcast>('client_confirm_service', { p_id: id });
 
-export const requestVisit = (id: string, slots: string[], note?: string) =>
-  call<Broadcast>('provider_request_visit', { p_id: id, p_slots: slots, p_note: note ?? null });
+/** Profissional pede a visita (ou pede outras datas) com uma descrição; o cliente indica as datas. */
+export const requestVisit = (id: string, note: string) =>
+  call<Broadcast>('provider_request_visit', { p_id: id, p_slots: [], p_note: note });
 export const cancelVisit = (id: string) => call<Broadcast>('provider_cancel_visit', { p_id: id });
-export const scheduleVisit = (id: string, slot: string) => call<Broadcast>('client_schedule_visit', { p_id: id, p_slot: slot });
+export const proposeVisitDates = (id: string, slots: string[], note?: string) =>
+  call<Broadcast>('client_propose_visit_dates', { p_id: id, p_slots: slots, p_note: note || null });
+export const confirmVisit = (id: string, slot: string) => call<Broadcast>('provider_confirm_visit', { p_id: id, p_slot: slot });
 export const requestOtherDates = (id: string, note?: string) => call<Broadcast>('client_request_other_dates', { p_id: id, p_note: note ?? null });
 export const markVisitDone = (id: string) => call<Broadcast>('provider_mark_visit_done', { p_id: id });
 
